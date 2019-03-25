@@ -38,13 +38,11 @@ def print_accuracy(y_predicted, y_test):
     nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
     print('Accuracy = ' + str((float(len(y_test)-nz))/len(y_test)))
 
-sys.path.extend(['~/wdir'])
 
 models = ('densenet121', 'densenet169', 'densenet201', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
 
 train_data, test_data = cifar10.load_data()
 train_data, test_data = mt.format_data(train_data, test_data, 10)
-
 
 for m in models:
     model0, model_name = mt.train(m, 'cifar10', 2, data_augmentation=False)
