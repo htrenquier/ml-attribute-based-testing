@@ -39,13 +39,14 @@ def print_accuracy(y_predicted, y_test):
     print('Accuracy = ' + str((float(len(y_test)-nz))/len(y_test)))
 
 
-models = ('densenet121', 'densenet169', 'densenet201', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
+# 'densenet169', 'densenet201',
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
 
 train_data, test_data = cifar10.load_data()
 train_data, test_data = mt.format_data(train_data, test_data, 10)
 
 for m in models:
-    model0, model_name = mt.train(m, 'cifar10', 2, data_augmentation=False)
+    model0, model_name = mt.train(m, 'cifar10', 200, data_augmentation=False)
     y_predicted = predict(model0, test_data)
     log_predictions(y_predicted, model_name)
     print_accuracy(y_predicted, test_data[1])

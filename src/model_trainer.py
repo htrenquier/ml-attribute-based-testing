@@ -148,6 +148,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, te
             batch_size=batch_size,
             epochs=epochs,
             validation_data=(x_test, y_test),
+            verbose=2,
             shuffle=True)
     else:
         print('Using real-time data augmentation.')
@@ -189,6 +190,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, te
             epochs=epochs,
             validation_data=(x_test, y_test),
             workers=4,
+            verbose=2,
             steps_per_epoch=(50000 / batch_size)
         )
 
