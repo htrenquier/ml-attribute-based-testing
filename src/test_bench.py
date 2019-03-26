@@ -46,7 +46,7 @@ train_data, test_data = cifar10.load_data()
 train_data, test_data = mt.format_data(train_data, test_data, 10)
 
 for m in models:
-    model0, model_name = mt.train(m, 'cifar10', 200, data_augmentation=False)
+    model0, model_name = mt.train(m, 'cifar10', 200, data_augmentation=True)
     y_predicted = predict(model0, test_data)
     log_predictions(y_predicted, model_name)
     print_accuracy(y_predicted, test_data[1])
