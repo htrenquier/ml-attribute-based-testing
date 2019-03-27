@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -37,4 +38,20 @@ def confidence(prediction):
     return m - (sum(prediction) - m) / (len(prediction) - 1)
 
 
+def load_csv(file_name):
+    f = open(file_name, "r")
+    predicted_classes = []
+    for l in f.readlines():
+        str = l.split(", ")
+        if len(str) > 1:
+            predicted_classes.append(int(str[2]))
+    f.close()
+    return predicted_classes
 
+
+def accuracy(predicted_classes, y_test):
+    true_classes = np.argmax(y_test, axis=1)
+    nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
+    acc = (len(y_test) - nz) / len(y_test)
+    print('Accuracy = ' + str(acc))
+    return acc

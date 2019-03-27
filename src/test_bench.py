@@ -2,7 +2,7 @@ import model_trainer as mt
 import attribute_analyser as aa
 import numpy as np
 from keras.datasets import cifar10
-import sys
+
 
 # model is compiled
 # output accuracy?
@@ -32,13 +32,6 @@ def log_predictions(y_predicted, model_name):
     print('Predicitons for ' + model_file + ' written.')
 
 
-def print_accuracy(y_predicted, y_test):
-    predicted_classes = np.argmax(y_predicted, axis=1)
-    true_classes = np.argmax(y_test, axis=1)
-    nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
-    print('Accuracy = ' + str((float(len(y_test)-nz))/len(y_test)))
-
-
 # 'densenet169', 'densenet201',
 models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
 
@@ -46,7 +39,8 @@ train_data, test_data = cifar10.load_data()
 train_data, test_data = mt.format_data(train_data, test_data, 10)
 
 for m in models:
-    model0, model_name = mt.train(m, 'cifar10', 200, data_augmentation=True)
+    model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
     y_predicted = predict(model0, test_data)
     log_predictions(y_predicted, model_name)
-    print_accuracy(y_predicted, test_data[1])
+    predicted_classes = np.argmax(y_predicted, axis=1)
+    aa.print_accuracy(predicted_classes, test_data[1])
