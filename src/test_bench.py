@@ -2,6 +2,9 @@ import model_trainer as mt
 import attribute_analyser as aa
 import numpy as np
 from keras.datasets import cifar10
+import tensorflow as tf
+
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 
 
 # model is compiled
