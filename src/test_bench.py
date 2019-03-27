@@ -46,4 +46,4 @@ for m in models:
     y_predicted = predict(model0, test_data)
     log_predictions(y_predicted, model_name)
     predicted_classes = np.argmax(y_predicted, axis=1)
-    aa.print_accuracy(predicted_classes, test_data[1])
+    aa.accuracy(predicted_classes, test_data[1])
