@@ -209,7 +209,7 @@ def train(model_type, dataset, epochs, data_augmentation):
         model = model_struct(model_type, input_shape, 10)
         print(model_type + ' structure loaded.')
     else:
-        print 'Not implemented'
+        print('Not implemented')
         return
 
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)

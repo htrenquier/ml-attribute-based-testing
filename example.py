@@ -1,9 +1,12 @@
 import tensorflow as tf
 from keras.datasets import cifar10
 import keras.applications as kapp
+from keras import utils
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 
+
+# Example train VGG16 with Keras-Applications on cifar10, no data augmentation, 50 epochs
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 input_shape = x_train.shape[1:]
 model = kapp.vgg16.VGG16(include_top=True,
@@ -21,8 +24,8 @@ x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 x_train /= 255
 x_test /= 255
-y_train = utils.to_categorical(y_train, num_classes)
-y_test = utils.to_categorical(y_test, num_classes)
+y_train = utils.to_categorical(y_train, 10)
+y_test = utils.to_categorical(y_test, 10)
 
 model.fit(x_train,
           y_train,
@@ -31,7 +34,6 @@ model.fit(x_train,
           validation_data=(x_test, y_test),
           verbose=2,
           shuffle=True)
-
 
 model.compile(loss='categorical_crossentropy',
               optimizer='adam',
