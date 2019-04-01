@@ -2,6 +2,12 @@ from __future__ import division
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from skimage.io import imread
+from skimage.transform import resize
+import numpy as np
+from keras.utils import Sequence
+from keras.preprocessing import image
+from keras.applications.vgg16 import VGG16
 
 # Color-spaces
 cs_bgr = ('Blue', 'Green', 'Red')
@@ -9,6 +15,71 @@ cs_hsv = ('Hue', 'Saturation', 'Value')
 cs_ycrcb = ('Y (Luma)', 'Cr', 'Cb')
 cs_lab = ('Lightness', 'a', 'b')
 cs_grey_scale = ['Grey']
+
+
+class ImagenetGenerator(Sequence):
+    def __init__(self, image_filenames, labels, batch_size):
+        self.image_filenames, self.labels = image_filenames, labels
+        self.batch_size = batch_size
+
+    def __len__(self):
+        return np.ceil(len(self.image_filenames) / float(self.batch_size))
+
+    def __getitem__(self, idx):
+        batch_x = self.image_filenames[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_y = self.labels[idx * self.batch_size:(idx + 1) * self.batch_size]
+
+        return np.array([
+            resize(imread(file_name), (200, 200))
+            for file_name in batch_x]), np.array(batch_y)
+
+
+def read_ground_truth(filenames):
+    true_classes = []
+    with open(filenames, 'r') as f:
+        for line in f.readlines():
+            true_classes.append(int(line.strip()) - 1)
+    return true_classes
+
+
+def predict_batch(model, images):
+    if images != []:
+        for i in images:
+            y_predicted = model.predict(images)
+            predicted_classes = np.argmax(y_predicted, axis=1)
+            return predicted_classes
+        else:
+            return []
+
+
+def predict_dataset(file_list, path, model, model_preprocess_function):
+    """
+    For imagenet
+    :param model_preprocess_function:
+    :param file_list: file of filenames
+    :param path: path of test images
+    :param model:
+    :return:
+    """
+    predicted_classes = []
+    batch_size = 32
+    batch = []
+    f = open(file_list)
+    for im_filename in f.readlines():
+        batch.append(process(path+im_filename, model_preprocess_function))
+        if len(batch) >= batch_size:
+            predicted_classes += predict_batch(model, batch)
+            batch = []
+    predicted_classes += predict_batch(model, batch)
+    return predicted_classes
+
+
+def process(file_path, model_preprocess_function):
+    img = image.load_img(file_path, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = model_preprocess_function(x)
+    return x
 
 
 def avg_hist(images, channel):
@@ -100,10 +171,9 @@ def load_csv(file_name, col):
     return info
 
 
-def accuracy(predicted_classes, y_test):
-    true_classes = np.argmax(y_test, axis=1)
+def accuracy(predicted_classes, true_classes):
     nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
-    acc = (len(y_test) - nz) / len(y_test)
+    acc = (len(true_classes) - nz) / len(true_classes)
     print('Accuracy = ' + str(acc))
     return acc
 
