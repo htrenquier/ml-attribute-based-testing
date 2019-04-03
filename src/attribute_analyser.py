@@ -59,8 +59,8 @@ def predict_batch(model, images):
 def predict_dataset(filenames, path, model, model_preprocess_function):
     """
     For imagenet
+    :param filenames: file of filenames
     :param model_preprocess_function:
-    :param file_list: file of filenames
     :param path: path of test images
     :param model:
     :return: predictions
@@ -71,9 +71,9 @@ def predict_dataset(filenames, path, model, model_preprocess_function):
     for filename in filenames:
         batch.append(process(path+filename, model_preprocess_function))
         if len(batch) >= batch_size:
-            y_predicted = y_predicted + model.predict(batch).tolist()
+            y_predicted = y_predicted + model.predict(np.array(batch)).tolist()
             batch = []
-    y_predicted = y_predicted + model.predict(batch).tolist()
+    y_predicted = y_predicted + model.predict(np.array(batch)).tolist()
     return y_predicted
 
 
