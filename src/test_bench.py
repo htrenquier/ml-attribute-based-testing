@@ -4,8 +4,23 @@ import numpy as np
 from keras.datasets import cifar10
 import tensorflow as tf
 from keras import applications
+import os
+import errno
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+
+
+def check_dirs(*paths):
+    for p in paths:
+        try:
+            os.mkdir(p)
+        except OSError, e:
+            if e.errno == errno.EEXIST:
+                print ("Directory %s exists" % p)
+            else:
+                print ("Creation of the directory %s failed" % p)
+        else:
+            print ("Successfully created the directory %s " % p)
 
 
 # model is compiled
@@ -23,7 +38,7 @@ def predict(model, test_data):
     return y_predicted
 
 
-def log_predictions(y_predicted, model_name):
+def log_predictions(y_predicted, model_name, path):
     model_file = model_name + '-res.csv'
     f = open(model_file, "w+")
     for i in xrange(len(y_predicted)):
@@ -38,6 +53,8 @@ def log_predictions(y_predicted, model_name):
 
 # 'densenet169', 'densenet201',
 models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
+ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
+ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 
 def cifar_test():
     train_data, test_data = cifar10.load_data()
@@ -50,11 +67,17 @@ def cifar_test():
         true_classes = np.argmax(test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
+
+# https://gist.githubusercontent.com/maraoz/388eddec39d60c6d52d4/raw/791d5b370e4e31a4e9058d49005be4888ca98472/gistfile1.txt
+# index to label
 def imagenet_test():
-    path = '/home/henri/Downloads/imagenet-val/'
-    file_list = '/home/henri/Downloads/filenames.txt'
-    true_classes = aa.read_ground_truth('/home/henri/Downloads/ILSVRC2012_devkit_t12/data/'
-                                        'ILSVRC2012_validation_ground_truth.txt')
+    file_names, true_classes = aa.read_ground_truth(ilsvrc2012_val_labels)
     model = applications.nasnet.NASNetMobile()
-    predicted_classes = aa.predict_dataset(file_list, path, model, applications.nasnet.preprocess_input)
+    y_predicted = aa.predict_dataset(file_names, ilsvrc2012_val_path, model, applications.nasnet.preprocess_input)
+    log_predictions(y_predicted, model_name='nasnet')
+    predicted_classes = np.argmax(y_predicted, axis=1)
     aa.accuracy(predicted_classes, true_classes)
+
+
+check_dirs('../res', '../ilsvrc2012')
+imagenet_test()

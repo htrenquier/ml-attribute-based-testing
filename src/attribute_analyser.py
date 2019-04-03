@@ -34,50 +34,53 @@ class ImagenetGenerator(Sequence):
             for file_name in batch_x]), np.array(batch_y)
 
 
-def read_ground_truth(filenames):
+def read_ground_truth(gt_file):
+    # gt for groundtruth
+    # file available @ http://dl.caffe.berkeleyvision.org/caffe_ilsvrc12.tar.gz
     true_classes = []
-    with open(filenames, 'r') as f:
-        for line in f.readlines():
-            true_classes.append(int(line.strip()) - 1)
-    return true_classes
+    filenames = []
+    with open(gt_file, 'r') as f:
+        for l in f.readlines():
+            line = l.split()
+            filenames.append(line[0].strip())
+            true_classes.append(int(line[1].strip()))
+    return filenames, true_classes
 
 
 def predict_batch(model, images):
     if images != []:
-        for i in images:
-            y_predicted = model.predict(images)
-            predicted_classes = np.argmax(y_predicted, axis=1)
-            return predicted_classes
-        else:
-            return []
+        y_predicted = model.predict(images)
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        return predicted_classes.tolist()
+    else:
+        return []
 
 
-def predict_dataset(file_list, path, model, model_preprocess_function):
+def predict_dataset(filenames, path, model, model_preprocess_function):
     """
     For imagenet
     :param model_preprocess_function:
     :param file_list: file of filenames
     :param path: path of test images
     :param model:
-    :return:
+    :return: predictions
     """
-    predicted_classes = []
+    y_predicted = []
     batch_size = 32
     batch = []
-    f = open(file_list)
-    for im_filename in f.readlines():
-        batch.append(process(path+im_filename, model_preprocess_function))
+    for filename in filenames:
+        batch.append(process(path+filename, model_preprocess_function))
         if len(batch) >= batch_size:
-            predicted_classes += predict_batch(model, batch)
+            y_predicted = y_predicted + model.predict(batch).tolist()
             batch = []
-    predicted_classes += predict_batch(model, batch)
-    return predicted_classes
+    y_predicted = y_predicted + model.predict(batch).tolist()
+    return y_predicted
 
 
 def process(file_path, model_preprocess_function):
     img = image.load_img(file_path, target_size=(224, 224))
     x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
+    #x = np.expand_dims(x, axis=0)
     x = model_preprocess_function(x)
     return x
 
@@ -111,6 +114,14 @@ def plot_hists(images1, label1, images2, label2, color_space, title='Untitled pl
     # plt.savefig(title+'.png')
     plt.show()
 
+
+def plot_conf_box(cc, ci, title):
+    data = [cc, ci]
+    fig3, ax3 = plt.subplots()
+    ax3.set_title(title)
+    ax3.boxplot(data, showfliers=False)
+    # plt.savefig(title + '.png')
+    plt.show()
 
 def confidence(prediction):
     m = np.max(prediction)
