@@ -11,14 +11,7 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models_names = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
-models = (kapp.densenet.DenseNet121(), kapp.mobilenet.MobileNet(),
-          kapp.mobilenet_v2.MobileNetV2(), kapp.nasnet.NASNetMobile(),
-          kapp.resnet50.ResNet50(), kapp.vgg16.VGG16(), kapp.vgg19.VGG19())
-preprocess_func = [kapp.densenet.preprocess_input, kapp.mobilenet.preprocess_input,
-                   kapp.mobilenet_v2.preprocess_input, kapp.nasnet.preprocess_input,
-                   kapp.resnet50.preprocess_input, kapp.vgg16.preprocess_input,
-                   kapp.vgg19.preprocess_input]
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -69,7 +62,7 @@ def log_predictions(y_predicted, model_name, path):
 def cifar_test():
     train_data, test_data = cifar10.load_data()
     train_data, test_data = mt.format_data(train_data, test_data, 10)
-    for m in models_names:
+    for m in models:
         model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
         y_predicted = predict(model0, test_data)
         log_predictions(y_predicted, model_name, path=res_path)
@@ -82,9 +75,10 @@ def cifar_test():
 # index to label
 def imagenet_test():
     file_names, true_classes = aa.read_ground_truth(ilsvrc2012_val_labels)
-    for i, model in enumerate(models):
-        y_predicted = aa.predict_dataset(file_names, ilsvrc2012_val_path, model, preprocess_func[i])
-        log_predictions(y_predicted, model_name=models_names[i], path=res_path)
+    for m in models:
+        model, preprocess_func = mt.load_imagenet_model(m)
+        y_predicted = aa.predict_dataset(file_names, ilsvrc2012_val_path, model, preprocess_func)
+        log_predictions(y_predicted, model_name=m+'_imagenet', path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         aa.accuracy(predicted_classes, true_classes)
 

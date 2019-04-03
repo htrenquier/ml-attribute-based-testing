@@ -113,6 +113,27 @@ def model_struct(model_type, input_shape, classes, weights=None):
                               classes=classes)
 
 
+def load_imagenet_model(model_type):
+    if model_type == 'densenet121':
+        return kapp.densenet.DenseNet121(), kapp.densenet.preprocess_input
+    elif model_type == 'densenet169':
+        return kapp.densenet.DenseNet169(), kapp.densenet.preprocess_input
+    elif model_type == 'densenet201':
+        return kapp.densenet.DenseNet201(), kapp.densenet.preprocess_input
+    elif model_type == 'mobilenet':
+        return kapp.mobilenet.MobileNet(), kapp.mobilenet.preprocess_input
+    elif model_type == 'mobilenetv2':
+        return kapp.mobilenet_v2.MobileNetV2(), kapp.mobilenet_v2.preprocess_input
+    elif model_type == 'nasnet':
+        return kapp.nasnet.NASNetMobile(), kapp.nasnet.preprocess_input
+    elif model_type == 'resnet50':
+        return kapp.resnet50.ResNet50(), kapp.resnet50.preprocess_input
+    elif model_type == 'vgg16':
+        return kapp.vgg16.VGG16(), kapp.vgg16.preprocess_input
+    elif model_type == 'vgg19':
+        return kapp.vgg19.VGG19(), kapp.vgg19.preprocess_input
+
+
 def format_data(train_data, test_data, num_classes):
     (x_train, y_train), (x_test, y_test) = train_data, test_data
     x_train = x_train.astype('float32')
