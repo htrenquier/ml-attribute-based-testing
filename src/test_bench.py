@@ -4,10 +4,18 @@ import numpy as np
 from keras.datasets import cifar10
 import tensorflow as tf
 from keras import applications
-import os
-import errno
+import os, sys, errno
+
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+os.chdir(os.path.dirname(sys.argv[0]))
+
+# 'densenet169', 'densenet201',
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
+ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
+ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
+ilsvrc2012_path = '../ilsvrc2012'
+res_path = '../res'
 
 
 def check_dirs(*paths):
@@ -40,7 +48,7 @@ def predict(model, test_data):
 
 def log_predictions(y_predicted, model_name, path):
     model_file = model_name + '-res.csv'
-    f = open(model_file, "w+")
+    f = open(path+model_file, "w+")
     for i in xrange(len(y_predicted)):
         line = '{0}, {1}, {2}, {3}\r\n'.format(str(i),
                                                str(aa.confidence(y_predicted[i])),
@@ -50,11 +58,6 @@ def log_predictions(y_predicted, model_name, path):
     f.close()
     print('Predictions for ' + model_file + ' written.')
 
-
-# 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
-ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
-ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 
 def cifar_test():
     train_data, test_data = cifar10.load_data()
@@ -74,10 +77,10 @@ def imagenet_test():
     file_names, true_classes = aa.read_ground_truth(ilsvrc2012_val_labels)
     model = applications.nasnet.NASNetMobile()
     y_predicted = aa.predict_dataset(file_names, ilsvrc2012_val_path, model, applications.nasnet.preprocess_input)
-    log_predictions(y_predicted, model_name='nasnet')
+    log_predictions(y_predicted, model_name='nasnet_imagenet')
     predicted_classes = np.argmax(y_predicted, axis=1)
     aa.accuracy(predicted_classes, true_classes)
 
 
-check_dirs('../res', '../ilsvrc2012')
-imagenet_test()
+check_dirs(res_path, ilsvrc2012_path)
+#imagenet_test()
