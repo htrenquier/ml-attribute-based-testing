@@ -19,7 +19,7 @@ files_imagenet = ('densenet121-res.csv', 'mobilenet-res.csv', 'mobilenetv2-res.c
 
 # path ='/Users/user/ws/ml-attribute-based-testing/res/'
 res_path ='/home/henri/ml-attribute-based-testing/res/'
-images_path = '/home/henri/Downloads/imagenet-val'
+images_path = '/home/henri/Downloads/imagenet-val/'
 
 # preds16 = aa.load_csv('/Users/user/ws/ml-attribute-based-testing/src/vgg16_cifar10_50ep_wda-res.csv', 1)
 # preds19 = aa.load_csv('/Users/user/ws/ml-attribute-based-testing/src/vgg19_cifar10_50ep_wda-res.csv', 1)
@@ -81,7 +81,7 @@ for file in files:
     # true_classes = np.argmax(test_data[1], axis=1)  # cifar
     filenames, true_classes = aa.read_ground_truth(imagenet_gt_file)  # imagenet
     print(file.split('_')[0])
-    acc = aa.accuracy(preds, true_classes)
+    # acc = aa.accuracy(preds, true_classes)
 
     ci = []  # confidence_incorrect = []
     ci_index = []

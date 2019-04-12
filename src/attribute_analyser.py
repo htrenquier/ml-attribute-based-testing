@@ -91,7 +91,7 @@ def avg_hist_imagenet(image_ids, channel, cs, path=''):
     for id in image_ids:
         img = image.load_img(path+id, target_size=(224, 224))
         img = image.img_to_array(img)
-        convert_cs(img, cs)
+        convert_one(img, cs)
         hist = hist + np.concatenate(cv2.calcHist([img], [channel], None, [256], [0, 256]))
     return hist / len(image_ids)
 
@@ -221,19 +221,23 @@ def accuracy(predicted_classes, true_classes):
     return acc
 
 
-def convert_cs(images, cs):
+def convert_one(image, cs):
     if cs == cs_bgr:
-        return [cv2.cvtColor(img, cv2.COLOR_RGB2BGR) for img in images]
+        return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     elif cs == cs_hsv:
-        return [cv2.cvtColor(img, cv2.COLOR_RGB2HSV) for img in images]
+        return cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     elif cs == cs_lab:
-        return [cv2.cvtColor(img, cv2.COLOR_RGB2LAB) for img in images]
+        return cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
     elif cs == cs_ycrcb:
-        return [cv2.cvtColor(img, cv2.COLOR_RGB2YCR_CB) for img in images]
+        return cv2.cvtColor(image, cv2.COLOR_RGB2YCR_CB)
     elif cs == cs_grey_scale:
-        return [cv2.cvtColor(img, cv2.COLOR_RGB2GRAY) for img in images]
+        return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     else:
-        return images
+        return image
+
+
+def convert_cs(images, cs):
+        return [convert_one(img, cs) for img in images]
 
 
 def sort_by_correctness(predictions, true_classes, orig_images):
