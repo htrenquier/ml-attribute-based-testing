@@ -45,21 +45,21 @@ for file in files:
 
     aa.plot_conf_box(cc, ci, 'Correct(1) and Incorrect(2) confidences distribution for ' + file.split('_')[0])
 
-    # correct_images, incorrect_images = aa.sort_by_correctness(preds, true_classes, orig_test_data[0])
-    # high_c, low_c = aa.sort_by_confidence(confs, len(confs)/2)
-    # aa.plot_hists(aa.get_images(high_c, orig_test_data[0]), 'high conf',
-    #               aa.get_images(low_c, orig_test_data[0]), 'low conf', aa.cs_ycrcb,
-    #               title='Top and bot 50% confidence for ' + file.split('_')[0])
-    #
-    # high_c, low_c = aa.sort_by_confidence(confs, len(confs)/4)
-    # aa.plot_hists(aa.get_images(high_c, orig_test_data[0]), 'high conf',
-    #               aa.get_images(low_c, orig_test_data[0]), 'low conf', aa.cs_ycrcb,
-    #               title='Top and bot 25% confidence for ' + file.split('_')[0])
-    #
-    # high_c, low_c = aa.sort_by_confidence(confs, len(confs)/8)
-    # aa.plot_hists(aa.get_images(high_c, orig_test_data[0]), 'high conf',
-    #               aa.get_images(low_c, orig_test_data[0]), 'low conf', aa.cs_ycrcb,
-    #               title='Top and bot 12.5% confidence for ' + file.split('_')[0])
+    correct_images, incorrect_images = aa.sort_by_correctness(preds, true_classes, orig_test_data[0])
+    high_c, low_c = aa.sort_by_confidence(confs, len(confs)/2)
+    aa.plot_hists(aa.get_images(high_c, orig_test_data[0]), 'high conf',
+                  aa.get_images(low_c, orig_test_data[0]), 'low conf', aa.cs_ycrcb,
+                  title='Top and bot 50% confidence for ' + file.split('_')[0])
+
+    high_c, low_c = aa.sort_by_confidence(confs, len(confs)/4)
+    aa.plot_hists(aa.get_images(high_c, orig_test_data[0]), 'high conf',
+                  aa.get_images(low_c, orig_test_data[0]), 'low conf', aa.cs_ycrcb,
+                  title='Top and bot 25% confidence for ' + file.split('_')[0])
+
+    high_c, low_c = aa.sort_by_confidence(confs, len(confs)/8)
+    aa.plot_hists(aa.get_images(high_c, orig_test_data[0]), 'high conf',
+                  aa.get_images(low_c, orig_test_data[0]), 'low conf', aa.cs_ycrcb,
+                  title='Top and bot 12.5% confidence for ' + file.split('_')[0])
 
 
 

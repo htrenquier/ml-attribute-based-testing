@@ -111,7 +111,7 @@ def plot_hists(images1, label1, images2, label2, color_space, title='Untitled pl
         ax.legend(loc='upper right', shadow=True, fontsize='medium')
     # fig.subplots_adjust(top=0.85)
     # fig.suptitle(title)
-    # plt.savefig(title+'.png')
+    plt.savefig(title+'.png')
     plt.show()
 
 
