@@ -85,9 +85,40 @@ def process(file_path, model_preprocess_function):
     return x
 
 
+def avg_hist_imagenet(image_ids, channel, cs, path=''):
+    hist = np.zeros(256)
+    # print(channel)
+    for id in image_ids:
+        img = image.load_img(path+id, target_size=(224, 224))
+        img = image.img_to_array(img)
+        convert_cs(img, cs)
+        hist = hist + np.concatenate(cv2.calcHist([img], [channel], None, [256], [0, 256]))
+    return hist / len(image_ids)
+
+
+def plot_hists_imagenet(image_ids1, label1, image_ids2, label2, color_space, path, title='Untitled plot'):
+    fig, axs = plt.subplots(1, len(color_space), sharex='row')
+    fig.text(0.005, 0.5, 'Number of pixels', va='center', rotation='vertical')
+    fig.text(0.5, 0.975, title, ha='center')
+    for j, ch in enumerate(color_space):
+        print(j)
+        print(ch)
+        ax = axs[j]
+        ax.plot(avg_hist_imagenet(image_ids1, j, color_space, path), label=label1, color='g')
+        ax.plot(avg_hist_imagenet(image_ids2, j, color_space, path), label=label2, color='r')
+        ax.set_title(ch + ' channel')
+        ax.set_xlabel('Pixel values')
+        # ax.set_ylabel('Number of pixels')
+        ax.legend(loc='upper right', shadow=True, fontsize='medium')
+    # fig.subplots_adjust(top=0.85)
+    # fig.suptitle(title)
+    plt.savefig(title+'.png')
+    plt.show()
+
+
 def avg_hist(images, channel):
     hist = np.zeros(256)
-    print(channel)
+    # print(channel)
     for img in images:
         hist = hist + np.concatenate(cv2.calcHist([img], [channel], None, [256], [0, 256]))
     return hist/len(images)
@@ -120,8 +151,9 @@ def plot_conf_box(cc, ci, title):
     fig3, ax3 = plt.subplots()
     ax3.set_title(title)
     ax3.boxplot(data, showfliers=False)
-    # plt.savefig(title + '.png')
+    plt.savefig(title + '.png')
     plt.show()
+
 
 def confidence(prediction):
     m = np.max(prediction)
