@@ -8,6 +8,9 @@ import numpy as np
 from keras.utils import Sequence
 from keras.preprocessing import image
 from keras.applications.vgg16 import VGG16
+from sklearn import preprocessing
+from mpl_toolkits.mplot3d import Axes3D
+import math
 
 # Color-spaces
 cs_bgr = ('Blue', 'Green', 'Red')
@@ -32,6 +35,10 @@ class ImagenetGenerator(Sequence):
         return np.array([
             resize(imread(file_name), (200, 200))
             for file_name in batch_x]), np.array(batch_y)
+
+
+def sigmoid(x):
+    return 1/(1 + math.exp(-x))
 
 
 def read_ground_truth(gt_file):
@@ -114,6 +121,86 @@ def plot_hists_imagenet(image_ids1, label1, image_ids2, label2, color_space, pat
     # fig.suptitle(title)
     plt.savefig(title+'.png')
     plt.show()
+    plt.close()
+
+
+class ColorDensityCube:
+    def __init__(self, resolution=16):
+        assert resolution and not resolution & (resolution - 1)  # resolution is a power of 2
+        self.res = resolution
+        print('res=%d' % self.res)
+        self.cube = np.zeros((resolution, resolution, resolution))
+        self.win = int(256/resolution)
+        print('win size=%d' % self.win)
+        self.num = 0
+
+    def __getitem__(self, key):
+        return self.cube[key]
+
+    def __setitem__(self, key, value):
+        self.cube[key] = value
+
+    def color_cube(self, image):
+        for x in image:
+            for y in x:
+                c0 = int(y[0]/self.win)
+                c1 = int(y[1]/self.win)
+                c2 = int(y[2]/self.win)
+                self.cube[c0][c1][c2] += 1
+        self.num += 1
+        return self.cube
+
+    def normalize(self):
+        self.cube = self.cube//self.num
+        max, min = self.cube.max(), self.cube.min()
+        self.cube = (self.cube - min) / (max - min)
+
+    def substract(self, cube):
+        diff_cube = ColorDensityCube(self.res)
+        for x in xrange(len(self.cube)):
+            diff_cube[x] = np.subtract(self.cube[x], cube[x])
+        return diff_cube
+
+    def get_cdcube(self):
+        return self
+
+    def get_cube(self):
+        return self.cube
+
+    def get_num(self):
+        return self.num
+
+    def plot_cube(self, save=False, title=None):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        axis = xrange(0, 256, self.win)
+        for x in axis:
+            for y in axis:
+                size = self.cube[int(x / self.win)][int(y / self.win)] * 10000 / self.res
+                alpha = np.where(size >= 0, 1.0, 0.4)
+                print(alpha)
+                color = [np.repeat(x/256, self.res),
+                         np.repeat(y/256, self.res),
+                         np.array(xrange(int(self.win / 2), 256, self.win)) / 256.0,
+                         alpha]
+                color = np.swapaxes(color, 0, 1)
+                ec = np.where(size >= 0, 'w','r')
+                print(ec)
+                size = abs(size)
+                ax.scatter(x, y, axis, c=color, s=size, edgecolor=ec, alpha=1)
+        plt.show()
+        if save:
+            assert title is not None
+            fig.text(0.5, 0.975, title, ha='center')
+            plt.savefig(title + '.png')
+        # plt.close()
+        print('showed')
+
+
+def imshow(img):
+    plt.imshow(img)
+    # plt.savefig(title + '.png')
+    plt.show()
 
 
 def avg_hist(images, channel):
@@ -122,6 +209,18 @@ def avg_hist(images, channel):
     for img in images:
         hist = hist + np.concatenate(cv2.calcHist([img], [channel], None, [256], [0, 256]))
     return hist/len(images)
+
+
+def hist_conv(hist, win_size=10, stride=5):
+    conv_hist = [[],[],[]]
+    for c in xrange(len(hist)):
+        for x in xrange(0, len(hist[c]), stride):
+            print(conv_hist)
+            if x + win_size >= len(hist):
+                conv_hist[c].append(np.mean(hist[c][x:]))
+            else:
+                conv_hist[c].append(np.mean(hist[c][x:x + win_size]))
+    return conv_hist
 
 
 def plot_hists(images1, label1, images2, label2, color_space, title='Untitled plot'):
@@ -144,6 +243,54 @@ def plot_hists(images1, label1, images2, label2, color_space, title='Untitled pl
     # fig.suptitle(title)
     plt.savefig(title+'.png')
     plt.show()
+    plt.close()
+
+
+def delta_hist(images1, images2):
+    delta = [avg_hist(images2, 0) - avg_hist(images1, 0),
+             avg_hist(images2, 1) - avg_hist(images1, 1),
+             avg_hist(images2, 2) - avg_hist(images1, 2)]
+    return delta
+
+
+def plot_delta(images1, images2, color_space):
+    images1 = convert_cs(images1, color_space)
+    images2 = convert_cs(images2, color_space)
+    win_size = 10
+    stride = 5
+    delta = hist_conv(delta_hist(images1, images2), win_size, stride)
+    norm_delta = preprocessing.normalize(delta)
+    # for j, ch in enumerate(color_space):
+    #     norm_delta.append(preprocessing.normalize(delta[j]))
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    colors = []
+    sizes = []
+    points_x = []
+    points_y = []
+    points_z = []
+    for x in xrange(len(norm_delta[0])):
+        print(x)
+        for y in xrange(len(norm_delta[1])):
+            for z in xrange(len(norm_delta[2])):
+                xv = norm_delta[0][x]
+                yv = norm_delta[1][y]
+                zv = norm_delta[2][z]
+                size = np.sqrt(xv**2 + yv**2 + zv**2)
+                if size >= 0.2:
+                    colors.append([float(min(x*stride, 256)/256), float(min(y*stride, 256)/256),
+                                   float(min(z*stride, 256)/256)])
+                    sizes.append(size*300)
+                    points_x.append(x)
+                    points_y.append(y)
+                    points_z.append(z)
+    print(str(colors)[0:200])
+    print(str(sizes)[0:200])
+    print(str(points_x)[0:200])
+    print(str(points_y)[0:200])
+    print(str(points_z)[0:200])
+    ax.scatter(points_x, points_y, points_z, c=colors)  # , s=sizes)
+    plt.show()
 
 
 def plot_conf_box(cc, ci, title):
@@ -158,6 +305,15 @@ def plot_conf_box(cc, ci, title):
 def confidence(prediction):
     m = np.max(prediction)
     return m - (sum(prediction) - m) / (len(prediction) - 1)
+
+
+def prediction_rating(prediction, true_class):
+    m = prediction[true_class]
+    return 1 + m - (sum(prediction) - m) / (len(prediction) - 1)
+
+
+def prediction_ratings(predictions, true_classes):
+    return [prediction_rating(predictions[i], true_classes[i]) for i in xrange(len(predictions))]
 
 
 def confidences(predictions):
@@ -199,13 +355,13 @@ def load_csv(file_name, col):
     for l in f.readlines():
         str = str + l
         if ']' in str:
-            str = str.split(", ")
-            if len(str) > 1:
+            infos = str.split(", ")
+            if len(infos) > 1:
                 if col == 1:
-                    info.append(float(str[col]))
+                    info.append(float(infos[col]))
                 elif col == 3:
-                    str = str[col].lstrip('[').rsplit(']')
-                    info.append(confidence([float(k) for k in str.split()]))
+                    infos = infos[col].lstrip(' [').rstrip(']\r\n')
+                    info.append([float(k) for k in infos.split()])
                 else:
                     info.append(int(str[col]))
 
