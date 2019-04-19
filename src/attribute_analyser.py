@@ -178,14 +178,12 @@ class ColorDensityCube:
             for y in axis:
                 size = self.cube[int(x / self.win)][int(y / self.win)] * 10000 / self.res
                 alpha = np.where(size >= 0, 1.0, 0.4)
-                print(alpha)
                 color = [np.repeat(x/256, self.res),
                          np.repeat(y/256, self.res),
                          np.array(xrange(int(self.win / 2), 256, self.win)) / 256.0,
                          alpha]
                 color = np.swapaxes(color, 0, 1)
                 ec = np.where(size >= 0, 'w','r')
-                print(ec)
                 size = abs(size)
                 ax.scatter(x, y, axis, c=color, s=size, edgecolor=ec, alpha=1)
         plt.show()

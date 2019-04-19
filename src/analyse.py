@@ -48,7 +48,7 @@ def conf_diff():
         cdc_low.color_cube(img)
     cdc_low.normalize()
     cdc_low.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
-    cdc_diff = cdc_low.substract(cdc_high)
+    cdc_diff = cdc_high.substract(cdc_low)
     cdc_diff.plot_cube()
 
 
