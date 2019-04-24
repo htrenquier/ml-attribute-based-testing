@@ -113,7 +113,7 @@ def finetune_test():
             cdc_low.feed(img)
         # cdc_train.avg()
         cdc_low.normalize()
-        # cdc_low.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
+        cdc_low.plot_cube(save=True, title=model_name + 'high_pr')
 
         cdc_diff = cdc_high.substract(cdc_low, state='norm')  # What does high has more than low?
         # cdc_diff.plot_cube()
@@ -124,7 +124,7 @@ def finetune_test():
         for img_index in finetune_data_args:
             cdc_finetune.feed(train_data_[img_index])
         cdc_finetune.normalize()
-        cdc_finetune.plot_cube()
+        cdc_finetune.plot_cube(save=True, title=model_name + 'ft_selection')
 
         ft_data_selected = operator.itemgetter(*finetune_data_args)(ft_data)
 

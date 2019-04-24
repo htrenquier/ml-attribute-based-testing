@@ -220,7 +220,7 @@ class ColorDensityCube:
                 ec = np.where(size >= 0.0, 'w', 'r')
                 size = abs(size)
                 ax.scatter(x, y, axis, c=color, s=size, edgecolor=ec, alpha=1)
-        plt.show()
+        #plt.show()
         if save:
             assert title is not None
             fig.text(0.5, 0.975, title, ha='center')
