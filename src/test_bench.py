@@ -113,7 +113,7 @@ def finetune_test():
             cdc_low.feed(img)
         # cdc_train.avg()
         cdc_low.normalize()
-        cdc_low.plot_cube(save=True, title=model_name + 'high_pr')
+        cdc_low.plot_cube(save=True, title=model_name + 'low_pr')
 
         cdc_diff = cdc_high.substract(cdc_low, state='norm')  # What does high has more than low?
         # cdc_diff.plot_cube()

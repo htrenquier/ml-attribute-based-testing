@@ -3,6 +3,7 @@ from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
 from keras import utils
 import os
+import numpy as np
 
 def model_param(model_type):
     # model_structure, batch_size
@@ -231,11 +232,13 @@ def train(model_type, dataset, epochs, data_augmentation):
         print(model_type + ' structure loaded.')
 
     elif dataset == 'cifar10-3/5':
-        train_data, test_data = cifar10.load_data()
-        train_data = train_data[30000:]
-        print(dataset + ' loaded.')
-        input_shape = train_data[0].shape[1:]
+        train_data_full, test_data = cifar10.load_data()
+        input_shape = train_data_full[0].shape[1:]
         print(input_shape)
+        print(len(train_data_full[0]))
+        train_data = train_data_full[:][0:30000]
+        print(len(train_data[0]))
+        print(dataset + ' loaded.')
         model = model_struct(model_type, input_shape, 10)
         print(model_type + ' structure loaded.')
     else:
