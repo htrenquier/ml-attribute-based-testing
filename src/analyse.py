@@ -38,18 +38,49 @@ def conf_diff():
     pr = aa.prediction_ratings(preds, true_classes)
     high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
 
-    cdc_high = aa.ColorDensityCube(resolution=4)
+    cdc_high = aa.ColorDensityCube(resolution=8)
+    print(len(orig_train_data[0]))
     for img in aa.get_images(high_pr, orig_test_data[0]):
-        cdc_high.color_cube(img)
+        cdc_high.feed(img)
+    # cdc_train.avg()
     cdc_high.normalize()
-    cdc_high.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
-    cdc_low = aa.ColorDensityCube(resolution=4)
+    cdc_high.plot_cube()   # save=True, title='cifar_image_cube'+str(i))
+
+    cdc_low = aa.ColorDensityCube(resolution=8)
+    print(len(orig_train_data[0]))
     for img in aa.get_images(low_pr, orig_test_data[0]):
-        cdc_low.color_cube(img)
+        cdc_low.feed(img)
+    # cdc_train.avg()
     cdc_low.normalize()
-    cdc_low.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
-    cdc_diff = cdc_high.substract(cdc_low)
-    cdc_diff.plot_cube()
+    # cdc_low.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
+
+    cdc_diff = cdc_high.substract(cdc_low, state='avg')  # What does high has more than low?
+    # cdc_diff.plot_cube()
+
+    cdc_diff = cdc_high.substract(cdc_low, state='norm')  # What does high has more than low?
+    # cdc_diff.plot_cube()
+
+    cdc_finetune = aa.ColorDensityCube(resolution=8)
+    finetune_data = aa.get_best_scores(orig_train_data[0], 1000, cdc_diff)
+    for img_index in finetune_data:
+        cdc_finetune.feed(orig_train_data[0][img_index])
+    cdc_finetune.normalize()
+    cdc_finetune.plot_cube()
+
+    # cdc_high = aa.ColorDensityCube(resolution=4)
+    # for img in aa.get_images(high_pr, orig_test_data[0]):
+    #     cdc_high.color_cube(img)
+    # cdc_high.normalize()
+    # cdc_high.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
+    # cdc_low = aa.ColorDensityCube(resolution=4)
+    # for img in aa.get_images(low_pr, orig_test_data[0]):
+    #     cdc_low.color_cube(img)
+    # cdc_low.normalize()
+    # cdc_low.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
+    # cdc_diff = cdc_high.substract(cdc_low)
+    # cdc_diff.plot_cube()
+
+
 
 
 def cifar_analysis():

@@ -125,13 +125,17 @@ def plot_hists_imagenet(image_ids1, label1, image_ids2, label2, color_space, pat
 
 
 class ColorDensityCube:
-    def __init__(self, resolution=16):
+    def __init__(self, resolution=16, cube=None):
         assert resolution and not resolution & (resolution - 1)  # resolution is a power of 2
         self.res = resolution
-        print('res=%d' % self.res)
-        self.cube = np.zeros((resolution, resolution, resolution))
+        if cube == None:
+            self.cube = np.zeros((resolution, resolution, resolution))
+        else:
+            self.cube = cube
+            self.res = len(cube)
         self.win = int(256/resolution)
-        print('win size=%d' % self.win)
+        self.isNormalized = False
+        self.norm_cube = np.zeros((resolution, resolution, resolution))
         self.num = 0
 
     def __getitem__(self, key):
@@ -140,7 +144,7 @@ class ColorDensityCube:
     def __setitem__(self, key, value):
         self.cube[key] = value
 
-    def color_cube(self, image):
+    def feed(self, image):
         for x in image:
             for y in x:
                 c0 = int(y[0]/self.win)
@@ -148,21 +152,50 @@ class ColorDensityCube:
                 c2 = int(y[2]/self.win)
                 self.cube[c0][c1][c2] += 1
         self.num += 1
-        return self.cube
+        self.isNormalized = False
+
+    def avg(self):
+        return self.cube / self.num
+
+    def count(self):
+        count = 0
+        cube = self.avg()
+        for i in cube:
+            for j in i:
+                for k in j:
+                    count += k
+        return count
 
     def normalize(self):
-        self.cube = self.cube//self.num
-        max, min = self.cube.max(), self.cube.min()
-        self.cube = (self.cube - min) / (max - min)
+        if self.num != 0:
+            self.norm_cube = self.avg()
+        else:
+            self.norm_cube = self.cube
+        max, min = abs(self.norm_cube).max(), 0  # abs(self.norm_cube).min()
+        self.norm_cube = (self.norm_cube - min) / (max - min)
+        self.isNormalized = True
 
-    def substract(self, cube):
+    def substract(self, cube, state='avg'):
         diff_cube = ColorDensityCube(self.res)
+        assert isinstance(cube, ColorDensityCube)
         for x in xrange(len(self.cube)):
-            diff_cube[x] = np.subtract(self.cube[x], cube[x])
+            if state == 'avg':
+                assert self.get_num() and cube.get_num()
+                num = np.subtract(self.avg()[x], cube.avg()[x])
+            elif state == 'norm':
+                num = np.subtract(self.get_normalized()[x], cube.get_normalized()[x])
+            elif state == 'value':
+                assert self.get_num() == cube.get_num()
+                num = np.subtract(self.get_cube()[x], cube.get_cube()[x])
+            diff_cube[x] = num
+            diff_cube.num = 1
+        diff_cube.normalize()
         return diff_cube
 
-    def get_cdcube(self):
-        return self
+    def get_normalized(self):
+        if not self.isNormalized:
+            self.normalize()
+        return self.norm_cube
 
     def get_cube(self):
         return self.cube
@@ -170,20 +203,21 @@ class ColorDensityCube:
     def get_num(self):
         return self.num
 
+    def get_res(self):
+        return self.res
+
     def plot_cube(self, save=False, title=None):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         axis = xrange(0, 256, self.win)
         for x in axis:
             for y in axis:
-                size = self.cube[int(x / self.win)][int(y / self.win)] * 10000 / self.res
-                alpha = np.where(size >= 0, 1.0, 0.4)
+                size = self.norm_cube[int(x / self.win)][int(y / self.win)] * 10000 / self.res
                 color = [np.repeat(x/256, self.res),
                          np.repeat(y/256, self.res),
-                         np.array(xrange(int(self.win / 2), 256, self.win)) / 256.0,
-                         alpha]
+                         np.array(xrange(int(self.win / 2), 256, self.win)) / 256.0]
                 color = np.swapaxes(color, 0, 1)
-                ec = np.where(size >= 0, 'w','r')
+                ec = np.where(size >= 0.0, 'w', 'r')
                 size = abs(size)
                 ax.scatter(x, y, axis, c=color, s=size, edgecolor=ec, alpha=1)
         plt.show()
@@ -192,7 +226,32 @@ class ColorDensityCube:
             fig.text(0.5, 0.975, title, ha='center')
             plt.savefig(title + '.png')
         # plt.close()
-        print('showed')
+
+
+def get_best_scores(images, num, diff_cube):
+    assert isinstance(diff_cube, ColorDensityCube)
+    scores = []
+    for img in images:
+        scores.append(evaluate(img, diff_cube))
+    args = np.argsort(scores)
+    return args[-num:]
+
+
+def evaluate(img, diff_cube):
+    assert isinstance(diff_cube, ColorDensityCube)
+    cube = ColorDensityCube(diff_cube.get_res())
+    cube.feed(img)
+    score_cube = cube.substract(diff_cube, 'avg')
+    return np.mean(score_cube.get_cube())
+
+
+def evaluate_batch(images, diff_cube):
+    assert isinstance(diff_cube, ColorDensityCube)
+    cube = ColorDensityCube(diff_cube.get_res())
+    for img in images:
+        cube.feed(img)
+    score_cube = cube.substract(diff_cube, 'avg')
+    return np.mean(score_cube)
 
 
 def imshow(img):

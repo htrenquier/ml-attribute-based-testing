@@ -5,7 +5,7 @@ from keras.datasets import cifar10
 import keras.applications as kapp
 import tensorflow as tf
 import os, sys, errno
-
+import operator
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -83,5 +83,67 @@ def imagenet_test():
         aa.accuracy(predicted_classes, true_classes)
 
 
+def finetune_test():
+    training_data_len = 30000
+    train_data, test_data = cifar10.load_data()
+    train_data, test_data = mt.format_data(train_data, test_data, 10)
+    train_data_ = train_data[:training_data_len]
+
+    for m in models:
+        model0, model_name = mt.train(m, 'cifar10-3/5', 50, data_augmentation=False)
+        y_predicted = predict(model0, test_data)
+        log_predictions(y_predicted, model_name, path=res_path)
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        true_classes = np.argmax(test_data[1], axis=1)
+        aa.accuracy(predicted_classes, true_classes)
+
+        pr = aa.prediction_ratings(y_predicted, true_classes)
+        high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
+
+        print('len training data:', len(train_data_))
+        cdc_high = aa.ColorDensityCube(resolution=8)
+        for img in aa.get_images(high_pr, train_data_):
+            cdc_high.feed(img)
+        # cdc_train.avg()
+        cdc_high.normalize()
+        cdc_high.plot_cube(save=True, title=model_name + 'high_pr')
+
+        cdc_low = aa.ColorDensityCube(resolution=8)
+        for img in aa.get_images(low_pr, train_data_):
+            cdc_low.feed(img)
+        # cdc_train.avg()
+        cdc_low.normalize()
+        # cdc_low.plot_cube()  # save=True, title='cifar_image_cube'+str(i))
+
+        cdc_diff = cdc_high.substract(cdc_low, state='norm')  # What does high has more than low?
+        # cdc_diff.plot_cube()
+
+        cdc_finetune = aa.ColorDensityCube(resolution=8)
+        ft_data = train_data[training_data_len:]
+        finetune_data_args = aa.get_best_scores(ft_data, 10000, cdc_diff)
+        for img_index in finetune_data_args:
+            cdc_finetune.feed(train_data_[img_index])
+        cdc_finetune.normalize()
+        cdc_finetune.plot_cube()
+
+        ft_data_selected = operator.itemgetter(*finetune_data_args)(ft_data)
+
+        model1, model_name1 = mt.fine_tune(m, ft_data_selected, 20, False, 'exp')
+        y_predicted = predict(model1, test_data)
+        log_predictions(y_predicted, model_name1, path=res_path)
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        true_classes = np.argmax(test_data[1], axis=1)
+        aa.accuracy(predicted_classes, true_classes)
+
+        model2, model_name2 = mt.fine_tune(m, ft_data, 20, False, 'ref')
+        y_predicted = predict(model2, test_data)
+        log_predictions(y_predicted, model_name2, path=res_path)
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        true_classes = np.argmax(test_data[1], axis=1)
+        aa.accuracy(predicted_classes, true_classes)
+
+
+
 check_dirs(res_path, ilsvrc2012_path)
-imagenet_test()
+#imagenet_test()
+finetune_test()
