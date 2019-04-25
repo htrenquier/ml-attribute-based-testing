@@ -127,10 +127,11 @@ def finetune_test():
         cdc_finetune.plot_cube(save=True, title=model_name0 + '-ft_selection', path=res_path)
 
         ft_data_selected = [operator.itemgetter(*finetune_data_args)(ft_data[0]),
-                            operator.itemgetter(*finetune_data_args)(ft_data[0])]
+                            operator.itemgetter(*finetune_data_args)(ft_data[1])]
+        ft_data_formatted, test_data = mt.format_data(ft_data_selected, test_data_orig, 10)
         assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 10000
 
-        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, 20, False, 'exp', path=res_path)
+        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_formatted, test_data, 20, False, 'exp', path=res_path)
         y_predicted = predict(model1, test_data)
         log_predictions(y_predicted, model_name1, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)

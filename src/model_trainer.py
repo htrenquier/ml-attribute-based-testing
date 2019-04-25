@@ -265,9 +265,9 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
     return model, model_name
 
 
-def fine_tune(model, model_name, ft_dataset, ft_epochs, ft_data_augmentation, nametag, path=''):
+def fine_tune(model, model_name, ft_train_data, ft_test_data, ft_epochs, ft_data_augmentation, nametag, path=''):
 
-    input_shape = ft_dataset[0].shape[1:]
+    input_shape = ft_train_data[0].shape[1:]
     model_type = model_name.split('_')[0]
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
     weights_file = model_name + '.h5'
@@ -280,13 +280,10 @@ def fine_tune(model, model_name, ft_dataset, ft_epochs, ft_data_augmentation, na
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    test_data = cifar10.load_data()[1]
-    train_data = ft_dataset
-
     ft_model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
     weights_file = ft_model_name + '.h5'
     print('--> ' + ft_model_name + ' training.')
-    train_and_save(model, ft_epochs, ft_data_augmentation, path+weights_file, train_data, test_data, m_batch_size)
+    train_and_save(model, ft_epochs, ft_data_augmentation, path+weights_file, ft_train_data, ft_test_data, m_batch_size)
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
