@@ -126,8 +126,8 @@ def finetune_test():
         cdc_finetune.normalize()
         cdc_finetune.plot_cube(save=True, title=model_name0 + '-ft_selection', path=res_path)
 
-        ft_data_selected = [operator.itemgetter(*finetune_data_args)(ft_data[0]),
-                            operator.itemgetter(*finetune_data_args)(ft_data[1])]
+        ft_data_selected = [np.array(operator.itemgetter(*finetune_data_args)(ft_data[0])),
+                            np.array(operator.itemgetter(*finetune_data_args)(ft_data[1]))]
         ft_data_formatted, test_data = mt.format_data(ft_data_selected, test_data_orig, 10)
         assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 10000
 
