@@ -122,7 +122,7 @@ def finetune_test():
         finetune_data_args = aa.get_best_scores(ft_data_orig[0], 10000, cdc_diff)
 
         for img_index in finetune_data_args:
-            cdc_finetune.feed(ft_data_orig[img_index])
+            cdc_finetune.feed(ft_data_orig[0][img_index])
         cdc_finetune.normalize()
         cdc_finetune.plot_cube(save=True, title=model_name0 + '-ft_selection', path=res_path)
 
