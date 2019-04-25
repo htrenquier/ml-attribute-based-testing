@@ -206,7 +206,7 @@ class ColorDensityCube:
     def get_res(self):
         return self.res
 
-    def plot_cube(self, save=False, title=None):
+    def plot_cube(self, save=False, title=None, path=''):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         axis = xrange(0, 256, self.win)
@@ -224,7 +224,7 @@ class ColorDensityCube:
         if save:
             assert title is not None
             fig.text(0.5, 0.975, title, ha='center')
-            plt.savefig(title + '.png')
+            plt.savefig(path + title + '.png')
         # plt.close()
 
 

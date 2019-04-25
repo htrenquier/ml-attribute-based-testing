@@ -90,9 +90,9 @@ def finetune_test():
     train_data_ = train_data[:training_data_len]
 
     for m in models:
-        model0, model_name = mt.train(m, 'cifar10-3/5', 50, data_augmentation=False)
+        model0, model_name0 = mt.train(m, 'cifar10-3-5', 50, data_augmentation=False, path=res_path)
         y_predicted = predict(model0, test_data)
-        log_predictions(y_predicted, model_name, path=res_path)
+        log_predictions(y_predicted, model_name0, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
@@ -106,36 +106,38 @@ def finetune_test():
             cdc_high.feed(img)
         # cdc_train.avg()
         cdc_high.normalize()
-        cdc_high.plot_cube(save=True, title=model_name + 'high_pr')
+        cdc_high.plot_cube(save=True, title=model_name0 + 'high_pr', path=res_path)
 
         cdc_low = aa.ColorDensityCube(resolution=8)
         for img in aa.get_images(low_pr, train_data_):
             cdc_low.feed(img)
         # cdc_train.avg()
         cdc_low.normalize()
-        cdc_low.plot_cube(save=True, title=model_name + 'low_pr')
+        cdc_low.plot_cube(save=True, title=model_name0 + 'low_pr', path=res_path)
 
         cdc_diff = cdc_high.substract(cdc_low, state='norm')  # What does high has more than low?
         # cdc_diff.plot_cube()
 
         cdc_finetune = aa.ColorDensityCube(resolution=8)
-        ft_data = train_data[training_data_len:]
-        finetune_data_args = aa.get_best_scores(ft_data, 10000, cdc_diff)
+        ft_data = train_data[:][training_data_len:]
+        finetune_data_args = aa.get_best_scores(ft_data[0], 10000, cdc_diff)
+
         for img_index in finetune_data_args:
             cdc_finetune.feed(train_data_[img_index])
         cdc_finetune.normalize()
-        cdc_finetune.plot_cube(save=True, title=model_name + 'ft_selection')
+        cdc_finetune.plot_cube(save=True, title=model_name0 + 'ft_selection', path=res_path)
 
-        ft_data_selected = operator.itemgetter(*finetune_data_args)(ft_data)
+        ft_data_selected = operator.itemgetter(*finetune_data_args)(ft_data[:])
+        assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 10000
 
-        model1, model_name1 = mt.fine_tune(m, ft_data_selected, 20, False, 'exp')
+        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, 20, False, 'exp', path=res_path)
         y_predicted = predict(model1, test_data)
         log_predictions(y_predicted, model_name1, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        model2, model_name2 = mt.fine_tune(m, ft_data, 20, False, 'ref')
+        model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data, 20, False, 'ref', path=res_path)
         y_predicted = predict(model2, test_data)
         log_predictions(y_predicted, model_name2, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)

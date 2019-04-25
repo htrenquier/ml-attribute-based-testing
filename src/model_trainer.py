@@ -210,7 +210,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
     model.save_weights(weight_file)
 
 
-def train(model_type, dataset, epochs, data_augmentation):
+def train(model_type, dataset, epochs, data_augmentation, path=''):
 
     if data_augmentation is True:
         # With DataAugmentation
@@ -231,7 +231,7 @@ def train(model_type, dataset, epochs, data_augmentation):
         model = model_struct(model_type, input_shape, 10)
         print(model_type + ' structure loaded.')
 
-    elif dataset == 'cifar10-3/5':
+    elif dataset == 'cifar10-3-5':
         train_data_full, test_data = cifar10.load_data()
         input_shape = train_data_full[0].shape[1:]
         print(input_shape)
@@ -265,33 +265,31 @@ def train(model_type, dataset, epochs, data_augmentation):
     return model, model_name
 
 
-def fine_tune(model_type, ft_dataset, ft_epochs, ft_data_augmentation, nametag):
-    if ft_data_augmentation is True:
-        # With DataAugmentation
-        model_name = '%s_%s_%dep_wda' % (model_type, ft_dataset, ft_epochs)
-    else:
-        # WithOut DataAugmentation
-        model_name = '%s_%s_%dep_woda' % (model_type, ft_dataset, ft_epochs)
+def fine_tune(model, model_name, ft_dataset, ft_epochs, ft_data_augmentation, nametag, path=''):
 
-    weights_file = model_name + '.h5'
-
-    test_data = cifar10.load_data()[1]
-    train_data = ft_dataset
-
-    print(ft_dataset + ' loaded.')
-    input_shape = train_data[0].shape[1:]
-    print(input_shape)
-    model = model_struct(model_type, input_shape, 10)
-    print(model_type + ' structure loaded.')
+    input_shape = ft_dataset[0].shape[1:]
+    model_type = model_name.split('_')[0]
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-    model.load_weights(weights_file)
-
-    model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
     weights_file = model_name + '.h5'
-    print('--> ' + model_name + ' training.')
-    train_and_save(model, ft_epochs, ft_data_augmentation, weights_file, train_data, test_data, m_batch_size)
+
+    if model is None:
+        model = model_struct(model_type, input_shape, 10)
+        model.load_weights(weights_file)
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
                   metrics=m_metric)
-    return model, model_name
+
+    test_data = cifar10.load_data()[1]
+    train_data = ft_dataset
+
+    ft_model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
+    weights_file = ft_model_name + '.h5'
+    print('--> ' + ft_model_name + ' training.')
+    train_and_save(model, ft_epochs, ft_data_augmentation, path+weights_file, train_data, test_data, m_batch_size)
+
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)
+
+    return model, ft_model_name
