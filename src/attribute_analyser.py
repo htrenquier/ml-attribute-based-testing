@@ -172,6 +172,8 @@ class ColorDensityCube:
         else:
             self.norm_cube = self.cube
         max, min = abs(self.norm_cube).max(), 0  # abs(self.norm_cube).min()
+        if not max:
+            print(self.norm_cube)
         self.norm_cube = (self.norm_cube - min) / (max - min)
         self.isNormalized = True
 
