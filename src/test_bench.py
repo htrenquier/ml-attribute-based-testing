@@ -85,8 +85,8 @@ def imagenet_test():
 
 def finetune_test():
     training_data_len = 30000
-    train_data, test_data = cifar10.load_data()
-    train_data, test_data = mt.format_data(train_data, test_data, 10)
+    train_data_orig, test_data_orig = cifar10.load_data()
+    train_data, test_data = mt.format_data(train_data_orig, test_data_orig, 10)
 
     for m in models:
         model0, model_name0 = mt.train(m, 'cifar10-3-5', 50, data_augmentation=False, path=res_path)
@@ -101,13 +101,13 @@ def finetune_test():
 
         # study test data color distrib
         cdc_high = aa.ColorDensityCube(resolution=8)
-        for img in aa.get_images(high_pr, test_data[0]):
+        for img in aa.get_images(high_pr, test_data_orig[0]):
             cdc_high.feed(img)
         cdc_high.normalize()
         cdc_high.plot_cube(save=True, title=model_name0 + '-high_pr', path=res_path)
 
         cdc_low = aa.ColorDensityCube(resolution=8)
-        for img in aa.get_images(low_pr, test_data[0]):
+        for img in aa.get_images(low_pr, test_data_orig[0]):
             cdc_low.feed(img)
         cdc_low.normalize()
         cdc_low.plot_cube(save=True, title=model_name0 + '-low_pr', path=res_path)
@@ -117,11 +117,12 @@ def finetune_test():
 
         # Fine-tune data selection
         cdc_finetune = aa.ColorDensityCube(resolution=8)
+        ft_data_orig = [train_data_orig[0][training_data_len:], train_data_orig[1][training_data_len:]]
         ft_data = [train_data[0][training_data_len:], train_data[1][training_data_len:]]
-        finetune_data_args = aa.get_best_scores(ft_data[0], 10000, cdc_diff)
+        finetune_data_args = aa.get_best_scores(ft_data_orig[0], 10000, cdc_diff)
 
         for img_index in finetune_data_args:
-            cdc_finetune.feed(ft_data[img_index])
+            cdc_finetune.feed(ft_data_orig[img_index])
         cdc_finetune.normalize()
         cdc_finetune.plot_cube(save=True, title=model_name0 + '-ft_selection', path=res_path)
 
