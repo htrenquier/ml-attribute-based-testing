@@ -130,7 +130,7 @@ def finetune_test():
 
         assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 10000
 
-        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, test_data, 20, False, 'exp', path=res_path)
+        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, test_data_orig, 20, False, 'exp', path=res_path)
         y_predicted = predict(model1, test_data)
         log_predictions(y_predicted, model_name1, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
