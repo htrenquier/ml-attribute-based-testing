@@ -118,7 +118,6 @@ def finetune_test():
         # Fine-tune data selection
         cdc_finetune = aa.ColorDensityCube(resolution=8)
         ft_data_orig = [train_data_orig[0][training_data_len:], train_data_orig[1][training_data_len:]]
-        ft_data = [train_data[0][training_data_len:], train_data[1][training_data_len:]]
         finetune_data_args = aa.get_best_scores(ft_data_orig[0], 10000, cdc_diff)
 
         for img_index in finetune_data_args:

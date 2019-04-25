@@ -236,7 +236,7 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
         input_shape = train_data_full[0].shape[1:]
         print(input_shape)
         print(len(train_data_full[0]))
-        train_data = train_data_full[:][0:30000]
+        train_data = [train_data_full[0][:30000], train_data_full[1][:30000]]
         print(len(train_data[0]))
         print(dataset + ' loaded.')
         model = model_struct(model_type, input_shape, 10)
