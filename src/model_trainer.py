@@ -268,6 +268,7 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
 def fine_tune(model, model_name, ft_train_data, ft_test_data, ft_epochs, ft_data_augmentation, nametag, path=''):
 
     input_shape = ft_train_data[0].shape[1:]
+    print('input shape', input_shape)
     model_type = model_name.split('_')[0]
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
     weights_file = model_name + '.h5'
