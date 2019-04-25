@@ -126,9 +126,9 @@ def finetune_test():
         cdc_finetune.normalize()
         cdc_finetune.plot_cube(save=True, title=model_name0 + '-ft_selection', path=res_path)
 
-        ft_data_selected = [np.array(operator.itemgetter(*finetune_data_args)(ft_data[0])),
-                            np.array(operator.itemgetter(*finetune_data_args)(ft_data[1]))]
-        
+        ft_data_selected = [np.array(operator.itemgetter(*finetune_data_args)(ft_data_orig[0])),
+                            np.array(operator.itemgetter(*finetune_data_args)(ft_data_orig[1]))]
+
         assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 10000
 
         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, test_data, 20, False, 'exp', path=res_path)
@@ -138,7 +138,7 @@ def finetune_test():
         true_classes = np.argmax(test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data, 20, False, 'ref', path=res_path)
+        model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data_selected, test_data, 20, False, 'ref', path=res_path)
         y_predicted = predict(model2, test_data)
         log_predictions(y_predicted, model_name2, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
