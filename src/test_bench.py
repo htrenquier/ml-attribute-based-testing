@@ -137,7 +137,7 @@ def finetune_test():
         true_classes = np.argmax(test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data_selected, test_data, 20, False, 'ref', path=res_path)
+        model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data_selected, test_data_orig, 20, False, 'ref', path=res_path)
         y_predicted = predict(model2, test_data)
         log_predictions(y_predicted, model_name2, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
