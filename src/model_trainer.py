@@ -284,9 +284,9 @@ def fine_tune(model, model_name, ft_train_data, ft_test_data, ft_epochs, ft_data
     ft_model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
     weights_file = ft_model_name + '.h5'
     print('--> ' + ft_model_name + ' training.')
-    if os.path.isfile(weights_file):
+    if os.path.isfile(path+weights_file):
         print('Weight file found, loading.')
-        model.load_weights(weights_file)
+        model.load_weights(path+weights_file)
     else:
         print('Start training')
         train_and_save(model, ft_epochs, ft_data_augmentation, path+weights_file, ft_train_data, ft_test_data, m_batch_size)
