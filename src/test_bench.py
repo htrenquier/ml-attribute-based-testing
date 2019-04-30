@@ -125,10 +125,11 @@ def finetune_test():
         cdc_finetune.normalize()
         cdc_finetune.plot_cube(save=True, title=model_name0 + '-ft_selection', path=res_path)
 
+        print(finetune_data_args)
         dselec = np.concatenate(train_data_orig[0][:training_data_len],
-                              operator.itemgetter(*finetune_data_args)(ft_data_orig[0]))
+                              np.array(operator.itemgetter(*finetune_data_args)(ft_data_orig[0])))
         dlabels = np.concatenate(train_data_orig[1][:training_data_len],
-                              operator.itemgetter(*finetune_data_args)(ft_data_orig[1]))
+                              np.array(operator.itemgetter(*finetune_data_args)(ft_data_orig[1])))
 
         ft_data_selected = [dselec, dlabels]
 
