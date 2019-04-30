@@ -269,9 +269,9 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    if os.path.isfile(weight_file):
+    if os.path.isfile(path+weight_file):
         print('Weight file found, loading.')
-        model.load_weights(weight_file)
+        model.load_weights(path+weight_file)
     else:
         print('Start training')
         train_and_save(model, epochs, data_augmentation, path+weight_file, train_data, val_data, m_batch_size)

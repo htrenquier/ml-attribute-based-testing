@@ -138,7 +138,7 @@ def finetune_test():
 
         val_data = [train_data_orig[0][-10000:], train_data_orig[1][-10000:]]
 
-        assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 10000
+        assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 30000
 
         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 20, False, 'exp', path=res_path)
         y_predicted = predict(model1, formatted_test_data)
