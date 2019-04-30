@@ -11,7 +11,7 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50', 'vgg16', 'vgg19')
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -131,7 +131,7 @@ def finetune_test():
                               operator.itemgetter(*finetune_data_args)(ft_data_orig[1]))
 
         ft_data_selected = [dselec, dlabels]
-        
+
         train_data_ref = [train_data_orig[0][:training_data_len+10000],
                           train_data_orig[1][:training_data_len+10000]]
 

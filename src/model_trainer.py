@@ -222,7 +222,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
     score = model.evaluate(x_val, y_val, verbose=0)
     print('Test loss:', score[0])
     print('Test accuracy:', score[1])
-    model.save_weights(weight_file)
+    # model.save_weights(weight_file)
 
 
 def train(model_type, dataset, epochs, data_augmentation, path=''):
@@ -258,7 +258,7 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
         print(dataset + ' loaded.')
         model = model_struct(model_type, input_shape, 10)
         print(model_type + ' structure loaded.')
-        assert len(train_data) == 20000 and len(val_data) == 10000
+        assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
     else:
         print('Not implemented')
         return
