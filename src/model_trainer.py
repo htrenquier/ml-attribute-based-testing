@@ -149,12 +149,12 @@ def format_data(train_data, test_data, num_classes):
 # def select_data(dataset_name,ratio):
 #     nb_train, nb_val, nb_test = ratio
 
-def train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, batch_size):
+def train_and_save(model, epochs, data_augmentation, weight_file, path='', train_data, val_data, batch_size):
 
     (x_train, y_train), (x_val, y_val) = format_data(train_data, val_data, 10)
 
     checkpoint = ModelCheckpoint(
-        weight_file,
+        path+weight_file,
         monitor='val_acc',
         verbose=0,
         save_best_only=True,
@@ -274,7 +274,7 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
         model.load_weights(weight_file)
     else:
         print('Start training')
-        train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, m_batch_size)
+        train_and_save(model, epochs, data_augmentation, weight_file, path, train_data, val_data, m_batch_size)
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
