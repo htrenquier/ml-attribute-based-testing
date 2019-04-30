@@ -132,48 +132,75 @@ from keras.utils import to_categorical
 #     verbose=1
 # )
 
+#
+# from mpl_toolkits.mplot3d import Axes3D
+# import matplotlib.pyplot as plt
+# import numpy as np
+#
+# # Fixing random state for reproducibility
+# np.random.seed(19680801)
+#
+#
+# def randrange(n, vmin, vmax):
+#     '''
+#     Helper function to make an array of random numbers having shape (n, )
+#     with each number distributed Uniform(vmin, vmax).
+#     '''
+#     return (vmax - vmin)*np.random.rand(n) + vmin
+#
+#
+#
+#
+#
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+#
+# n = 2
+#
+# # For each set of style and range settings, plot n random points in the box
+# # defined by x in [23, 32], y in [0, 100], z in [zlow, zhigh].
+# for c, m, zlow, zhigh in [('r', 'o', -50, -25), ('b', '^', -30, -5)]:
+#     xs = randrange(n, 23, 32)
+#     print(xs)
+#     ys = randrange(n, 0, 100)
+#     print(ys)
+#     zs = randrange(n, zlow, zhigh)
+#     print(zs)
+#     ax.scatter(xs, ys, zs, c=c, marker=m)
+#     x = 25
+#     y = 56
+#     z = -22
+#     ax.scatter(x, y, z, c=[[0.0, 1, 0]], s=300)
+#
+# ax.set_xlabel('X Label')
+# ax.set_ylabel('Y Label')
+# ax.set_zlabel('Z Label')
+#
+# plt.show()
 
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-import numpy as np
+import src.model_trainer as mt
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
+train_data_orig, test_data_orig = cifar10.load_data()
+train_data, test_data = mt.format_data(train_data_orig, test_data_orig, 10)
+training_data_len = 30000
 
+d = 3
+n = 32
+distance = [[[1 for k in xrange(d)] for j in xrange(n)] for i in xrange(n)]
+data1 = [distance for k in xrange(400)]
+data2 = [distance for k in xrange(200)]
 
-def randrange(n, vmin, vmax):
-    '''
-    Helper function to make an array of random numbers having shape (n, )
-    with each number distributed Uniform(vmin, vmax).
-    '''
-    return (vmax - vmin)*np.random.rand(n) + vmin
+print(np.array(data1).shape)
+print(np.array(data2).shape)
+print(np.array(data1+data2).shape)
 
+a = train_data_orig[0][:training_data_len]
+b = train_data_orig[0][30000:40000]
 
+c = np.concatenate((a, b))
+print(c.shape)
+print(np.array(a+b).shape)
 
-
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-n = 2
-
-# For each set of style and range settings, plot n random points in the box
-# defined by x in [23, 32], y in [0, 100], z in [zlow, zhigh].
-for c, m, zlow, zhigh in [('r', 'o', -50, -25), ('b', '^', -30, -5)]:
-    xs = randrange(n, 23, 32)
-    print(xs)
-    ys = randrange(n, 0, 100)
-    print(ys)
-    zs = randrange(n, zlow, zhigh)
-    print(zs)
-    ax.scatter(xs, ys, zs, c=c, marker=m)
-    x = 25
-    y = 56
-    z = -22
-    ax.scatter(x, y, z, c=[[0.0, 1, 0]], s=300)
-
-ax.set_xlabel('X Label')
-ax.set_ylabel('Y Label')
-ax.set_zlabel('Z Label')
-
-plt.show()
+train_data_ref = [train_data_orig[0][:training_data_len]+train_data_orig[0][30000:40000],
+                  train_data_orig[1][:training_data_len]+train_data_orig[1][30000:40000]]
+print(np.array(train_data_ref).shape)

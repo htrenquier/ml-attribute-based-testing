@@ -3,6 +3,7 @@ from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
 from keras import utils
 import os
+from keras.callbacks import ModelCheckpoint
 import numpy as np
 
 def model_param(model_type):
@@ -51,67 +52,67 @@ def model_struct(model_type, input_shape, classes, weights=None):
     # model_structure, batch_size
     if model_type == 'densenet121':
         return kapp.densenet.DenseNet121(include_top=True,
-                             weights=weights,
-                             input_tensor=None,
-                             input_shape=input_shape,
-                             pooling=None,
-                             classes=classes)
+                                         weights=weights,
+                                         input_tensor=None,
+                                         input_shape=input_shape,
+                                         pooling=None,
+                                         classes=classes)
     elif model_type == 'densenet169':
         return kapp.densenet.DenseNet169(include_top=True,
-                         weights=weights,
-                         input_tensor=None,
-                         input_shape=input_shape,
-                         pooling=None,
-                         classes=classes)
+                                         weights=weights,
+                                         input_tensor=None,
+                                         input_shape=input_shape,
+                                         pooling=None,
+                                         classes=classes)
     elif model_type == 'densenet201':
         return kapp.densenet.DenseNet201(include_top=True,
-                         weights=weights,
-                         input_tensor=None,
-                         input_shape=input_shape,
-                         pooling=None,
-                         classes=classes)
+                                         weights=weights,
+                                         input_tensor=None,
+                                         input_shape=input_shape,
+                                         pooling=None,
+                                         classes=classes)
     elif model_type == 'mobilenet':
         return kapp.mobilenet.MobileNet(include_top=True,
-                         weights=weights,
-                         input_tensor=None,
-                         input_shape=input_shape,
-                         pooling=None,
-                         classes=classes)
+                                        weights=weights,
+                                        input_tensor=None,
+                                        input_shape=input_shape,
+                                        pooling=None,
+                                        classes=classes)
     elif model_type == 'mobilenetv2':
         return kapp.mobilenet_v2.MobileNetV2(include_top=True,
-                         weights=weights,
-                         input_tensor=None,
-                         input_shape=input_shape,
-                         pooling=None,
-                         classes=classes)
+                                             weights=weights,
+                                             input_tensor=None,
+                                             input_shape=input_shape,
+                                             pooling=None,
+                                             classes=classes)
     elif model_type == 'nasnet':
         return kapp.nasnet.NASNetMobile(include_top=True,
-                         weights=weights,
-                         input_tensor=None,
-                         input_shape=input_shape,
-                         pooling=None,
-                         classes=classes)
+                                        weights=weights,
+                                        input_tensor=None,
+                                        input_shape=input_shape,
+                                        pooling=None,
+                                        classes=classes)
     elif model_type == 'resnet50':
         return kapp.resnet50.ResNet50(include_top=True,
-                         weights=weights,
-                         input_tensor=None,
-                         input_shape=input_shape,
-                         pooling=None,
-                         classes=classes)
+                                      weights=weights,
+                                      input_tensor=None,
+                                      input_shape=input_shape,
+                                      pooling=None,
+                                      classes=classes)
     elif model_type == 'vgg16':
         return kapp.vgg16.VGG16(include_top=True,
-                         weights=weights,
-                         input_tensor=None,
-                         input_shape=input_shape,
-                         pooling=None,
-                         classes=classes)
+                                weights=weights,
+                                input_tensor=None,
+                                input_shape=input_shape,
+                                pooling=None,
+                                classes=classes)
     elif model_type == 'vgg19':
         return kapp.vgg19.VGG19(include_top=True,
-                              weights=weights,
-                              input_tensor=None,
-                              input_shape=input_shape,
-                              pooling=None,
-                              classes=classes)
+                                weights=weights,
+                                input_tensor=None,
+                                input_shape=input_shape,
+                                pooling=None,
+                                classes=classes)
 
 
 def load_imagenet_model(model_type):
@@ -145,10 +146,21 @@ def format_data(train_data, test_data, num_classes):
     y_test = utils.to_categorical(y_test, num_classes)
     return (x_train, y_train), (x_test, y_test)
 
+# def select_data(dataset_name,ratio):
+#     nb_train, nb_val, nb_test = ratio
 
 def train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, batch_size):
 
     (x_train, y_train), (x_val, y_val) = format_data(train_data, val_data, 10)
+
+    checkpoint = ModelCheckpoint(
+        weight_file,
+        monitor='val_acc',
+        verbose=0,
+        save_best_only=True,
+        save_weights_only=True,
+        mode='auto'
+    )
 
     if not data_augmentation:
         print('Not using data augmentation.')
@@ -159,7 +171,9 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             epochs=epochs,
             validation_data=(x_val, y_val),
             verbose=2,
-            shuffle=True)
+            shuffle=True,
+            callbacks=[checkpoint]
+        )
     else:
         print('Using real-time data augmentation.')
         # This will do preprocessing and realtime data augmentation:
@@ -201,7 +215,8 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             validation_data=(x_val, y_val),
             workers=4,
             verbose=2,
-            steps_per_epoch=(50000 / batch_size)
+            steps_per_epoch=(50000 / batch_size),
+            callbacks=[checkpoint]
         )
 
     score = model.evaluate(x_val, y_val, verbose=0)
@@ -230,17 +245,20 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
         print(input_shape)
         model = model_struct(model_type, input_shape, 10)
         print(model_type + ' structure loaded.')
+        val_data = test_data
 
-    elif dataset == 'cifar10-3-5':
-        train_data_full, test_data = cifar10.load_data()
-        input_shape = train_data_full[0].shape[1:]
+    elif dataset == 'cifar10-2-5':
+        train_data_orig, test_data_orig = cifar10.load_data()
+        input_shape = train_data_orig[0].shape[1:]
         print(input_shape)
-        print(len(train_data_full[0]))
-        train_data = [train_data_full[0][:30000], train_data_full[1][:30000]]
+        print(len(train_data_orig[0]))
+        train_data = [train_data_orig[0][:20000], train_data_orig[1][:20000]]
+        val_data = [train_data_orig[0][40000:], train_data_orig[1][40000:]]
         print(len(train_data[0]))
         print(dataset + ' loaded.')
         model = model_struct(model_type, input_shape, 10)
         print(model_type + ' structure loaded.')
+        assert len(train_data) == 20000 and len(val_data) == 10000
     else:
         print('Not implemented')
         return
@@ -256,7 +274,7 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
         model.load_weights(weight_file)
     else:
         print('Start training')
-        train_and_save(model, epochs, data_augmentation, weight_file, train_data, test_data, m_batch_size)
+        train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, m_batch_size)
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,

@@ -84,16 +84,16 @@ def imagenet_test():
 
 
 def finetune_test():
-    training_data_len = 30000
+    training_data_len = 20000
     train_data_orig, test_data_orig = cifar10.load_data()
-    train_data, test_data = mt.format_data(train_data_orig, test_data_orig, 10)
+    formatted_train_data, formatted_test_data = mt.format_data(train_data_orig, test_data_orig, 10)
 
     for m in models:
-        model0, model_name0 = mt.train(m, 'cifar10-3-5', 50, data_augmentation=False, path=res_path)
-        y_predicted = predict(model0, test_data)
+        model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
+        y_predicted = predict(model0, formatted_test_data)
         log_predictions(y_predicted, model_name0, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
-        true_classes = np.argmax(test_data[1], axis=1)
+        true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
         pr = aa.prediction_ratings(y_predicted, true_classes)
@@ -117,7 +117,7 @@ def finetune_test():
 
         # Fine-tune data selection
         cdc_finetune = aa.ColorDensityCube(resolution=8)
-        ft_data_orig = [train_data_orig[0][training_data_len:], train_data_orig[1][training_data_len:]]
+        ft_data_orig = [train_data_orig[0][training_data_len:40000], train_data_orig[1][training_data_len:40000]]
         finetune_data_args = aa.get_best_scores(ft_data_orig[0], 10000, cdc_diff)
 
         for img_index in finetune_data_args:
@@ -125,24 +125,30 @@ def finetune_test():
         cdc_finetune.normalize()
         cdc_finetune.plot_cube(save=True, title=model_name0 + '-ft_selection', path=res_path)
 
-        ft_data_selected = [np.array(operator.itemgetter(*finetune_data_args)(ft_data_orig[0])),
-                            np.array(operator.itemgetter(*finetune_data_args)(ft_data_orig[1]))]
-        train_data_ref = [train_data_orig[0][training_data_len:training_data_len+10000],
-                          train_data_orig[1][training_data_len:training_data_len+10000]]
+        dselec = np.concatenate(train_data_orig[0][:training_data_len],
+                              operator.itemgetter(*finetune_data_args)(ft_data_orig[0]))
+        dlabels = np.concatenate(train_data_orig[1][:training_data_len],
+                              operator.itemgetter(*finetune_data_args)(ft_data_orig[1]))
+
+        ft_data_selected = [dselec, dlabels]
+        
+        train_data_ref = [train_data_orig[0][:training_data_len+10000],
+                          train_data_orig[1][:training_data_len+10000]]
+
         assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 10000
 
         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, test_data_orig, 20, False, 'exp', path=res_path)
-        y_predicted = predict(model1, test_data)
+        y_predicted = predict(model1, formatted_test_data)
         log_predictions(y_predicted, model_name1, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
-        true_classes = np.argmax(test_data[1], axis=1)
+        true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref , test_data_orig, 20, False, 'ref', path=res_path)
-        y_predicted = predict(model2, test_data)
+        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, test_data_orig, 20, False, 'ref', path=res_path)
+        y_predicted = predict(model2, formatted_test_data)
         log_predictions(y_predicted, model_name2, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
-        true_classes = np.argmax(test_data[1], axis=1)
+        true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
 
