@@ -1,0 +1,1259 @@
+Device mapping:
+/job:localhost/replica:0/task:0/device:XLA_CPU:0 -> device: XLA_CPU device
+/job:localhost/replica:0/task:0/device:XLA_GPU:0 -> device: XLA_GPU device
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1060 6GB, pci bus id: 0000:65:00.0, compute capability: 6.1
+Directory ../res/ exists
+Directory ../ilsvrc2012/ exists
+--> densenet121_cifar10-2-5_50ep_woda
+(32, 32, 3)
+50000
+20000
+cifar10-2-5 loaded.
+densenet121 structure loaded.
+Start training
+Not using data augmentation.
+Train on 20000 samples, validate on 10000 samples
+Epoch 1/50
+ - 93s - loss: 1.7399 - acc: 0.3781 - val_loss: 3.3090 - val_acc: 0.2256
+Epoch 2/50
+ - 72s - loss: 1.4223 - acc: 0.4933 - val_loss: 1.7548 - val_acc: 0.3628
+Epoch 3/50
+ - 72s - loss: 1.2952 - acc: 0.5483 - val_loss: 1.4879 - val_acc: 0.4687
+Epoch 4/50
+ - 72s - loss: 1.1630 - acc: 0.5948 - val_loss: 1.6126 - val_acc: 0.4627
+Epoch 5/50
+ - 72s - loss: 1.0425 - acc: 0.6390 - val_loss: 1.1679 - val_acc: 0.5955
+Epoch 6/50
+ - 72s - loss: 0.9685 - acc: 0.6654 - val_loss: 2.9292 - val_acc: 0.3197
+Epoch 7/50
+ - 72s - loss: 0.9042 - acc: 0.6894 - val_loss: 1.2084 - val_acc: 0.6025
+Epoch 8/50
+ - 72s - loss: 0.7522 - acc: 0.7350 - val_loss: 1.1140 - val_acc: 0.6320
+Epoch 9/50
+ - 71s - loss: 0.8363 - acc: 0.7137 - val_loss: 1.8970 - val_acc: 0.4150
+Epoch 10/50
+ - 72s - loss: 0.7085 - acc: 0.7547 - val_loss: 0.9324 - val_acc: 0.6785
+Epoch 11/50
+ - 72s - loss: 0.5490 - acc: 0.8086 - val_loss: 1.3483 - val_acc: 0.6099
+Epoch 12/50
+ - 72s - loss: 0.4788 - acc: 0.8324 - val_loss: 1.4065 - val_acc: 0.6156
+Epoch 13/50
+ - 72s - loss: 0.3993 - acc: 0.8599 - val_loss: 1.0596 - val_acc: 0.6928
+Epoch 14/50
+ - 72s - loss: 0.3692 - acc: 0.8736 - val_loss: 1.2560 - val_acc: 0.6448
+Epoch 15/50
+ - 72s - loss: 0.3070 - acc: 0.8927 - val_loss: 1.5917 - val_acc: 0.5888
+Epoch 16/50
+ - 72s - loss: 0.2467 - acc: 0.9130 - val_loss: 1.2526 - val_acc: 0.6790
+Epoch 17/50
+ - 72s - loss: 0.2040 - acc: 0.9299 - val_loss: 1.3438 - val_acc: 0.6560
+Epoch 18/50
+ - 72s - loss: 0.1927 - acc: 0.9315 - val_loss: 1.2621 - val_acc: 0.7014
+Epoch 19/50
+ - 72s - loss: 0.1910 - acc: 0.9340 - val_loss: 1.1344 - val_acc: 0.7110
+Epoch 20/50
+ - 72s - loss: 0.1457 - acc: 0.9497 - val_loss: 1.6273 - val_acc: 0.6513
+Epoch 21/50
+ - 71s - loss: 0.1469 - acc: 0.9485 - val_loss: 1.4557 - val_acc: 0.6878
+Epoch 22/50
+ - 72s - loss: 0.1193 - acc: 0.9591 - val_loss: 1.4603 - val_acc: 0.6884
+Epoch 23/50
+ - 72s - loss: 0.1117 - acc: 0.9613 - val_loss: 1.6751 - val_acc: 0.6803
+Epoch 24/50
+ - 72s - loss: 0.1331 - acc: 0.9540 - val_loss: 1.8173 - val_acc: 0.6364
+Epoch 25/50
+ - 72s - loss: 0.1016 - acc: 0.9633 - val_loss: 1.4764 - val_acc: 0.6895
+Epoch 26/50
+ - 72s - loss: 0.0936 - acc: 0.9673 - val_loss: 1.8087 - val_acc: 0.6596
+Epoch 27/50
+ - 72s - loss: 0.0890 - acc: 0.9691 - val_loss: 1.6496 - val_acc: 0.6886
+Epoch 28/50
+ - 72s - loss: 0.0904 - acc: 0.9666 - val_loss: 1.4535 - val_acc: 0.7056
+Epoch 29/50
+ - 72s - loss: 0.0721 - acc: 0.9741 - val_loss: 1.6138 - val_acc: 0.6975
+Epoch 30/50
+ - 72s - loss: 0.0902 - acc: 0.9690 - val_loss: 1.7315 - val_acc: 0.6787
+Epoch 31/50
+ - 72s - loss: 0.0722 - acc: 0.9747 - val_loss: 1.6537 - val_acc: 0.6934
+Epoch 32/50
+ - 72s - loss: 0.0759 - acc: 0.9748 - val_loss: 1.7219 - val_acc: 0.6800
+Epoch 33/50
+ - 72s - loss: 0.0555 - acc: 0.9815 - val_loss: 1.5508 - val_acc: 0.7231
+Epoch 34/50
+ - 72s - loss: 0.0755 - acc: 0.9735 - val_loss: 1.5869 - val_acc: 0.6956
+Epoch 35/50
+ - 72s - loss: 0.0630 - acc: 0.9784 - val_loss: 1.4920 - val_acc: 0.7204
+Epoch 36/50
+ - 72s - loss: 0.0498 - acc: 0.9828 - val_loss: 1.6800 - val_acc: 0.6942
+Epoch 37/50
+ - 72s - loss: 0.0746 - acc: 0.9747 - val_loss: 2.0482 - val_acc: 0.6348
+Epoch 38/50
+ - 72s - loss: 0.0561 - acc: 0.9806 - val_loss: 1.5962 - val_acc: 0.7130
+Epoch 39/50
+ - 71s - loss: 0.0591 - acc: 0.9802 - val_loss: 1.7517 - val_acc: 0.6944
+Epoch 40/50
+ - 72s - loss: 0.0492 - acc: 0.9841 - val_loss: 1.5623 - val_acc: 0.7128
+Epoch 41/50
+ - 72s - loss: 0.0582 - acc: 0.9797 - val_loss: 2.1956 - val_acc: 0.6504
+Epoch 42/50
+ - 72s - loss: 0.0572 - acc: 0.9813 - val_loss: 1.6924 - val_acc: 0.7057
+Epoch 43/50
+ - 71s - loss: 0.0509 - acc: 0.9827 - val_loss: 1.7539 - val_acc: 0.7045
+Epoch 44/50
+ - 72s - loss: 0.0351 - acc: 0.9870 - val_loss: 1.6439 - val_acc: 0.7099
+Epoch 45/50
+ - 72s - loss: 0.0584 - acc: 0.9806 - val_loss: 2.0457 - val_acc: 0.6561
+Epoch 46/50
+ - 72s - loss: 0.0511 - acc: 0.9832 - val_loss: 1.5976 - val_acc: 0.7217
+Epoch 47/50
+ - 72s - loss: 0.0388 - acc: 0.9869 - val_loss: 1.6262 - val_acc: 0.7046
+Epoch 48/50
+ - 72s - loss: 0.0418 - acc: 0.9869 - val_loss: 1.7300 - val_acc: 0.6940
+Epoch 49/50
+ - 72s - loss: 0.0635 - acc: 0.9796 - val_loss: 1.6157 - val_acc: 0.7076
+Epoch 50/50
+ - 72s - loss: 0.0262 - acc: 0.9904 - val_loss: 1.9726 - val_acc: 0.6808
+('Test loss:', 1.9725678043365478)
+('Test accuracy:', 0.6808)
+Predicting...
+10000
+10000
+10
+[3.6255726e-01 1.1745363e-01 9.5010073e-05 8.9703436e-04 1.8873098e-01
+ 3.6172096e-03 8.9858137e-03 8.0080889e-02 1.7707637e-01 6.0505770e-02]
+[3.9388874e-11 5.6259673e-06 1.2071138e-03 1.4123945e-07 1.2692620e-02
+ 9.8603266e-01 7.9841016e-08 1.3073600e-08 1.9845320e-05 4.1720756e-05]
+[2.0921367e-11 2.9015693e-01 1.9245052e-11 1.2444721e-12 9.7108391e-08
+ 4.5487741e-12 7.0982337e-01 1.2611701e-12 1.4776664e-05 4.8813104e-06]
+[7.9291445e-01 1.2834516e-04 4.1779727e-04 2.2774314e-07 1.4677186e-01
+ 2.9456066e-08 3.8245460e-07 1.2943342e-03 5.7864733e-02 6.0785835e-04]
+Predictions for densenet121_cifar10-2-5_50ep_woda-res.csv written.
+Accuracy = 0.6846
+[ 3143  3144  3145 ... 12602  2189 10233]
+('input shape', (32, 32, 3))
+--> densenet121_cifar10-2-5_50ep_woda_ft20ep-exp training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 126s - loss: 0.3616 - acc: 0.9053 - val_loss: 0.8108 - val_acc: 0.7499
+Epoch 2/20
+ - 107s - loss: 0.1840 - acc: 0.9420 - val_loss: 0.8155 - val_acc: 0.7606
+Epoch 3/20
+ - 106s - loss: 0.1146 - acc: 0.9612 - val_loss: 1.0721 - val_acc: 0.7389
+Epoch 4/20
+ - 106s - loss: 0.0903 - acc: 0.9704 - val_loss: 1.3886 - val_acc: 0.7081
+Epoch 5/20
+ - 106s - loss: 0.0828 - acc: 0.9718 - val_loss: 1.2181 - val_acc: 0.7417
+Epoch 6/20
+ - 106s - loss: 0.0771 - acc: 0.9742 - val_loss: 1.3389 - val_acc: 0.7380
+Epoch 7/20
+ - 106s - loss: 0.0650 - acc: 0.9776 - val_loss: 1.2696 - val_acc: 0.7424
+Epoch 8/20
+ - 106s - loss: 0.0601 - acc: 0.9796 - val_loss: 1.4274 - val_acc: 0.7173
+Epoch 9/20
+ - 106s - loss: 0.0589 - acc: 0.9797 - val_loss: 1.4291 - val_acc: 0.7208
+Epoch 10/20
+ - 106s - loss: 0.0496 - acc: 0.9828 - val_loss: 1.3718 - val_acc: 0.7394
+Epoch 11/20
+ - 106s - loss: 0.0571 - acc: 0.9802 - val_loss: 1.6033 - val_acc: 0.7067
+Epoch 12/20
+ - 106s - loss: 0.0556 - acc: 0.9812 - val_loss: 1.3005 - val_acc: 0.7384
+Epoch 13/20
+ - 106s - loss: 0.0558 - acc: 0.9808 - val_loss: 1.4107 - val_acc: 0.7403
+Epoch 14/20
+ - 106s - loss: 0.0423 - acc: 0.9852 - val_loss: 1.3414 - val_acc: 0.7478
+Epoch 15/20
+ - 106s - loss: 0.0472 - acc: 0.9847 - val_loss: 1.3722 - val_acc: 0.7402
+Epoch 16/20
+ - 107s - loss: 0.0430 - acc: 0.9859 - val_loss: 1.4688 - val_acc: 0.7460
+Epoch 17/20
+ - 106s - loss: 0.0469 - acc: 0.9840 - val_loss: 1.3996 - val_acc: 0.7440
+Epoch 18/20
+ - 106s - loss: 0.0401 - acc: 0.9857 - val_loss: 1.8001 - val_acc: 0.7067
+Epoch 19/20
+ - 107s - loss: 0.0438 - acc: 0.9852 - val_loss: 1.4902 - val_acc: 0.7336
+Epoch 20/20
+ - 106s - loss: 0.0393 - acc: 0.9867 - val_loss: 1.6067 - val_acc: 0.7352
+('Test loss:', 1.6067149808883667)
+('Test accuracy:', 0.7352)
+Predicting...
+10000
+10000
+10
+[1.5874753e-07 4.3136253e-05 4.9185189e-10 1.2421061e-03 4.3615708e-04
+ 1.2997256e-06 7.9967111e-10 9.9826080e-01 2.4956908e-06 1.3841954e-05]
+[5.2370586e-10 1.9980114e-06 1.4152750e-02 1.7692480e-03 1.2837847e-01
+ 8.4333140e-01 1.2332071e-02 2.8060697e-07 1.2175959e-05 2.1633166e-05]
+[1.1516693e-11 8.8728511e-01 5.9900576e-13 4.6301928e-11 2.9312935e-10
+ 6.2835936e-15 1.1254661e-01 5.6467475e-10 2.1410512e-08 1.6825221e-04]
+[2.8917524e-01 2.1102516e-05 9.0187145e-03 8.4813955e-06 3.4776576e-02
+ 6.3134554e-12 3.0594529e-04 6.6105402e-01 4.4593406e-03 1.1806485e-03]
+Predictions for densenet121_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
+Accuracy = 0.7349
+('input shape', (32, 32, 3))
+--> densenet121_cifar10-2-5_50ep_woda_ft20ep-ref training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 132s - loss: 0.1122 - acc: 0.9717 - val_loss: 1.1038 - val_acc: 0.7545
+Epoch 2/20
+ - 109s - loss: 0.0415 - acc: 0.9879 - val_loss: 1.2950 - val_acc: 0.7525
+Epoch 3/20
+ - 109s - loss: 0.0501 - acc: 0.9829 - val_loss: 1.4599 - val_acc: 0.7371
+Epoch 4/20
+ - 109s - loss: 0.0376 - acc: 0.9871 - val_loss: 2.0368 - val_acc: 0.6943
+Epoch 5/20
+ - 109s - loss: 0.0422 - acc: 0.9861 - val_loss: 1.5064 - val_acc: 0.7370
+Epoch 6/20
+ - 109s - loss: 0.0375 - acc: 0.9878 - val_loss: 1.5137 - val_acc: 0.7377
+Epoch 7/20
+ - 109s - loss: 0.0402 - acc: 0.9867 - val_loss: 1.5081 - val_acc: 0.7406
+Epoch 8/20
+ - 109s - loss: 0.0374 - acc: 0.9876 - val_loss: 1.5479 - val_acc: 0.7329
+Epoch 9/20
+ - 109s - loss: 0.0315 - acc: 0.9890 - val_loss: 1.4949 - val_acc: 0.7549
+Epoch 10/20
+ - 109s - loss: 0.0333 - acc: 0.9890 - val_loss: 1.3718 - val_acc: 0.7559
+Epoch 11/20
+ - 109s - loss: 0.0309 - acc: 0.9893 - val_loss: 1.6359 - val_acc: 0.7379
+Epoch 12/20
+ - 109s - loss: 0.0381 - acc: 0.9868 - val_loss: 1.5777 - val_acc: 0.7381
+Epoch 13/20
+ - 109s - loss: 0.0321 - acc: 0.9888 - val_loss: 1.3756 - val_acc: 0.7547
+Epoch 14/20
+ - 109s - loss: 0.0253 - acc: 0.9915 - val_loss: 1.4495 - val_acc: 0.7566
+Epoch 15/20
+ - 109s - loss: 0.0334 - acc: 0.9879 - val_loss: 1.3909 - val_acc: 0.7504
+Epoch 16/20
+ - 109s - loss: 0.0249 - acc: 0.9910 - val_loss: 1.6887 - val_acc: 0.7204
+Epoch 17/20
+ - 109s - loss: 0.0321 - acc: 0.9891 - val_loss: 1.4991 - val_acc: 0.7571
+Epoch 18/20
+ - 109s - loss: 0.0384 - acc: 0.9878 - val_loss: 1.4229 - val_acc: 0.7551
+Epoch 19/20
+ - 109s - loss: 0.0290 - acc: 0.9906 - val_loss: 1.4587 - val_acc: 0.7553
+Epoch 20/20
+ - 109s - loss: 0.0275 - acc: 0.9909 - val_loss: 1.4341 - val_acc: 0.7551
+('Test loss:', 1.4341403017997743)
+('Test accuracy:', 0.7551)
+Predicting...
+10000
+10000
+10
+[3.7167654e-03 4.3575473e-02 3.5557638e-05 8.7563835e-02 1.9926157e-02
+ 9.3212958e-07 2.4107310e-06 7.7186632e-01 3.3500484e-05 7.3279001e-02]
+[6.5324954e-11 3.1868770e-09 6.4644250e-05 4.9351141e-01 3.4661379e-01
+ 1.5957105e-01 1.9097501e-04 3.2424452e-07 5.6049199e-08 4.7668047e-05]
+[3.9923347e-12 9.9989903e-01 1.6750247e-10 2.8329353e-11 2.6296933e-08
+ 3.4538226e-14 7.2424118e-05 1.5290537e-10 2.6865524e-07 2.8275024e-05]
+[4.8784721e-01 4.4398762e-06 7.7449299e-02 4.5911605e-08 4.3448755e-01
+ 3.2948335e-11 8.3534142e-06 3.8790400e-05 1.5921181e-04 5.1476904e-06]
+Predictions for densenet121_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
+Accuracy = 0.7522
+--> mobilenet_cifar10-2-5_50ep_woda
+(32, 32, 3)
+50000
+20000
+cifar10-2-5 loaded.
+mobilenet structure loaded.
+Start training
+Not using data augmentation.
+Train on 20000 samples, validate on 10000 samples
+Epoch 1/50
+ - 45s - loss: 2.0538 - acc: 0.2585 - val_loss: 1.9836 - val_acc: 0.3245
+Epoch 2/50
+ - 32s - loss: 1.7276 - acc: 0.3701 - val_loss: 1.8245 - val_acc: 0.3831
+Epoch 3/50
+ - 33s - loss: 1.6068 - acc: 0.4246 - val_loss: 2.2699 - val_acc: 0.3132
+Epoch 4/50
+ - 32s - loss: 1.5379 - acc: 0.4452 - val_loss: 1.5588 - val_acc: 0.4543
+Epoch 5/50
+ - 33s - loss: 1.4400 - acc: 0.4894 - val_loss: 1.5305 - val_acc: 0.4241
+Epoch 6/50
+ - 32s - loss: 1.3809 - acc: 0.5095 - val_loss: 1.5280 - val_acc: 0.4570
+Epoch 7/50
+ - 33s - loss: 1.3078 - acc: 0.5428 - val_loss: 1.6084 - val_acc: 0.4415
+Epoch 8/50
+ - 33s - loss: 1.4205 - acc: 0.5020 - val_loss: 1.4410 - val_acc: 0.4811
+Epoch 9/50
+ - 32s - loss: 1.2359 - acc: 0.5685 - val_loss: 1.4629 - val_acc: 0.5085
+Epoch 10/50
+ - 33s - loss: 1.1840 - acc: 0.5917 - val_loss: 1.6554 - val_acc: 0.4821
+Epoch 11/50
+ - 32s - loss: 1.1832 - acc: 0.5872 - val_loss: 1.1988 - val_acc: 0.5763
+Epoch 12/50
+ - 32s - loss: 1.0673 - acc: 0.6308 - val_loss: 1.8620 - val_acc: 0.4353
+Epoch 13/50
+ - 33s - loss: 1.0866 - acc: 0.6256 - val_loss: 1.2326 - val_acc: 0.5752
+Epoch 14/50
+ - 32s - loss: 0.9922 - acc: 0.6573 - val_loss: 1.1824 - val_acc: 0.5850
+Epoch 15/50
+ - 33s - loss: 0.8946 - acc: 0.6906 - val_loss: 1.2482 - val_acc: 0.5913
+Epoch 16/50
+ - 32s - loss: 0.8004 - acc: 0.7266 - val_loss: 1.1769 - val_acc: 0.6059
+Epoch 17/50
+ - 33s - loss: 0.7859 - acc: 0.7304 - val_loss: 1.0940 - val_acc: 0.6359
+Epoch 18/50
+ - 33s - loss: 0.7250 - acc: 0.7516 - val_loss: 1.1253 - val_acc: 0.6308
+Epoch 19/50
+ - 33s - loss: 0.6425 - acc: 0.7790 - val_loss: 1.2124 - val_acc: 0.6036
+Epoch 20/50
+ - 33s - loss: 0.6178 - acc: 0.7876 - val_loss: 2.1087 - val_acc: 0.3908
+Epoch 21/50
+ - 32s - loss: 0.7483 - acc: 0.7457 - val_loss: 1.1328 - val_acc: 0.6232
+Epoch 22/50
+ - 33s - loss: 0.5283 - acc: 0.8203 - val_loss: 1.1624 - val_acc: 0.6318
+Epoch 23/50
+ - 33s - loss: 0.4599 - acc: 0.8430 - val_loss: 1.1261 - val_acc: 0.6484
+Epoch 24/50
+ - 32s - loss: 0.4251 - acc: 0.8502 - val_loss: 1.1970 - val_acc: 0.6457
+Epoch 25/50
+ - 32s - loss: 0.3857 - acc: 0.8668 - val_loss: 1.2627 - val_acc: 0.6267
+Epoch 26/50
+ - 33s - loss: 0.3762 - acc: 0.8702 - val_loss: 1.1697 - val_acc: 0.6524
+Epoch 27/50
+ - 33s - loss: 0.3268 - acc: 0.8881 - val_loss: 1.2919 - val_acc: 0.6332
+Epoch 28/50
+ - 32s - loss: 0.3677 - acc: 0.8786 - val_loss: 1.3861 - val_acc: 0.6221
+Epoch 29/50
+ - 32s - loss: 0.3265 - acc: 0.8894 - val_loss: 1.3557 - val_acc: 0.6334
+Epoch 30/50
+ - 32s - loss: 0.2713 - acc: 0.9061 - val_loss: 1.4598 - val_acc: 0.6133
+Epoch 31/50
+ - 32s - loss: 0.2489 - acc: 0.9166 - val_loss: 1.3774 - val_acc: 0.6377
+Epoch 32/50
+ - 33s - loss: 0.2156 - acc: 0.9265 - val_loss: 1.3254 - val_acc: 0.6480
+Epoch 33/50
+ - 32s - loss: 0.2232 - acc: 0.9247 - val_loss: 1.4238 - val_acc: 0.6401
+Epoch 34/50
+ - 33s - loss: 0.2102 - acc: 0.9292 - val_loss: 1.3256 - val_acc: 0.6538
+Epoch 35/50
+ - 32s - loss: 0.2054 - acc: 0.9324 - val_loss: 1.4774 - val_acc: 0.6354
+Epoch 36/50
+ - 33s - loss: 0.2008 - acc: 0.9334 - val_loss: 1.4663 - val_acc: 0.6347
+Epoch 37/50
+ - 32s - loss: 0.2225 - acc: 0.9268 - val_loss: 1.3036 - val_acc: 0.6489
+Epoch 38/50
+ - 32s - loss: 0.1742 - acc: 0.9409 - val_loss: 1.3897 - val_acc: 0.6520
+Epoch 39/50
+ - 33s - loss: 0.1753 - acc: 0.9409 - val_loss: 1.4598 - val_acc: 0.6395
+Epoch 40/50
+ - 33s - loss: 0.1552 - acc: 0.9488 - val_loss: 1.5902 - val_acc: 0.6293
+Epoch 41/50
+ - 32s - loss: 0.1556 - acc: 0.9479 - val_loss: 1.4696 - val_acc: 0.6454
+Epoch 42/50
+ - 32s - loss: 0.1600 - acc: 0.9458 - val_loss: 1.4315 - val_acc: 0.6565
+Epoch 43/50
+ - 32s - loss: 0.1490 - acc: 0.9489 - val_loss: 1.4171 - val_acc: 0.6557
+Epoch 44/50
+ - 32s - loss: 0.1413 - acc: 0.9525 - val_loss: 1.5171 - val_acc: 0.6480
+Epoch 45/50
+ - 33s - loss: 0.1442 - acc: 0.9515 - val_loss: 1.4791 - val_acc: 0.6509
+Epoch 46/50
+ - 33s - loss: 0.1330 - acc: 0.9564 - val_loss: 1.4544 - val_acc: 0.6503
+Epoch 47/50
+ - 33s - loss: 0.1282 - acc: 0.9578 - val_loss: 1.5667 - val_acc: 0.6354
+Epoch 48/50
+ - 33s - loss: 0.1333 - acc: 0.9560 - val_loss: 1.5056 - val_acc: 0.6425
+Epoch 49/50
+ - 33s - loss: 0.1504 - acc: 0.9509 - val_loss: 1.5432 - val_acc: 0.6503
+Epoch 50/50
+ - 32s - loss: 0.1302 - acc: 0.9553 - val_loss: 1.4628 - val_acc: 0.6528
+('Test loss:', 1.4628092079162598)
+('Test accuracy:', 0.6528)
+Predicting...
+10000
+10000
+10
+[4.0174644e-02 6.6296775e-03 6.1699898e-06 1.5443654e-06 9.0648711e-04
+ 9.6212217e-04 5.5014812e-07 9.4322294e-01 1.5585285e-05 8.0801211e-03]
+[1.3768996e-04 4.1511233e-04 1.0431341e-03 4.1601253e-01 6.1616443e-06
+ 5.7717299e-01 1.7382138e-04 2.0391152e-03 1.4557660e-05 2.9847999e-03]
+[3.0370764e-04 6.0847331e-02 6.4136297e-04 9.3604364e-03 1.8781915e-02
+ 2.1378542e-03 8.0417371e-01 2.5323662e-03 1.8696053e-05 1.0120267e-01]
+[9.1235136e-04 3.7912648e-07 9.7655064e-01 7.3711025e-03 1.2104423e-02
+ 1.7463202e-04 4.9685990e-05 1.6281749e-03 8.9031295e-04 3.1841017e-04]
+Predictions for mobilenet_cifar10-2-5_50ep_woda-res.csv written.
+Accuracy = 0.6464
+[4017 4018 2306 ... 5442  268 5644]
+('input shape', (32, 32, 3))
+--> mobilenet_cifar10-2-5_50ep_woda_ft20ep-exp training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 60s - loss: 0.5103 - acc: 0.8557 - val_loss: 0.9798 - val_acc: 0.6792
+Epoch 2/20
+ - 47s - loss: 0.3922 - acc: 0.8787 - val_loss: 1.0018 - val_acc: 0.6746
+Epoch 3/20
+ - 47s - loss: 0.3273 - acc: 0.8955 - val_loss: 1.0334 - val_acc: 0.6791
+Epoch 4/20
+ - 47s - loss: 0.2764 - acc: 0.9098 - val_loss: 1.1254 - val_acc: 0.6660
+Epoch 5/20
+ - 47s - loss: 0.2437 - acc: 0.9188 - val_loss: 1.2633 - val_acc: 0.6597
+Epoch 6/20
+ - 47s - loss: 0.2233 - acc: 0.9262 - val_loss: 1.1684 - val_acc: 0.6788
+Epoch 7/20
+ - 47s - loss: 0.2021 - acc: 0.9313 - val_loss: 1.1792 - val_acc: 0.6772
+Epoch 8/20
+ - 47s - loss: 0.1985 - acc: 0.9336 - val_loss: 1.3112 - val_acc: 0.6616
+Epoch 9/20
+ - 47s - loss: 0.1683 - acc: 0.9437 - val_loss: 1.2528 - val_acc: 0.6694
+Epoch 10/20
+ - 47s - loss: 0.1762 - acc: 0.9399 - val_loss: 1.2866 - val_acc: 0.6752
+Epoch 11/20
+ - 47s - loss: 0.1617 - acc: 0.9453 - val_loss: 1.3003 - val_acc: 0.6681
+Epoch 12/20
+ - 47s - loss: 0.1493 - acc: 0.9513 - val_loss: 1.2265 - val_acc: 0.6837
+Epoch 13/20
+ - 47s - loss: 0.1533 - acc: 0.9494 - val_loss: 1.2591 - val_acc: 0.6819
+Epoch 14/20
+ - 47s - loss: 0.1477 - acc: 0.9509 - val_loss: 1.3591 - val_acc: 0.6594
+Epoch 15/20
+ - 47s - loss: 0.1389 - acc: 0.9519 - val_loss: 1.3364 - val_acc: 0.6722
+Epoch 16/20
+ - 47s - loss: 0.1575 - acc: 0.9494 - val_loss: 1.2941 - val_acc: 0.6776
+Epoch 17/20
+ - 47s - loss: 0.1265 - acc: 0.9576 - val_loss: 1.2645 - val_acc: 0.6751
+Epoch 18/20
+ - 47s - loss: 0.1167 - acc: 0.9609 - val_loss: 1.3857 - val_acc: 0.6874
+Epoch 19/20
+ - 47s - loss: 0.1208 - acc: 0.9593 - val_loss: 1.3047 - val_acc: 0.6746
+Epoch 20/20
+ - 47s - loss: 0.1225 - acc: 0.9585 - val_loss: 1.3912 - val_acc: 0.6756
+('Test loss:', 1.3911619206428527)
+('Test accuracy:', 0.6756)
+Predicting...
+10000
+10000
+10
+[3.48266942e-04 5.43367150e-07 1.77326619e-05 3.06169636e-06
+ 8.11128302e-06 1.10000335e-02 6.02812023e-08 9.88592207e-01
+ 1.66150653e-06 2.82363071e-05]
+[1.8347659e-05 1.4134761e-08 1.7707023e-05 1.3957437e-04 8.3761392e-08
+ 9.9979609e-01 7.1845250e-08 2.7861655e-05 2.2664415e-07 7.6790467e-09]
+[8.5702695e-06 7.7078831e-01 3.2182213e-06 1.4581509e-03 8.1949844e-04
+ 8.7690452e-05 2.2431363e-01 2.5131163e-05 3.6632537e-05 2.4592797e-03]
+[1.0577760e-05 1.0184701e-04 2.5223598e-02 9.4005543e-01 2.5117982e-02
+ 4.0016748e-05 4.2255252e-04 1.2494698e-03 6.5336251e-03 1.2449920e-03]
+Predictions for mobilenet_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
+Accuracy = 0.668
+('input shape', (32, 32, 3))
+--> mobilenet_cifar10-2-5_50ep_woda_ft20ep-ref training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 61s - loss: 0.2783 - acc: 0.9231 - val_loss: 1.0589 - val_acc: 0.6849
+Epoch 2/20
+ - 48s - loss: 0.2036 - acc: 0.9376 - val_loss: 1.1121 - val_acc: 0.6824
+Epoch 3/20
+ - 47s - loss: 0.1702 - acc: 0.9456 - val_loss: 1.1442 - val_acc: 0.6728
+Epoch 4/20
+ - 48s - loss: 0.1582 - acc: 0.9489 - val_loss: 1.1892 - val_acc: 0.6944
+Epoch 5/20
+ - 48s - loss: 0.1268 - acc: 0.9585 - val_loss: 1.2625 - val_acc: 0.6801
+Epoch 6/20
+ - 48s - loss: 0.1202 - acc: 0.9604 - val_loss: 1.2707 - val_acc: 0.6860
+Epoch 7/20
+ - 48s - loss: 0.1183 - acc: 0.9600 - val_loss: 1.2655 - val_acc: 0.6844
+Epoch 8/20
+ - 47s - loss: 0.1193 - acc: 0.9606 - val_loss: 1.2628 - val_acc: 0.6968
+Epoch 9/20
+ - 48s - loss: 0.1072 - acc: 0.9642 - val_loss: 1.2347 - val_acc: 0.6899
+Epoch 10/20
+ - 48s - loss: 0.1074 - acc: 0.9642 - val_loss: 1.2858 - val_acc: 0.6840
+Epoch 11/20
+ - 47s - loss: 0.1009 - acc: 0.9663 - val_loss: 1.2828 - val_acc: 0.6838
+Epoch 12/20
+ - 48s - loss: 0.1021 - acc: 0.9658 - val_loss: 1.3224 - val_acc: 0.6767
+Epoch 13/20
+ - 48s - loss: 0.1072 - acc: 0.9647 - val_loss: 1.2715 - val_acc: 0.6836
+Epoch 14/20
+ - 48s - loss: 0.0887 - acc: 0.9706 - val_loss: 1.3387 - val_acc: 0.6842
+Epoch 15/20
+ - 48s - loss: 0.0935 - acc: 0.9683 - val_loss: 1.4267 - val_acc: 0.6651
+Epoch 16/20
+ - 48s - loss: 0.0842 - acc: 0.9723 - val_loss: 1.4189 - val_acc: 0.6807
+Epoch 17/20
+ - 48s - loss: 0.0878 - acc: 0.9710 - val_loss: 1.3336 - val_acc: 0.6888
+Epoch 18/20
+ - 48s - loss: 0.0844 - acc: 0.9720 - val_loss: 1.4015 - val_acc: 0.6890
+Epoch 19/20
+ - 48s - loss: 0.0763 - acc: 0.9750 - val_loss: 1.4818 - val_acc: 0.6738
+Epoch 20/20
+ - 48s - loss: 0.0841 - acc: 0.9713 - val_loss: 1.3806 - val_acc: 0.6807
+('Test loss:', 1.3805558928489685)
+('Test accuracy:', 0.6807)
+Predicting...
+10000
+10000
+10
+[1.2619942e-03 1.6923221e-05 2.7166298e-03 2.8768787e-05 7.1140043e-03
+ 9.2711969e-04 4.4027980e-05 9.8762149e-01 8.4343183e-06 2.6054925e-04]
+[2.38507170e-09 1.12493495e-07 7.03917920e-08 1.31085862e-05
+ 8.40378345e-09 9.99913812e-01 4.38923919e-08 7.27336810e-05
+ 3.05565122e-11 4.57310939e-10]
+[4.87500292e-05 2.49727547e-01 2.45611445e-05 1.11432855e-04
+ 1.19527540e-04 1.80806201e-05 7.44450331e-01 3.35032450e-06
+ 8.20718924e-06 5.48817497e-03]
+[4.2632579e-05 5.1038776e-05 2.4398414e-03 6.6311834e-03 4.8472705e-01
+ 1.1263791e-04 2.1078407e-05 5.0416797e-01 9.7416184e-04 8.3239056e-04]
+Predictions for mobilenet_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
+Accuracy = 0.6814
+--> mobilenetv2_cifar10-2-5_50ep_woda
+(32, 32, 3)
+50000
+20000
+cifar10-2-5 loaded.
+mobilenetv2 structure loaded.
+Start training
+Not using data augmentation.
+Train on 20000 samples, validate on 10000 samples
+Epoch 1/50
+ - 68s - loss: 2.1742 - acc: 0.2220 - val_loss: 5.7835 - val_acc: 0.1650
+Epoch 2/50
+ - 46s - loss: 1.8263 - acc: 0.3244 - val_loss: 5.6353 - val_acc: 0.1814
+Epoch 3/50
+ - 47s - loss: 1.7110 - acc: 0.3741 - val_loss: 8.4675 - val_acc: 0.1018
+Epoch 4/50
+ - 46s - loss: 1.6707 - acc: 0.3932 - val_loss: 9.6778 - val_acc: 0.1160
+Epoch 5/50
+ - 47s - loss: 1.6385 - acc: 0.4167 - val_loss: 11.3943 - val_acc: 0.1003
+Epoch 6/50
+ - 46s - loss: 1.6311 - acc: 0.4219 - val_loss: 5.8436 - val_acc: 0.2432
+Epoch 7/50
+ - 46s - loss: 1.8327 - acc: 0.3440 - val_loss: 9.2276 - val_acc: 0.1112
+Epoch 8/50
+ - 46s - loss: 1.6386 - acc: 0.4079 - val_loss: 3.3811 - val_acc: 0.3399
+Epoch 9/50
+ - 47s - loss: 1.5426 - acc: 0.4423 - val_loss: 6.2521 - val_acc: 0.2471
+Epoch 10/50
+ - 47s - loss: 1.5135 - acc: 0.4585 - val_loss: 4.4499 - val_acc: 0.3353
+Epoch 11/50
+ - 46s - loss: 1.9772 - acc: 0.3593 - val_loss: 4.5211 - val_acc: 0.1049
+Epoch 12/50
+ - 47s - loss: 2.4696 - acc: 0.1853 - val_loss: 11.5972 - val_acc: 0.1014
+Epoch 13/50
+ - 47s - loss: 2.2436 - acc: 0.2209 - val_loss: 2.7556 - val_acc: 0.1558
+Epoch 14/50
+ - 46s - loss: 2.0772 - acc: 0.2673 - val_loss: 3.1540 - val_acc: 0.1862
+Epoch 15/50
+ - 46s - loss: 1.9444 - acc: 0.2854 - val_loss: 3.0672 - val_acc: 0.1774
+Epoch 16/50
+ - 46s - loss: 1.8945 - acc: 0.3152 - val_loss: 2.6459 - val_acc: 0.2031
+Epoch 17/50
+ - 47s - loss: 1.8911 - acc: 0.3091 - val_loss: 3.6205 - val_acc: 0.1676
+Epoch 18/50
+ - 47s - loss: 1.7840 - acc: 0.3424 - val_loss: 2.1093 - val_acc: 0.3319
+Epoch 19/50
+ - 46s - loss: 1.7184 - acc: 0.3644 - val_loss: 1.9514 - val_acc: 0.3205
+Epoch 20/50
+ - 46s - loss: 1.6887 - acc: 0.3834 - val_loss: 2.4249 - val_acc: 0.2934
+Epoch 21/50
+ - 47s - loss: 1.5728 - acc: 0.4238 - val_loss: 1.7824 - val_acc: 0.3927
+Epoch 22/50
+ - 46s - loss: 1.5007 - acc: 0.4524 - val_loss: 1.6284 - val_acc: 0.4050
+Epoch 23/50
+ - 47s - loss: 1.4242 - acc: 0.4846 - val_loss: 1.4910 - val_acc: 0.4626
+Epoch 24/50
+ - 47s - loss: 1.4382 - acc: 0.4824 - val_loss: 2.2710 - val_acc: 0.3185
+Epoch 25/50
+ - 47s - loss: 1.4184 - acc: 0.4892 - val_loss: 1.8115 - val_acc: 0.3957
+Epoch 26/50
+ - 47s - loss: 1.3229 - acc: 0.5262 - val_loss: 1.4472 - val_acc: 0.4836
+Epoch 27/50
+ - 46s - loss: 1.2750 - acc: 0.5412 - val_loss: 1.7446 - val_acc: 0.4268
+Epoch 28/50
+ - 47s - loss: 1.2137 - acc: 0.5621 - val_loss: 1.8576 - val_acc: 0.4264
+Epoch 29/50
+ - 47s - loss: 1.1893 - acc: 0.5741 - val_loss: 1.4434 - val_acc: 0.5340
+Epoch 30/50
+ - 46s - loss: 1.1257 - acc: 0.5984 - val_loss: 1.4039 - val_acc: 0.5438
+Epoch 31/50
+ - 47s - loss: 1.0661 - acc: 0.6205 - val_loss: 1.2302 - val_acc: 0.5856
+Epoch 32/50
+ - 47s - loss: 1.1241 - acc: 0.6057 - val_loss: 1.5305 - val_acc: 0.5012
+Epoch 33/50
+ - 46s - loss: 1.0796 - acc: 0.6177 - val_loss: 1.6602 - val_acc: 0.5030
+Epoch 34/50
+ - 46s - loss: 0.9997 - acc: 0.6486 - val_loss: 1.2147 - val_acc: 0.5905
+Epoch 35/50
+ - 47s - loss: 0.9409 - acc: 0.6698 - val_loss: 1.2412 - val_acc: 0.5844
+Epoch 36/50
+ - 47s - loss: 0.9126 - acc: 0.6785 - val_loss: 1.2071 - val_acc: 0.5944
+Epoch 37/50
+ - 46s - loss: 0.9255 - acc: 0.6744 - val_loss: 2.5806 - val_acc: 0.3167
+Epoch 38/50
+ - 47s - loss: 1.2298 - acc: 0.5637 - val_loss: 1.6628 - val_acc: 0.4864
+Epoch 39/50
+ - 46s - loss: 1.0263 - acc: 0.6353 - val_loss: 1.3253 - val_acc: 0.5614
+Epoch 40/50
+ - 46s - loss: 0.9307 - acc: 0.6643 - val_loss: 1.1398 - val_acc: 0.6073
+Epoch 41/50
+ - 47s - loss: 0.8793 - acc: 0.6896 - val_loss: 1.1202 - val_acc: 0.6064
+Epoch 42/50
+ - 46s - loss: 0.8878 - acc: 0.6871 - val_loss: 1.5942 - val_acc: 0.4849
+Epoch 43/50
+ - 47s - loss: 1.1201 - acc: 0.6012 - val_loss: 1.4050 - val_acc: 0.5396
+Epoch 44/50
+ - 47s - loss: 0.9565 - acc: 0.6584 - val_loss: 1.2605 - val_acc: 0.5665
+Epoch 45/50
+ - 47s - loss: 0.9138 - acc: 0.6780 - val_loss: 1.1652 - val_acc: 0.5967
+Epoch 46/50
+ - 47s - loss: 0.8582 - acc: 0.6958 - val_loss: 1.0635 - val_acc: 0.6332
+Epoch 47/50
+ - 46s - loss: 0.7825 - acc: 0.7264 - val_loss: 1.2278 - val_acc: 0.5865
+Epoch 48/50
+ - 47s - loss: 1.0608 - acc: 0.6270 - val_loss: 1.4609 - val_acc: 0.4940
+Epoch 49/50
+ - 47s - loss: 0.9411 - acc: 0.6673 - val_loss: 1.1706 - val_acc: 0.5962
+Epoch 50/50
+ - 46s - loss: 0.7849 - acc: 0.7251 - val_loss: 1.0319 - val_acc: 0.6403
+('Test loss:', 1.0318535556793214)
+('Test accuracy:', 0.6403)
+Predicting...
+10000
+10000
+10
+[3.7465815e-03 9.5761393e-04 4.6304050e-03 4.8063863e-03 2.9970385e-02
+ 1.2461811e-02 5.4520387e-05 9.3080527e-01 3.7808574e-04 1.2188962e-02]
+[0.0021586  0.00098611 0.01404587 0.5991358  0.02805998 0.22784339
+ 0.09389392 0.01740293 0.00196994 0.01450342]
+[2.4085892e-03 4.4000047e-01 3.9162114e-03 3.4494631e-02 4.0275045e-03
+ 1.4871395e-02 3.8611138e-01 1.8210597e-04 2.8513243e-02 8.5474417e-02]
+[0.089853   0.00054153 0.38491774 0.06564984 0.2703768  0.05818423
+ 0.0029334  0.12056137 0.00594529 0.00103685]
+Predictions for mobilenetv2_cifar10-2-5_50ep_woda-res.csv written.
+Accuracy = 0.6322
+[16243 16242 16240 ...  6957  5550 14808]
+('input shape', (32, 32, 3))
+--> mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-exp training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 89s - loss: 0.8832 - acc: 0.6930 - val_loss: 1.0486 - val_acc: 0.6329
+Epoch 2/20
+ - 68s - loss: 0.8581 - acc: 0.6970 - val_loss: 1.1791 - val_acc: 0.5974
+Epoch 3/20
+ - 68s - loss: 0.8147 - acc: 0.7142 - val_loss: 0.9928 - val_acc: 0.6494
+Epoch 4/20
+ - 68s - loss: 0.7527 - acc: 0.7381 - val_loss: 1.0006 - val_acc: 0.6571
+Epoch 5/20
+ - 68s - loss: 0.7589 - acc: 0.7348 - val_loss: 0.9754 - val_acc: 0.6610
+Epoch 6/20
+ - 68s - loss: 0.8534 - acc: 0.7036 - val_loss: 1.0193 - val_acc: 0.6452
+Epoch 7/20
+ - 68s - loss: 0.6912 - acc: 0.7577 - val_loss: 0.9681 - val_acc: 0.6684
+Epoch 8/20
+ - 68s - loss: 0.6456 - acc: 0.7731 - val_loss: 1.0140 - val_acc: 0.6595
+Epoch 9/20
+ - 68s - loss: 0.6266 - acc: 0.7825 - val_loss: 1.0983 - val_acc: 0.6460
+Epoch 10/20
+ - 68s - loss: 0.6862 - acc: 0.7627 - val_loss: 1.1025 - val_acc: 0.6548
+Epoch 11/20
+ - 68s - loss: 0.5913 - acc: 0.7937 - val_loss: 0.9612 - val_acc: 0.6784
+Epoch 12/20
+ - 68s - loss: 0.6912 - acc: 0.7572 - val_loss: 1.0141 - val_acc: 0.6547
+Epoch 13/20
+ - 68s - loss: 0.6664 - acc: 0.7656 - val_loss: 1.0120 - val_acc: 0.6693
+Epoch 14/20
+ - 68s - loss: 0.5387 - acc: 0.8142 - val_loss: 0.9504 - val_acc: 0.6821
+Epoch 15/20
+ - 68s - loss: 0.5010 - acc: 0.8264 - val_loss: 0.9828 - val_acc: 0.6703
+Epoch 16/20
+ - 68s - loss: 0.5736 - acc: 0.8014 - val_loss: 0.9333 - val_acc: 0.6948
+Epoch 17/20
+ - 68s - loss: 0.5432 - acc: 0.8099 - val_loss: 1.2841 - val_acc: 0.5924
+Epoch 18/20
+ - 68s - loss: 0.5151 - acc: 0.8218 - val_loss: 0.9838 - val_acc: 0.6800
+Epoch 19/20
+ - 68s - loss: 0.4793 - acc: 0.8319 - val_loss: 1.0062 - val_acc: 0.6839
+Epoch 20/20
+ - 68s - loss: 0.4422 - acc: 0.8452 - val_loss: 0.9818 - val_acc: 0.6847
+('Test loss:', 0.9817754838943481)
+('Test accuracy:', 0.6847)
+Predicting...
+10000
+10000
+10
+[6.3597434e-04 6.9500213e-03 3.0308818e-03 3.6386277e-03 5.4157954e-03
+ 3.8228590e-02 8.6877335e-05 8.9786905e-01 2.0598182e-04 4.3938212e-02]
+[0.00114044 0.00079722 0.01027602 0.7268588  0.00370967 0.20095623
+ 0.02055692 0.00637567 0.00793426 0.02139479]
+[1.22461189e-03 4.97063339e-01 4.01062862e-04 8.38857202e-04
+ 1.05506646e-04 7.87121462e-05 1.07579298e-01 1.47671090e-05
+ 3.07724118e-01 8.49697664e-02]
+[1.4843377e-01 2.1068365e-04 1.6091917e-01 3.4516007e-02 5.8271438e-01
+ 8.4854970e-03 1.2097951e-02 2.5673332e-02 2.2645218e-02 4.3039760e-03]
+Predictions for mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
+Accuracy = 0.6751
+('input shape', (32, 32, 3))
+--> mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-ref training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 94s - loss: 0.4448 - acc: 0.8468 - val_loss: 1.0389 - val_acc: 0.6798
+Epoch 2/20
+ - 70s - loss: 0.4736 - acc: 0.8371 - val_loss: 1.0352 - val_acc: 0.6790
+Epoch 3/20
+ - 69s - loss: 0.4377 - acc: 0.8499 - val_loss: 1.0023 - val_acc: 0.6830
+Epoch 4/20
+ - 69s - loss: 0.4029 - acc: 0.8622 - val_loss: 1.1111 - val_acc: 0.6586
+Epoch 5/20
+ - 69s - loss: 0.4414 - acc: 0.8478 - val_loss: 1.0037 - val_acc: 0.6908
+Epoch 6/20
+ - 70s - loss: 0.4003 - acc: 0.8593 - val_loss: 1.0451 - val_acc: 0.6794
+Epoch 7/20
+ - 69s - loss: 0.3741 - acc: 0.8718 - val_loss: 1.0956 - val_acc: 0.6835
+Epoch 8/20
+ - 69s - loss: 0.3541 - acc: 0.8745 - val_loss: 1.0641 - val_acc: 0.6897
+Epoch 9/20
+ - 69s - loss: 0.3232 - acc: 0.8876 - val_loss: 1.0564 - val_acc: 0.6871
+Epoch 10/20
+ - 69s - loss: 0.3433 - acc: 0.8812 - val_loss: 1.0380 - val_acc: 0.6890
+Epoch 11/20
+ - 70s - loss: 0.3432 - acc: 0.8817 - val_loss: 1.5373 - val_acc: 0.5847
+Epoch 12/20
+ - 70s - loss: 0.3663 - acc: 0.8750 - val_loss: 1.2136 - val_acc: 0.6587
+Epoch 13/20
+ - 69s - loss: 0.3026 - acc: 0.8932 - val_loss: 1.2255 - val_acc: 0.6609
+Epoch 14/20
+ - 70s - loss: 0.3366 - acc: 0.8817 - val_loss: 1.0861 - val_acc: 0.6887
+Epoch 15/20
+ - 69s - loss: 0.3009 - acc: 0.8958 - val_loss: 1.0944 - val_acc: 0.6879
+Epoch 16/20
+ - 70s - loss: 0.2995 - acc: 0.8959 - val_loss: 1.0532 - val_acc: 0.6981
+Epoch 17/20
+ - 69s - loss: 0.3785 - acc: 0.8702 - val_loss: 1.1194 - val_acc: 0.6776
+Epoch 18/20
+ - 69s - loss: 0.2765 - acc: 0.9043 - val_loss: 1.1469 - val_acc: 0.6836
+Epoch 19/20
+ - 69s - loss: 0.3123 - acc: 0.8931 - val_loss: 1.0809 - val_acc: 0.6915
+Epoch 20/20
+ - 69s - loss: 0.2556 - acc: 0.9102 - val_loss: 1.2700 - val_acc: 0.6691
+('Test loss:', 1.269979119539261)
+('Test accuracy:', 0.6691)
+Predicting...
+10000
+10000
+10
+[6.6070534e-02 2.3378382e-02 2.0848413e-03 7.2708481e-04 8.8268171e-05
+ 1.2028985e-02 1.7260375e-06 7.9127920e-01 1.7904786e-04 1.0416199e-01]
+[0.01016735 0.00033063 0.2879895  0.24159719 0.09297998 0.25266162
+ 0.0091012  0.09912722 0.00412116 0.00192416]
+[6.1042226e-07 9.8408681e-01 2.8234740e-06 2.0624910e-08 1.6763728e-10
+ 1.9385993e-08 1.2026494e-02 1.4032836e-12 3.8768335e-03 6.4160408e-06]
+[0.39710194 0.06843986 0.3002845  0.05128711 0.00734273 0.03405819
+ 0.02826054 0.00807744 0.06916056 0.03598711]
+Predictions for mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
+Accuracy = 0.6563
+--> nasnet_cifar10-2-5_50ep_woda
+(32, 32, 3)
+50000
+20000
+cifar10-2-5 loaded.
+nasnet structure loaded.
+Start training
+Not using data augmentation.
+Train on 20000 samples, validate on 10000 samples
+Epoch 1/50
+ - 212s - loss: 1.9258 - acc: 0.3026 - val_loss: 6.6364 - val_acc: 0.1635
+Epoch 2/50
+ - 140s - loss: 1.6030 - acc: 0.4217 - val_loss: 13.4209 - val_acc: 0.1122
+Epoch 3/50
+ - 140s - loss: 1.4526 - acc: 0.4853 - val_loss: 6.7847 - val_acc: 0.2006
+Epoch 4/50
+ - 140s - loss: 1.3567 - acc: 0.5176 - val_loss: 9.3783 - val_acc: 0.1892
+Epoch 5/50
+ - 140s - loss: 1.2626 - acc: 0.5605 - val_loss: 11.5766 - val_acc: 0.1440
+Epoch 6/50
+ - 140s - loss: 1.1772 - acc: 0.5897 - val_loss: 14.4660 - val_acc: 0.1025
+Epoch 7/50
+ - 140s - loss: 1.0981 - acc: 0.6205 - val_loss: 12.9072 - val_acc: 0.1586
+Epoch 8/50
+ - 140s - loss: 1.0295 - acc: 0.6436 - val_loss: 13.6823 - val_acc: 0.1201
+Epoch 9/50
+ - 139s - loss: 0.9533 - acc: 0.6690 - val_loss: 11.7848 - val_acc: 0.2071
+Epoch 10/50
+ - 140s - loss: 0.8886 - acc: 0.6927 - val_loss: 12.0894 - val_acc: 0.1759
+Epoch 11/50
+ - 140s - loss: 0.8700 - acc: 0.7040 - val_loss: 14.3060 - val_acc: 0.1016
+Epoch 12/50
+ - 140s - loss: 0.7737 - acc: 0.7344 - val_loss: 14.4805 - val_acc: 0.1016
+Epoch 13/50
+ - 140s - loss: 0.6969 - acc: 0.7597 - val_loss: 14.3318 - val_acc: 0.1031
+Epoch 14/50
+ - 140s - loss: 0.7072 - acc: 0.7558 - val_loss: 14.4805 - val_acc: 0.1016
+Epoch 15/50
+ - 140s - loss: 0.6034 - acc: 0.7883 - val_loss: 14.4805 - val_acc: 0.1016
+Epoch 16/50
+ - 140s - loss: 0.5699 - acc: 0.8007 - val_loss: 14.4805 - val_acc: 0.1016
+Epoch 17/50
+ - 139s - loss: 0.5101 - acc: 0.8274 - val_loss: 14.4578 - val_acc: 0.1008
+Epoch 18/50
+ - 140s - loss: 0.4572 - acc: 0.8414 - val_loss: 14.3705 - val_acc: 0.0978
+Epoch 19/50
+ - 140s - loss: 0.4360 - acc: 0.8486 - val_loss: 13.7398 - val_acc: 0.1125
+Epoch 20/50
+ - 140s - loss: 0.4043 - acc: 0.8611 - val_loss: 12.5094 - val_acc: 0.1485
+Epoch 21/50
+ - 140s - loss: 0.3672 - acc: 0.8751 - val_loss: 12.0878 - val_acc: 0.1885
+Epoch 22/50
+ - 139s - loss: 0.3274 - acc: 0.8866 - val_loss: 13.6611 - val_acc: 0.1112
+Epoch 23/50
+ - 140s - loss: 0.3484 - acc: 0.8819 - val_loss: 13.4504 - val_acc: 0.1275
+Epoch 24/50
+ - 140s - loss: 0.3109 - acc: 0.8930 - val_loss: 13.0868 - val_acc: 0.1237
+Epoch 25/50
+ - 141s - loss: 0.2935 - acc: 0.8989 - val_loss: 10.3678 - val_acc: 0.2104
+Epoch 26/50
+ - 140s - loss: 0.3845 - acc: 0.8690 - val_loss: 13.1021 - val_acc: 0.1338
+Epoch 27/50
+ - 140s - loss: 0.3011 - acc: 0.8976 - val_loss: 8.3191 - val_acc: 0.2630
+Epoch 28/50
+ - 140s - loss: 0.2134 - acc: 0.9279 - val_loss: 6.7296 - val_acc: 0.3450
+Epoch 29/50
+ - 140s - loss: 0.2214 - acc: 0.9229 - val_loss: 5.7526 - val_acc: 0.3795
+Epoch 30/50
+ - 140s - loss: 0.2061 - acc: 0.9297 - val_loss: 4.7318 - val_acc: 0.4764
+Epoch 31/50
+ - 140s - loss: 0.2117 - acc: 0.9277 - val_loss: 6.8979 - val_acc: 0.3564
+Epoch 32/50
+ - 140s - loss: 0.2070 - acc: 0.9274 - val_loss: 8.6367 - val_acc: 0.3076
+Epoch 33/50
+ - 140s - loss: 0.1924 - acc: 0.9336 - val_loss: 9.6623 - val_acc: 0.2396
+Epoch 34/50
+ - 140s - loss: 0.1953 - acc: 0.9309 - val_loss: 7.1947 - val_acc: 0.3390
+Epoch 35/50
+ - 140s - loss: 0.1915 - acc: 0.9364 - val_loss: 11.2694 - val_acc: 0.2067
+Epoch 36/50
+ - 140s - loss: 0.1838 - acc: 0.9360 - val_loss: 4.2997 - val_acc: 0.4726
+Epoch 37/50
+ - 140s - loss: 0.1767 - acc: 0.9407 - val_loss: 3.6477 - val_acc: 0.5007
+Epoch 38/50
+ - 140s - loss: 0.1692 - acc: 0.9415 - val_loss: 4.5224 - val_acc: 0.4763
+Epoch 39/50
+ - 140s - loss: 0.1470 - acc: 0.9488 - val_loss: 3.6081 - val_acc: 0.5124
+Epoch 40/50
+ - 140s - loss: 0.3084 - acc: 0.8960 - val_loss: 6.5670 - val_acc: 0.3637
+Epoch 41/50
+ - 141s - loss: 0.2177 - acc: 0.9240 - val_loss: 4.9639 - val_acc: 0.4114
+Epoch 42/50
+ - 140s - loss: 0.1908 - acc: 0.9331 - val_loss: 4.2380 - val_acc: 0.4606
+Epoch 43/50
+ - 140s - loss: 0.1243 - acc: 0.9575 - val_loss: 4.1242 - val_acc: 0.4734
+Epoch 44/50
+ - 140s - loss: 0.1391 - acc: 0.9532 - val_loss: 5.6963 - val_acc: 0.3887
+Epoch 45/50
+ - 140s - loss: 0.1460 - acc: 0.9496 - val_loss: 4.4856 - val_acc: 0.4698
+Epoch 46/50
+ - 140s - loss: 0.1442 - acc: 0.9502 - val_loss: 3.7569 - val_acc: 0.5134
+Epoch 47/50
+ - 140s - loss: 0.1343 - acc: 0.9544 - val_loss: 4.6999 - val_acc: 0.4445
+Epoch 48/50
+ - 140s - loss: 0.1413 - acc: 0.9523 - val_loss: 3.1541 - val_acc: 0.5439
+Epoch 49/50
+ - 141s - loss: 0.1307 - acc: 0.9539 - val_loss: 3.5133 - val_acc: 0.5241
+Epoch 50/50
+ - 139s - loss: 0.1155 - acc: 0.9606 - val_loss: 3.8650 - val_acc: 0.5065
+('Test loss:', 3.86504211769104)
+('Test accuracy:', 0.5065)
+Predicting...
+10000
+10000
+10
+[1.0127294e-08 1.2449712e-07 2.6638018e-09 5.8621787e-09 1.3413925e-08
+ 5.3178120e-08 3.7000968e-11 9.9999976e-01 7.0191791e-15 2.0974465e-11]
+[9.2016688e-07 2.0245856e-03 4.3265773e-05 6.2546146e-04 3.3130192e-08
+ 9.8258811e-01 4.3515438e-08 8.5079055e-03 2.0527314e-07 6.2094689e-03]
+[7.9413148e-10 9.9997854e-01 6.4201650e-10 5.0304130e-09 2.7367295e-10
+ 3.1726111e-09 1.9808420e-05 2.4939806e-09 3.8605375e-08 1.6743755e-06]
+[8.18942487e-03 4.75508202e-08 9.76125956e-01 1.58322587e-06
+ 7.36583443e-03 8.09796402e-05 5.88639068e-07 1.13142334e-04
+ 8.11162684e-03 1.07798878e-05]
+Predictions for nasnet_cifar10-2-5_50ep_woda-res.csv written.
+Accuracy = 0.4924
+[16610 16609 16608 ...  2453   782   532]
+('input shape', (32, 32, 3))
+--> nasnet_cifar10-2-5_50ep_woda_ft20ep-exp training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 285s - loss: 0.5506 - acc: 0.8390 - val_loss: 6.1158 - val_acc: 0.3420
+Epoch 2/20
+ - 210s - loss: 0.4188 - acc: 0.8685 - val_loss: 3.3206 - val_acc: 0.5247
+Epoch 3/20
+ - 210s - loss: 0.3427 - acc: 0.8881 - val_loss: 2.5558 - val_acc: 0.5398
+Epoch 4/20
+ - 210s - loss: 0.2840 - acc: 0.9052 - val_loss: 1.7492 - val_acc: 0.5852
+Epoch 5/20
+ - 210s - loss: 0.2596 - acc: 0.9139 - val_loss: 2.0969 - val_acc: 0.5506
+Epoch 6/20
+ - 210s - loss: 0.2378 - acc: 0.9208 - val_loss: 1.8503 - val_acc: 0.5967
+Epoch 7/20
+ - 210s - loss: 0.2999 - acc: 0.8994 - val_loss: 7.0813 - val_acc: 0.3005
+Epoch 8/20
+ - 211s - loss: 0.2434 - acc: 0.9169 - val_loss: 3.6402 - val_acc: 0.4901
+Epoch 9/20
+ - 210s - loss: 0.1760 - acc: 0.9392 - val_loss: 2.7651 - val_acc: 0.5339
+Epoch 10/20
+ - 210s - loss: 0.1784 - acc: 0.9387 - val_loss: 1.9774 - val_acc: 0.6129
+Epoch 11/20
+ - 210s - loss: 0.1879 - acc: 0.9360 - val_loss: 2.4790 - val_acc: 0.5731
+Epoch 12/20
+ - 210s - loss: 0.1614 - acc: 0.9445 - val_loss: 2.4168 - val_acc: 0.5692
+Epoch 13/20
+ - 211s - loss: 0.1692 - acc: 0.9409 - val_loss: 3.4851 - val_acc: 0.5137
+Epoch 14/20
+ - 210s - loss: 0.2348 - acc: 0.9207 - val_loss: 2.3050 - val_acc: 0.5640
+Epoch 15/20
+ - 210s - loss: 0.1384 - acc: 0.9521 - val_loss: 2.2620 - val_acc: 0.5799
+Epoch 16/20
+ - 210s - loss: 0.1380 - acc: 0.9541 - val_loss: 2.3388 - val_acc: 0.5734
+Epoch 17/20
+ - 210s - loss: 0.1514 - acc: 0.9463 - val_loss: 2.7482 - val_acc: 0.5623
+Epoch 18/20
+ - 210s - loss: 0.2819 - acc: 0.9059 - val_loss: 2.7833 - val_acc: 0.5121
+Epoch 19/20
+ - 210s - loss: 0.2424 - acc: 0.9168 - val_loss: 2.2002 - val_acc: 0.5629
+Epoch 20/20
+ - 211s - loss: 0.1190 - acc: 0.9601 - val_loss: 2.2210 - val_acc: 0.5796
+('Test loss:', 2.2209929191589355)
+('Test accuracy:', 0.5796)
+Predicting...
+10000
+10000
+10
+[6.8223209e-04 2.7291351e-03 1.2552129e-05 8.1052104e-07 1.0158265e-02
+ 1.4692681e-05 8.1633278e-09 9.8636043e-01 6.3078306e-07 4.1174040e-05]
+[6.42771542e-01 3.88564649e-06 8.81114465e-05 6.70357083e-04
+ 3.42451642e-07 3.53377253e-01 7.70964289e-06 2.43943417e-03
+ 1.15368375e-05 6.29727787e-04]
+[5.3556057e-09 9.9999821e-01 3.7656614e-12 1.0941852e-07 3.8891412e-12
+ 5.1836306e-08 7.4375359e-09 4.0104189e-10 2.5437681e-09 1.5265507e-06]
+[3.96858335e-01 1.80207554e-03 2.07645407e-05 5.68162560e-01
+ 2.02465399e-05 1.13576034e-05 6.48853238e-05 1.02282414e-04
+ 2.42829695e-03 3.05291638e-02]
+Predictions for nasnet_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
+Accuracy = 0.5694
+('input shape', (32, 32, 3))
+--> nasnet_cifar10-2-5_50ep_woda_ft20ep-ref training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 303s - loss: 0.1738 - acc: 0.9463 - val_loss: 3.5085 - val_acc: 0.4882
+Epoch 2/20
+ - 215s - loss: 0.2365 - acc: 0.9220 - val_loss: 2.9816 - val_acc: 0.4935
+Epoch 3/20
+ - 216s - loss: 0.1745 - acc: 0.9425 - val_loss: 2.5110 - val_acc: 0.5789
+Epoch 4/20
+ - 215s - loss: 0.1922 - acc: 0.9368 - val_loss: 3.1308 - val_acc: 0.5455
+Epoch 5/20
+ - 215s - loss: 0.1383 - acc: 0.9527 - val_loss: 1.6893 - val_acc: 0.6310
+Epoch 6/20
+ - 215s - loss: 0.1178 - acc: 0.9594 - val_loss: 2.0117 - val_acc: 0.6081
+Epoch 7/20
+ - 215s - loss: 0.1365 - acc: 0.9530 - val_loss: 2.3791 - val_acc: 0.5889
+Epoch 8/20
+ - 215s - loss: 0.1245 - acc: 0.9590 - val_loss: 2.4000 - val_acc: 0.5876
+Epoch 9/20
+ - 216s - loss: 0.1265 - acc: 0.9574 - val_loss: 1.9563 - val_acc: 0.6377
+Epoch 10/20
+ - 215s - loss: 0.1135 - acc: 0.9619 - val_loss: 2.3273 - val_acc: 0.5875
+Epoch 11/20
+ - 216s - loss: 0.1175 - acc: 0.9603 - val_loss: 2.1796 - val_acc: 0.6112
+Epoch 12/20
+ - 215s - loss: 0.1362 - acc: 0.9530 - val_loss: 2.3269 - val_acc: 0.5856
+Epoch 13/20
+ - 216s - loss: 0.1098 - acc: 0.9624 - val_loss: 2.1530 - val_acc: 0.6141
+Epoch 14/20
+ - 215s - loss: 0.1144 - acc: 0.9596 - val_loss: 2.0600 - val_acc: 0.6273
+Epoch 15/20
+ - 215s - loss: 0.0944 - acc: 0.9679 - val_loss: 2.0217 - val_acc: 0.6240
+Epoch 16/20
+ - 215s - loss: 0.1122 - acc: 0.9612 - val_loss: 2.1136 - val_acc: 0.6152
+Epoch 17/20
+ - 215s - loss: 0.1855 - acc: 0.9374 - val_loss: 1.9367 - val_acc: 0.6096
+Epoch 18/20
+ - 215s - loss: 0.1080 - acc: 0.9643 - val_loss: 2.0714 - val_acc: 0.5998
+Epoch 19/20
+ - 215s - loss: 0.0833 - acc: 0.9720 - val_loss: 1.9580 - val_acc: 0.6343
+Epoch 20/20
+ - 216s - loss: 0.1048 - acc: 0.9637 - val_loss: 2.4463 - val_acc: 0.5290
+('Test loss:', 2.446294729614258)
+('Test accuracy:', 0.529)
+Predicting...
+10000
+10000
+10
+[2.56433282e-02 5.46657629e-02 2.15393411e-05 1.17014104e-04
+ 7.34312227e-04 1.25100138e-03 6.04564605e-07 9.13421154e-01
+ 3.44423635e-04 3.80077306e-03]
+[3.2467342e-03 3.0767762e-05 1.0443680e-04 2.1496392e-03 4.8022827e-08
+ 9.9348652e-01 4.1936896e-06 2.3570876e-05 1.3462064e-04 8.1959314e-04]
+[8.4582598e-06 9.9735743e-01 9.0649938e-10 3.4792066e-08 1.0178599e-06
+ 6.8562587e-09 1.6971459e-04 5.9516145e-07 2.4611913e-03 1.5733682e-06]
+[9.3569714e-01 4.6859286e-04 3.0144803e-02 3.3983995e-06 1.2890495e-04
+ 3.7161179e-05 2.1740210e-03 9.7323449e-05 3.1227402e-02 2.1283653e-05]
+Predictions for nasnet_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
+Accuracy = 0.5263
+--> resnet50_cifar10-2-5_50ep_woda
+(32, 32, 3)
+50000
+20000
+cifar10-2-5 loaded.
+resnet50 structure loaded.
+Start training
+Not using data augmentation.
+Train on 20000 samples, validate on 10000 samples
+Epoch 1/50
+ - 147s - loss: 2.4006 - acc: 0.2918 - val_loss: 12.6881 - val_acc: 0.1063
+Epoch 2/50
+ - 79s - loss: 2.2843 - acc: 0.3314 - val_loss: 1.9294 - val_acc: 0.3099
+Epoch 3/50
+ - 79s - loss: 2.0868 - acc: 0.3803 - val_loss: 1.6729 - val_acc: 0.4081
+Epoch 4/50
+ - 78s - loss: 2.3334 - acc: 0.3418 - val_loss: 6.7786 - val_acc: 0.1580
+Epoch 5/50
+ - 78s - loss: 2.3580 - acc: 0.2707 - val_loss: 2.0465 - val_acc: 0.3238
+Epoch 6/50
+ - 79s - loss: 2.0745 - acc: 0.3736 - val_loss: 1.7444 - val_acc: 0.3767
+Epoch 7/50
+ - 78s - loss: 1.9143 - acc: 0.4361 - val_loss: 1.7436 - val_acc: 0.4227
+Epoch 8/50
+ - 78s - loss: 2.0119 - acc: 0.4160 - val_loss: 2.2471 - val_acc: 0.2834
+Epoch 9/50
+ - 79s - loss: 2.1344 - acc: 0.3695 - val_loss: 2.0503 - val_acc: 0.3697
+Epoch 10/50
+ - 79s - loss: 2.3366 - acc: 0.2800 - val_loss: 2.2444 - val_acc: 0.1636
+Epoch 11/50
+ - 79s - loss: 2.5152 - acc: 0.1997 - val_loss: 2.2025 - val_acc: 0.2230
+Epoch 12/50
+ - 79s - loss: 2.4602 - acc: 0.2424 - val_loss: 6.3642 - val_acc: 0.1064
+Epoch 13/50
+ - 79s - loss: 2.5702 - acc: 0.1994 - val_loss: 2.5592 - val_acc: 0.2119
+Epoch 14/50
+ - 79s - loss: 2.5404 - acc: 0.1973 - val_loss: 2.1553 - val_acc: 0.1858
+Epoch 15/50
+ - 79s - loss: 2.4733 - acc: 0.2156 - val_loss: 2.2532 - val_acc: 0.2170
+Epoch 16/50
+ - 79s - loss: 2.4982 - acc: 0.2100 - val_loss: 2.3224 - val_acc: 0.2252
+Epoch 17/50
+ - 79s - loss: 2.3798 - acc: 0.2410 - val_loss: 2.2755 - val_acc: 0.2402
+Epoch 18/50
+ - 79s - loss: 2.2961 - acc: 0.2744 - val_loss: 2.0859 - val_acc: 0.2385
+Epoch 19/50
+ - 79s - loss: 2.4472 - acc: 0.2420 - val_loss: 2.8431 - val_acc: 0.2360
+Epoch 20/50
+ - 78s - loss: 2.2209 - acc: 0.2340 - val_loss: 2.0273 - val_acc: 0.2393
+Epoch 21/50
+ - 78s - loss: 1.9179 - acc: 0.2876 - val_loss: 1.9830 - val_acc: 0.3109
+Epoch 22/50
+ - 79s - loss: 1.8372 - acc: 0.3127 - val_loss: 1.8538 - val_acc: 0.3260
+Epoch 23/50
+ - 79s - loss: 1.7805 - acc: 0.3374 - val_loss: 2.0015 - val_acc: 0.3221
+Epoch 24/50
+ - 79s - loss: 1.7289 - acc: 0.3564 - val_loss: 1.8839 - val_acc: 0.3415
+Epoch 25/50
+ - 79s - loss: 1.6604 - acc: 0.3880 - val_loss: 1.6596 - val_acc: 0.4114
+Epoch 26/50
+ - 79s - loss: 1.6075 - acc: 0.4126 - val_loss: 1.8891 - val_acc: 0.4146
+Epoch 27/50
+ - 79s - loss: 1.6018 - acc: 0.4089 - val_loss: 1.6289 - val_acc: 0.4068
+Epoch 28/50
+ - 79s - loss: 1.7429 - acc: 0.3594 - val_loss: 1.7613 - val_acc: 0.3911
+Epoch 29/50
+ - 79s - loss: 1.6161 - acc: 0.4077 - val_loss: 1.7407 - val_acc: 0.4039
+Epoch 30/50
+ - 79s - loss: 1.5534 - acc: 0.4307 - val_loss: 1.6851 - val_acc: 0.4318
+Epoch 31/50
+ - 79s - loss: 1.4875 - acc: 0.4549 - val_loss: 1.5938 - val_acc: 0.4384
+Epoch 32/50
+ - 79s - loss: 1.4500 - acc: 0.4688 - val_loss: 2.1154 - val_acc: 0.4275
+Epoch 33/50
+ - 79s - loss: 1.4808 - acc: 0.4593 - val_loss: 1.5065 - val_acc: 0.4750
+Epoch 34/50
+ - 79s - loss: 1.3540 - acc: 0.5062 - val_loss: 1.5753 - val_acc: 0.4850
+Epoch 35/50
+ - 78s - loss: 1.2912 - acc: 0.5284 - val_loss: 1.3657 - val_acc: 0.5374
+Epoch 36/50
+ - 79s - loss: 1.2548 - acc: 0.5494 - val_loss: 1.4381 - val_acc: 0.5152
+Epoch 37/50
+ - 78s - loss: 1.3162 - acc: 0.5283 - val_loss: 1.8699 - val_acc: 0.3409
+Epoch 38/50
+ - 79s - loss: 1.1997 - acc: 0.5689 - val_loss: 1.4184 - val_acc: 0.5555
+Epoch 39/50
+ - 79s - loss: 1.1122 - acc: 0.6008 - val_loss: 1.6796 - val_acc: 0.4284
+Epoch 40/50
+ - 79s - loss: 1.0708 - acc: 0.6149 - val_loss: 1.4806 - val_acc: 0.5409
+Epoch 41/50
+ - 79s - loss: 1.0663 - acc: 0.6179 - val_loss: 1.4218 - val_acc: 0.5702
+Epoch 42/50
+ - 79s - loss: 1.0012 - acc: 0.6456 - val_loss: 1.3240 - val_acc: 0.5630
+Epoch 43/50
+ - 78s - loss: 0.9244 - acc: 0.6678 - val_loss: 1.1864 - val_acc: 0.5864
+Epoch 44/50
+ - 79s - loss: 0.8693 - acc: 0.6914 - val_loss: 1.0777 - val_acc: 0.6265
+Epoch 45/50
+ - 79s - loss: 0.8391 - acc: 0.7034 - val_loss: 1.3142 - val_acc: 0.6021
+Epoch 46/50
+ - 79s - loss: 0.7556 - acc: 0.7337 - val_loss: 1.2507 - val_acc: 0.6281
+Epoch 47/50
+ - 78s - loss: 0.6665 - acc: 0.7593 - val_loss: 1.5869 - val_acc: 0.5433
+Epoch 48/50
+ - 79s - loss: 0.6472 - acc: 0.7680 - val_loss: 2.3046 - val_acc: 0.4243
+Epoch 49/50
+ - 78s - loss: 0.7403 - acc: 0.7367 - val_loss: 1.3092 - val_acc: 0.5896
+Epoch 50/50
+ - 79s - loss: 0.6215 - acc: 0.7833 - val_loss: 1.4893 - val_acc: 0.6034
+('Test loss:', 1.4893083982467652)
+('Test accuracy:', 0.6034)
+Predicting...
+10000
+10000
+10
+[0.43770868 0.13854307 0.02870207 0.1350569  0.0701211  0.0854611
+ 0.00231983 0.03472541 0.03445926 0.03290264]
+[2.8242427e-03 8.4539456e-03 2.2091633e-02 3.3999804e-01 1.5445065e-03
+ 6.0919750e-01 3.7556882e-03 7.2344709e-03 1.7088852e-04 4.7290353e-03]
+[1.83500917e-04 3.37165266e-01 2.82325270e-03 2.14964407e-03
+ 1.09613546e-04 6.10753486e-04 6.15351498e-01 8.70398651e-07
+ 5.91689115e-03 3.56887579e-02]
+[9.68032300e-01 2.12831856e-05 3.04738339e-02 2.07320423e-04
+ 9.79716307e-04 3.52005118e-05 1.06806610e-05 1.02682738e-04
+ 1.21258636e-04 1.58151142e-05]
+Predictions for resnet50_cifar10-2-5_50ep_woda-res.csv written.
+Accuracy = 0.5963
+[16113 16129 16128 ...  2081  9717  9086]
+('input shape', (32, 32, 3))
+--> resnet50_cifar10-2-5_50ep_woda_ft20ep-exp training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 188s - loss: 0.7554 - acc: 0.7409 - val_loss: 1.6664 - val_acc: 0.5950
+Epoch 2/20
+ - 114s - loss: 0.6643 - acc: 0.7689 - val_loss: 1.2727 - val_acc: 0.6332
+Epoch 3/20
+ - 114s - loss: 0.5712 - acc: 0.7993 - val_loss: 1.3120 - val_acc: 0.6390
+Epoch 4/20
+ - 114s - loss: 0.5012 - acc: 0.8244 - val_loss: 1.2672 - val_acc: 0.6535
+Epoch 5/20
+ - 114s - loss: 0.4362 - acc: 0.8466 - val_loss: 1.7031 - val_acc: 0.6046
+Epoch 6/20
+ - 114s - loss: 0.4142 - acc: 0.8561 - val_loss: 1.3229 - val_acc: 0.6560
+Epoch 7/20
+ - 114s - loss: 0.3251 - acc: 0.8844 - val_loss: 1.2217 - val_acc: 0.6570
+Epoch 8/20
+ - 113s - loss: 0.3367 - acc: 0.8823 - val_loss: 1.2042 - val_acc: 0.6712
+Epoch 9/20
+ - 114s - loss: 0.2287 - acc: 0.9187 - val_loss: 1.1989 - val_acc: 0.6880
+Epoch 10/20
+ - 114s - loss: 0.2199 - acc: 0.9234 - val_loss: 1.5124 - val_acc: 0.6498
+Epoch 11/20
+ - 113s - loss: 0.2512 - acc: 0.9131 - val_loss: 1.3318 - val_acc: 0.6723
+Epoch 12/20
+ - 114s - loss: 0.1643 - acc: 0.9429 - val_loss: 1.3726 - val_acc: 0.6733
+Epoch 13/20
+ - 113s - loss: 0.1434 - acc: 0.9514 - val_loss: 1.4421 - val_acc: 0.6836
+Epoch 14/20
+ - 114s - loss: 0.1563 - acc: 0.9453 - val_loss: 1.3951 - val_acc: 0.6842
+Epoch 15/20
+ - 114s - loss: 0.1334 - acc: 0.9546 - val_loss: 1.6685 - val_acc: 0.6361
+Epoch 16/20
+ - 113s - loss: 0.1405 - acc: 0.9517 - val_loss: 1.4839 - val_acc: 0.6754
+Epoch 17/20
+ - 114s - loss: 0.1308 - acc: 0.9563 - val_loss: 1.5466 - val_acc: 0.6782
+Epoch 18/20
+ - 114s - loss: 0.0982 - acc: 0.9662 - val_loss: 1.5736 - val_acc: 0.6830
+Epoch 19/20
+ - 114s - loss: 0.1028 - acc: 0.9639 - val_loss: 1.5479 - val_acc: 0.6815
+Epoch 20/20
+ - 114s - loss: 0.2062 - acc: 0.9337 - val_loss: 1.3775 - val_acc: 0.6747
+('Test loss:', 1.3775301943778993)
+('Test accuracy:', 0.6747)
+Predicting...
+10000
+10000
+10
+[3.08661606e-06 1.20276476e-04 8.01116694e-04 1.29279250e-03
+ 1.19411305e-03 3.17134225e-04 2.00326241e-07 9.96244192e-01
+ 1.86671969e-06 2.51580259e-05]
+[1.4108053e-06 1.8152663e-04 1.7022205e-04 6.5943152e-01 2.6585849e-04
+ 3.2622319e-01 1.3194890e-03 1.2308427e-02 1.4344532e-07 9.8176133e-05]
+[9.4564301e-10 9.9981683e-01 4.9077059e-08 3.4215660e-08 4.4146948e-09
+ 1.3954092e-06 1.2755785e-05 1.0091796e-08 8.9504169e-07 1.6802514e-04]
+[6.29754126e-01 1.10568180e-04 3.64234507e-01 1.97577887e-04
+ 4.28134110e-03 1.04147475e-05 1.59087413e-05 9.41673177e-04
+ 4.41902339e-05 4.09724889e-04]
+Predictions for resnet50_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
+Accuracy = 0.6712
+('input shape', (32, 32, 3))
+--> resnet50_cifar10-2-5_50ep_woda_ft20ep-ref training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 196s - loss: 0.1541 - acc: 0.9529 - val_loss: 1.5056 - val_acc: 0.6502
+Epoch 2/20
+ - 115s - loss: 0.1403 - acc: 0.9531 - val_loss: 1.4230 - val_acc: 0.6917
+Epoch 3/20
+ - 115s - loss: 0.1325 - acc: 0.9556 - val_loss: 1.4802 - val_acc: 0.6855
+Epoch 4/20
+ - 114s - loss: 0.0988 - acc: 0.9668 - val_loss: 1.4526 - val_acc: 0.6918
+Epoch 5/20
+ - 114s - loss: 0.0763 - acc: 0.9748 - val_loss: 1.7112 - val_acc: 0.6700
+Epoch 6/20
+ - 114s - loss: 0.0858 - acc: 0.9706 - val_loss: 2.0145 - val_acc: 0.6254
+Epoch 7/20
+ - 115s - loss: 0.0963 - acc: 0.9675 - val_loss: 1.4823 - val_acc: 0.7004
+Epoch 8/20
+ - 114s - loss: 0.1932 - acc: 0.9357 - val_loss: 1.8711 - val_acc: 0.6570
+Epoch 9/20
+ - 115s - loss: 0.0690 - acc: 0.9776 - val_loss: 1.6434 - val_acc: 0.6887
+Epoch 10/20
+ - 115s - loss: 0.0563 - acc: 0.9813 - val_loss: 1.8647 - val_acc: 0.6653
+Epoch 11/20
+ - 115s - loss: 0.0719 - acc: 0.9758 - val_loss: 1.7065 - val_acc: 0.6718
+Epoch 12/20
+ - 115s - loss: 0.1017 - acc: 0.9656 - val_loss: 1.4768 - val_acc: 0.6960
+Epoch 13/20
+ - 115s - loss: 0.0701 - acc: 0.9779 - val_loss: 1.5945 - val_acc: 0.6826
+Epoch 14/20
+ - 115s - loss: 0.0635 - acc: 0.9786 - val_loss: 1.7887 - val_acc: 0.6680
+Epoch 15/20
+ - 114s - loss: 0.0750 - acc: 0.9748 - val_loss: 1.5815 - val_acc: 0.6895
+Epoch 16/20
+ - 115s - loss: 0.0527 - acc: 0.9820 - val_loss: 1.8129 - val_acc: 0.6693
+Epoch 17/20
+ - 115s - loss: 0.0606 - acc: 0.9801 - val_loss: 1.6702 - val_acc: 0.6891
+Epoch 18/20
+ - 114s - loss: 0.0570 - acc: 0.9801 - val_loss: 1.6690 - val_acc: 0.6870
+Epoch 19/20
+ - 115s - loss: 0.0586 - acc: 0.9800 - val_loss: 1.8241 - val_acc: 0.6796
+Epoch 20/20
+ - 115s - loss: 0.0660 - acc: 0.9784 - val_loss: 1.6913 - val_acc: 0.6954
+('Test loss:', 1.6912707509040832)
+('Test accuracy:', 0.6954)
+Predicting...
+10000
+10000
+10
+[2.8937885e-07 4.0112393e-08 7.1636703e-07 5.1497301e-07 8.1349043e-08
+ 1.0376881e-04 1.8887476e-10 9.9989462e-01 3.4017958e-08 1.9137165e-08]
+[7.2355586e-05 3.1655293e-04 4.5023349e-04 5.0310150e-02 1.5765796e-06
+ 9.4845605e-01 2.7460375e-04 1.3686000e-05 3.8204294e-06 1.0099727e-04]
+[3.8847423e-09 9.9976152e-01 1.1799315e-08 6.2403133e-10 1.1356242e-10
+ 1.7345624e-10 1.8920615e-05 1.9343650e-10 1.2437235e-06 2.1832882e-04]
+[9.99719083e-01 2.46829472e-06 1.51986314e-04 1.26509076e-06
+ 1.05223146e-04 1.27964128e-07 2.39240222e-07 1.71623384e-07
+ 1.00893822e-05 9.28524969e-06]
+Predictions for resnet50_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
+Accuracy = 0.6842
