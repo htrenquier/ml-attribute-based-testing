@@ -136,22 +136,32 @@ def load_imagenet_model(model_type):
         return kapp.vgg19.VGG19(), kapp.vgg19.preprocess_input
 
 
-def format_data(train_data, test_data, num_classes):
-    (x_train, y_train), (x_test, y_test) = train_data, test_data
-    x_train = x_train.astype('float32')
-    x_test = x_test.astype('float32')
-    x_train /= 255
-    x_test /= 255
-    y_train = utils.to_categorical(y_train, num_classes)
-    y_test = utils.to_categorical(y_test, num_classes)
-    return (x_train, y_train), (x_test, y_test)
+# def format_data(train_data, test_data, num_classes):
+#     (x_train, y_train), (x_test, y_test) = train_data, test_data
+#     x_train = x_train.astype('float32')
+#     x_test = x_test.astype('float32')
+#     x_train /= 255
+#     x_test /= 255
+#     y_train = utils.to_categorical(y_train, num_classes)
+#     y_test = utils.to_categorical(y_test, num_classes)
+#     return (x_train, y_train), (x_test, y_test)
+
+
+def format_data(data, num_classes):
+    (x, y) = data
+    x = x.astype('float32')
+    x /= 255
+    y = utils.to_categorical(y, num_classes)
+    return x, y
+
 
 # def select_data(dataset_name,ratio):
 #     nb_train, nb_val, nb_test = ratio
 
 def train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, batch_size):
 
-    (x_train, y_train), (x_val, y_val) = format_data(train_data, val_data, 10)
+    (x_train, y_train) = format_data(train_data, 10)
+    (x_val, y_val) = format_data(val_data, 10)
 
     checkpoint = ModelCheckpoint(
         weight_file,
@@ -277,7 +287,7 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    x_val, y_val = val_data[0], val_data[1]
+    (x_val, y_val) = format_data(val_data, 10)
     score = model.evaluate(x_val, y_val, verbose=0)
     # print('Test loss:', score[0])
     print('Val accuracy:', score[1])
@@ -314,7 +324,7 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    x_val, y_val = ft_val_data[0], ft_val_data[1]
+    (x_val, y_val) = format_data(ft_val_data, 10)
     score = model.evaluate(x_val, y_val, verbose=0)
     # print('Test loss:', score[0])
     print('Val accuracy:', score[1])
