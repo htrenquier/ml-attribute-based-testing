@@ -237,7 +237,7 @@ def get_best_scores(images, num, diff_cube):
     for img in images:
         scores.append(evaluate(img, diff_cube))
     args = np.argsort(scores)
-    return args[-num:]
+    return args[:num]
 
 
 def evaluate(img, diff_cube):
