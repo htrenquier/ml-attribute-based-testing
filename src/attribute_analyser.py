@@ -173,6 +173,7 @@ class ColorDensityCube:
             self.norm_cube = self.cube
         max, min = abs(self.norm_cube).max(), 0  # abs(self.norm_cube).min()
         if not max:
+            print('Cube is null')
             print(self.norm_cube)
         self.norm_cube = (self.norm_cube - min) / (max - min)
         self.isNormalized = True
@@ -289,8 +290,6 @@ def plot_hists(images1, label1, images2, label2, color_space, title='Untitled pl
     images1 = convert_cs(images1, color_space)
     images2 = convert_cs(images2, color_space)
     for j, ch in enumerate(color_space):
-        print(j)
-        print(ch)
         ax = axs[j]
         ax.plot(avg_hist(images1, j), label=label1, color='g')
         ax.plot(avg_hist(images2, j), label=label2, color='r')
@@ -329,7 +328,6 @@ def plot_delta(images1, images2, color_space):
     points_y = []
     points_z = []
     for x in xrange(len(norm_delta[0])):
-        print(x)
         for y in xrange(len(norm_delta[1])):
             for z in xrange(len(norm_delta[2])):
                 xv = norm_delta[0][x]
@@ -343,11 +341,6 @@ def plot_delta(images1, images2, color_space):
                     points_x.append(x)
                     points_y.append(y)
                     points_z.append(z)
-    print(str(colors)[0:200])
-    print(str(sizes)[0:200])
-    print(str(points_x)[0:200])
-    print(str(points_y)[0:200])
-    print(str(points_z)[0:200])
     ax.scatter(points_x, points_y, points_z, c=colors)  # , s=sizes)
     plt.show()
 

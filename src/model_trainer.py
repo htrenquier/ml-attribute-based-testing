@@ -250,15 +250,11 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
     elif dataset == 'cifar10-2-5':
         train_data_orig, test_data_orig = cifar10.load_data()
         input_shape = train_data_orig[0].shape[1:]
-        print(input_shape)
-        print(len(train_data_orig[0]))
         train_data = [train_data_orig[0][:20000], train_data_orig[1][:20000]]
         val_data = [train_data_orig[0][40000:], train_data_orig[1][40000:]]
-        print(len(train_data[0]))
-        print(dataset + ' loaded.')
         model = model_struct(model_type, input_shape, 10)
-        print(model_type + ' structure loaded.')
         assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
+        print(dataset + ' loaded.')
     else:
         print('Not implemented')
         return
@@ -289,7 +285,8 @@ def fine_tune(model, model_name, ft_train_data, ft_test_data, ft_epochs, ft_data
     print('input shape', input_shape)
     model_type = model_name.split('_')[0]
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-    weights_file = model_name + '.h5'
+    ft_model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
+    weights_file = ft_model_name + '.h5'
 
     if model is None:
         model = model_struct(model_type, input_shape, 10)
@@ -299,11 +296,9 @@ def fine_tune(model, model_name, ft_train_data, ft_test_data, ft_epochs, ft_data
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    ft_model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
-    weights_file = ft_model_name + '.h5'
     print('--> ' + ft_model_name + ' training.')
     if os.path.isfile(path+weights_file):
-        print('Weight file found, loading.')
+        print('Weight file found: ' + path+weights_file + ', loading.')
         model.load_weights(path+weights_file)
     else:
         print('Start training')

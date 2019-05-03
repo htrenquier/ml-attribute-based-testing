@@ -36,13 +36,6 @@ def check_dirs(*paths):
 def predict(model, test_data):
     print('Predicting...')
     y_predicted = model.predict(test_data[0])
-    print(len(test_data[0]))
-    print(len(y_predicted))
-    print(len(y_predicted[20]))
-    print(y_predicted[20])
-    print(y_predicted[200])
-    print(y_predicted[2000])
-    print(y_predicted[4000])
     return y_predicted
 
 
@@ -140,14 +133,14 @@ def finetune_test():
 
         assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 30000
 
-        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 20, False, 'exp', path=res_path)
+        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 20, False, 'exp2', path=res_path)
         y_predicted = predict(model1, formatted_test_data)
         log_predictions(y_predicted, model_name1, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 20, False, 'ref', path=res_path)
+        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 20, False, 'ref2', path=res_path)
         y_predicted = predict(model2, formatted_test_data)
         log_predictions(y_predicted, model_name2, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
