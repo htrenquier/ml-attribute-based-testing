@@ -27,41 +27,127 @@ Predictions for densenet121_cifar10-2-5_50ep_woda-res.csv written.
 Accuracy = 0.7242
 [11227  3848 10801 ... 16930 17084 19871]
 ('input shape', (32, 32, 3))
---> densenet121_cifar10-2-5_50ep_woda_ft20ep-exp training.
-Weight file found, loading.
+--> densenet121_cifar10-2-5_50ep_woda_ft20ep-exp2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 125s - loss: 0.3862 - acc: 0.8942 - val_loss: 0.7777 - val_acc: 0.7525
+Epoch 2/20
+ - 105s - loss: 0.2292 - acc: 0.9288 - val_loss: 0.9177 - val_acc: 0.7368
+Epoch 3/20
+ - 106s - loss: 0.1651 - acc: 0.9468 - val_loss: 0.9774 - val_acc: 0.7412
+Epoch 4/20
+ - 105s - loss: 0.1311 - acc: 0.9545 - val_loss: 1.1629 - val_acc: 0.7249
+Epoch 5/20
+ - 105s - loss: 0.1073 - acc: 0.9633 - val_loss: 1.1598 - val_acc: 0.7339
+Epoch 6/20
+ - 105s - loss: 0.0910 - acc: 0.9690 - val_loss: 1.4263 - val_acc: 0.7064
+Epoch 7/20
+ - 105s - loss: 0.0911 - acc: 0.9682 - val_loss: 1.4306 - val_acc: 0.7139
+Epoch 8/20
+ - 106s - loss: 0.0906 - acc: 0.9683 - val_loss: 1.2111 - val_acc: 0.7402
+Epoch 9/20
+ - 106s - loss: 0.0740 - acc: 0.9753 - val_loss: 1.6699 - val_acc: 0.6931
+Epoch 10/20
+ - 106s - loss: 0.0720 - acc: 0.9745 - val_loss: 1.3098 - val_acc: 0.7276
+Epoch 11/20
+ - 105s - loss: 0.0637 - acc: 0.9783 - val_loss: 1.3234 - val_acc: 0.7302
+Epoch 12/20
+ - 106s - loss: 0.0668 - acc: 0.9757 - val_loss: 1.3734 - val_acc: 0.7365
+Epoch 13/20
+ - 105s - loss: 0.0697 - acc: 0.9756 - val_loss: 1.2961 - val_acc: 0.7418
+Epoch 14/20
+ - 105s - loss: 0.0582 - acc: 0.9793 - val_loss: 1.4839 - val_acc: 0.7251
+Epoch 15/20
+ - 106s - loss: 0.0530 - acc: 0.9817 - val_loss: 1.4713 - val_acc: 0.7227
+Epoch 16/20
+ - 106s - loss: 0.0589 - acc: 0.9803 - val_loss: 1.5809 - val_acc: 0.7104
+Epoch 17/20
+ - 106s - loss: 0.0557 - acc: 0.9807 - val_loss: 1.3672 - val_acc: 0.7395
+Epoch 18/20
+ - 106s - loss: 0.0532 - acc: 0.9823 - val_loss: 1.5483 - val_acc: 0.7246
+Epoch 19/20
+ - 105s - loss: 0.0510 - acc: 0.9832 - val_loss: 1.4686 - val_acc: 0.7359
+Epoch 20/20
+ - 105s - loss: 0.0518 - acc: 0.9821 - val_loss: 1.4584 - val_acc: 0.7350
+('Test loss:', 1.4583759715795517)
+('Test accuracy:', 0.735)
 Predicting...
 10000
 10000
 10
-[8.2799882e-02 5.1079683e-02 4.8581432e-04 3.7214947e-01 1.9818397e-02
- 5.1494751e-02 1.4614084e-04 3.7266427e-01 4.2500619e-02 6.8610264e-03]
-[8.0577243e-09 1.6210687e-04 1.2798632e-03 1.1585444e-02 5.4875286e-03
- 9.7892410e-01 2.7120463e-04 8.2087417e-06 1.8060740e-05 2.2635288e-03]
-[5.67420244e-08 9.95969176e-01 9.68676916e-10 4.05208839e-10
- 2.49101248e-07 1.05749604e-10 1.46121019e-03 2.97427305e-10
- 5.50523282e-07 2.56884843e-03]
-[5.7305139e-01 1.2728365e-04 1.6153951e-01 2.0140391e-03 7.0843540e-02
- 2.1560079e-05 7.2639436e-05 9.6304841e-02 9.1037415e-02 4.9878429e-03]
-Predictions for densenet121_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
-Accuracy = 0.7546
+[2.6848767e-05 9.6946269e-06 2.6935758e-09 1.2030142e-06 1.8614474e-03
+ 3.2882061e-05 8.5067802e-09 9.8614919e-01 2.0190166e-06 1.1916723e-02]
+[1.7150240e-10 2.6118654e-09 1.1169347e-02 9.0737158e-06 9.7943244e-05
+ 9.8871887e-01 4.6801874e-06 3.2341941e-08 1.5463800e-07 1.3148831e-08]
+[1.3103985e-14 9.9981350e-01 1.3312232e-16 9.7151279e-18 7.7364805e-18
+ 2.1435694e-19 1.8648749e-04 1.3688376e-14 9.8264202e-11 3.8001374e-08]
+[7.2194773e-01 2.4293502e-06 9.3597032e-02 1.8044223e-06 1.0066625e-01
+ 1.6491751e-05 4.1613835e-05 4.9572809e-05 8.3270505e-02 4.0655379e-04]
+Predictions for densenet121_cifar10-2-5_50ep_woda_ft20ep-exp2-res.csv written.
+Accuracy = 0.7367
 ('input shape', (32, 32, 3))
---> densenet121_cifar10-2-5_50ep_woda_ft20ep-ref training.
-Weight file found, loading.
+--> densenet121_cifar10-2-5_50ep_woda_ft20ep-ref2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 129s - loss: 0.2202 - acc: 0.9426 - val_loss: 0.8649 - val_acc: 0.7516
+Epoch 2/20
+ - 109s - loss: 0.0959 - acc: 0.9702 - val_loss: 0.9999 - val_acc: 0.7608
+Epoch 3/20
+ - 109s - loss: 0.0707 - acc: 0.9772 - val_loss: 1.0946 - val_acc: 0.7542
+Epoch 4/20
+ - 109s - loss: 0.0604 - acc: 0.9798 - val_loss: 1.3708 - val_acc: 0.7387
+Epoch 5/20
+ - 109s - loss: 0.0603 - acc: 0.9804 - val_loss: 1.2181 - val_acc: 0.7618
+Epoch 6/20
+ - 109s - loss: 0.0499 - acc: 0.9822 - val_loss: 1.2749 - val_acc: 0.7468
+Epoch 7/20
+ - 109s - loss: 0.0583 - acc: 0.9810 - val_loss: 1.3572 - val_acc: 0.7480
+Epoch 8/20
+ - 108s - loss: 0.0440 - acc: 0.9841 - val_loss: 1.3163 - val_acc: 0.7502
+Epoch 9/20
+ - 109s - loss: 0.0507 - acc: 0.9833 - val_loss: 1.3142 - val_acc: 0.7523
+Epoch 10/20
+ - 109s - loss: 0.0445 - acc: 0.9850 - val_loss: 1.4263 - val_acc: 0.7514
+Epoch 11/20
+ - 109s - loss: 0.0490 - acc: 0.9832 - val_loss: 1.4916 - val_acc: 0.7307
+Epoch 12/20
+ - 109s - loss: 0.0433 - acc: 0.9861 - val_loss: 1.3175 - val_acc: 0.7572
+Epoch 13/20
+ - 109s - loss: 0.0416 - acc: 0.9848 - val_loss: 1.3869 - val_acc: 0.7438
+Epoch 14/20
+ - 109s - loss: 0.0392 - acc: 0.9874 - val_loss: 1.4260 - val_acc: 0.7533
+Epoch 15/20
+ - 109s - loss: 0.0393 - acc: 0.9860 - val_loss: 1.3077 - val_acc: 0.7683
+Epoch 16/20
+ - 108s - loss: 0.0415 - acc: 0.9859 - val_loss: 1.3964 - val_acc: 0.7522
+Epoch 17/20
+ - 108s - loss: 0.0359 - acc: 0.9881 - val_loss: 1.7700 - val_acc: 0.7156
+Epoch 18/20
+ - 109s - loss: 0.0451 - acc: 0.9840 - val_loss: 1.5410 - val_acc: 0.7335
+Epoch 19/20
+ - 109s - loss: 0.0299 - acc: 0.9896 - val_loss: 1.4058 - val_acc: 0.7580
+Epoch 20/20
+ - 109s - loss: 0.0379 - acc: 0.9878 - val_loss: 1.4044 - val_acc: 0.7554
+('Test loss:', 1.404377352333069)
+('Test accuracy:', 0.7554)
 Predicting...
 10000
 10000
 10
-[2.5450541e-03 6.7350040e-03 1.4346666e-04 3.6903770e-05 2.8741386e-04
- 2.4848781e-05 3.2428047e-04 9.7315979e-01 1.5512891e-02 1.2303198e-03]
-[4.11092427e-12 4.29291544e-15 4.02204705e-06 2.16617744e-04
- 7.40445194e-06 9.99755681e-01 1.63721288e-05 1.04595256e-10
- 3.20651873e-11 9.09858777e-13]
-[6.4711853e-13 9.9999154e-01 1.6193663e-13 2.1744048e-16 7.5339693e-18
- 3.6689510e-17 8.1750786e-06 7.0908427e-15 1.1227083e-09 2.5256364e-07]
-[4.2259568e-01 2.3136549e-08 2.9049588e-03 2.4889951e-06 3.3596021e-03
- 3.3578752e-07 7.5729071e-07 5.3040642e-01 7.7568647e-04 3.9954007e-02]
-Predictions for densenet121_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
-Accuracy = 0.751
+[1.1439075e-05 4.8738360e-02 7.5008589e-05 3.3449233e-04 4.4603641e-03
+ 8.6007785e-05 8.7265980e-06 1.2104128e-03 1.4682532e-03 9.4360691e-01]
+[1.8237230e-10 1.2102264e-05 6.0487837e-05 3.4607186e-03 8.8457119e-01
+ 1.1136559e-01 5.3515318e-08 6.8651337e-07 4.5573497e-06 5.2454381e-04]
+[4.3324911e-13 9.9996090e-01 1.7961540e-13 1.5261848e-14 2.7613386e-15
+ 2.6999715e-19 2.8127317e-05 5.1656877e-17 2.5690825e-08 1.0970869e-05]
+[9.9877483e-01 4.5045203e-06 1.0800404e-07 6.6257610e-07 6.5553392e-04
+ 3.4633945e-11 1.4173373e-08 1.5356262e-06 2.6228020e-06 5.6023704e-04]
+Predictions for densenet121_cifar10-2-5_50ep_woda_ft20ep-ref2-res.csv written.
+Accuracy = 0.7557
 --> mobilenet_cifar10-2-5_50ep_woda
 (32, 32, 3)
 50000
@@ -85,41 +171,128 @@ Predictions for mobilenet_cifar10-2-5_50ep_woda-res.csv written.
 Accuracy = 0.641
 [11572  7501 17337 ... 15224 15227 15228]
 ('input shape', (32, 32, 3))
---> mobilenet_cifar10-2-5_50ep_woda_ft20ep-exp training.
-Weight file found, loading.
+--> mobilenet_cifar10-2-5_50ep_woda_ft20ep-exp2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 55s - loss: 0.5446 - acc: 0.8377 - val_loss: 0.9768 - val_acc: 0.6786
+Epoch 2/20
+ - 45s - loss: 0.4299 - acc: 0.8643 - val_loss: 1.0086 - val_acc: 0.6715
+Epoch 3/20
+ - 44s - loss: 0.3784 - acc: 0.8771 - val_loss: 1.0989 - val_acc: 0.6673
+Epoch 4/20
+ - 45s - loss: 0.3204 - acc: 0.8935 - val_loss: 1.1070 - val_acc: 0.6648
+Epoch 5/20
+ - 45s - loss: 0.2929 - acc: 0.9014 - val_loss: 1.1993 - val_acc: 0.6424
+Epoch 6/20
+ - 45s - loss: 0.2772 - acc: 0.9083 - val_loss: 1.1487 - val_acc: 0.6721
+Epoch 7/20
+ - 45s - loss: 0.2304 - acc: 0.9239 - val_loss: 1.2679 - val_acc: 0.6436
+Epoch 8/20
+ - 45s - loss: 0.2261 - acc: 0.9237 - val_loss: 1.2110 - val_acc: 0.6652
+Epoch 9/20
+ - 45s - loss: 0.1989 - acc: 0.9320 - val_loss: 1.2622 - val_acc: 0.6554
+Epoch 10/20
+ - 44s - loss: 0.1814 - acc: 0.9383 - val_loss: 1.2618 - val_acc: 0.6697
+Epoch 11/20
+ - 45s - loss: 0.1808 - acc: 0.9384 - val_loss: 1.2382 - val_acc: 0.6805
+Epoch 12/20
+ - 45s - loss: 0.1605 - acc: 0.9454 - val_loss: 1.2250 - val_acc: 0.6751
+Epoch 13/20
+ - 44s - loss: 0.1664 - acc: 0.9436 - val_loss: 1.3318 - val_acc: 0.6627
+Epoch 14/20
+ - 45s - loss: 0.1697 - acc: 0.9424 - val_loss: 1.2593 - val_acc: 0.6737
+Epoch 15/20
+ - 45s - loss: 0.1421 - acc: 0.9528 - val_loss: 1.2716 - val_acc: 0.6779
+Epoch 16/20
+ - 45s - loss: 0.1425 - acc: 0.9518 - val_loss: 1.3458 - val_acc: 0.6645
+Epoch 17/20
+ - 45s - loss: 0.1494 - acc: 0.9500 - val_loss: 1.2924 - val_acc: 0.6768
+Epoch 18/20
+ - 45s - loss: 0.1356 - acc: 0.9534 - val_loss: 1.4082 - val_acc: 0.6730
+Epoch 19/20
+ - 45s - loss: 0.1335 - acc: 0.9539 - val_loss: 1.4448 - val_acc: 0.6581
+Epoch 20/20
+ - 45s - loss: 0.1294 - acc: 0.9555 - val_loss: 1.2680 - val_acc: 0.6942
+('Test loss:', 1.2679913201332091)
+('Test accuracy:', 0.6942)
 Predicting...
 10000
 10000
 10
-[1.0844531e-03 4.4329117e-05 6.1752296e-05 8.6188038e-06 2.2965733e-05
- 1.3415514e-02 1.0923071e-05 9.8444355e-01 7.2512262e-07 9.0716913e-04]
-[1.1719706e-04 3.2598280e-05 1.5676717e-04 2.6002482e-03 1.4224228e-06
- 9.9652523e-01 3.1654522e-04 2.2908485e-04 9.3996948e-07 1.9926320e-05]
-[7.7681034e-06 8.8525945e-03 5.0771581e-07 2.1072915e-06 7.4740575e-07
- 2.0515061e-07 9.9111277e-01 5.0928722e-10 1.4048622e-06 2.1908823e-05]
-[7.80197224e-05 3.34918423e-06 1.10435620e-01 8.69934082e-01
- 1.59133133e-03 5.84532463e-05 1.70083265e-04 7.11016124e-04
- 1.49739105e-02 2.04401673e-03]
-Predictions for mobilenet_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
-Accuracy = 0.68
+[1.3196908e-03 3.6027828e-05 1.5443771e-05 1.0361977e-06 9.9612596e-03
+ 1.9666983e-05 5.3298005e-05 9.8838681e-01 2.0108262e-06 2.0475162e-04]
+[4.0956712e-04 5.7833454e-06 1.7938515e-02 4.8471898e-02 3.2383532e-04
+ 9.2221057e-01 9.9716578e-03 6.6211791e-04 3.2256892e-06 2.8386121e-06]
+[2.8382759e-05 4.7417521e-02 9.5013147e-06 4.5813006e-04 1.2507086e-05
+ 1.7766795e-05 9.3708825e-01 4.4374545e-07 5.1906918e-05 1.4915656e-02]
+[8.1400506e-02 1.9596655e-04 6.5971249e-01 1.3796433e-03 2.1575415e-01
+ 1.0483573e-04 2.6935053e-03 2.8646616e-02 6.7820572e-03 3.3302198e-03]
+Predictions for mobilenet_cifar10-2-5_50ep_woda_ft20ep-exp2-res.csv written.
+Accuracy = 0.6868
 ('input shape', (32, 32, 3))
---> mobilenet_cifar10-2-5_50ep_woda_ft20ep-ref training.
-Weight file found, loading.
+--> mobilenet_cifar10-2-5_50ep_woda_ft20ep-ref2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 56s - loss: 0.3687 - acc: 0.8952 - val_loss: 0.9660 - val_acc: 0.6911
+Epoch 2/20
+ - 45s - loss: 0.2633 - acc: 0.9177 - val_loss: 0.9976 - val_acc: 0.6970
+Epoch 3/20
+ - 45s - loss: 0.2094 - acc: 0.9329 - val_loss: 1.1053 - val_acc: 0.6898
+Epoch 4/20
+ - 46s - loss: 0.1901 - acc: 0.9395 - val_loss: 1.0957 - val_acc: 0.6934
+Epoch 5/20
+ - 46s - loss: 0.1662 - acc: 0.9456 - val_loss: 1.1167 - val_acc: 0.6909
+Epoch 6/20
+ - 46s - loss: 0.1511 - acc: 0.9502 - val_loss: 1.1868 - val_acc: 0.6890
+Epoch 7/20
+ - 46s - loss: 0.1442 - acc: 0.9507 - val_loss: 1.3253 - val_acc: 0.6773
+Epoch 8/20
+ - 46s - loss: 0.1385 - acc: 0.9534 - val_loss: 1.1760 - val_acc: 0.6925
+Epoch 9/20
+ - 46s - loss: 0.1250 - acc: 0.9587 - val_loss: 1.2265 - val_acc: 0.6962
+Epoch 10/20
+ - 46s - loss: 0.1189 - acc: 0.9591 - val_loss: 1.3193 - val_acc: 0.6815
+Epoch 11/20
+ - 46s - loss: 0.1222 - acc: 0.9584 - val_loss: 1.2485 - val_acc: 0.7006
+Epoch 12/20
+ - 46s - loss: 0.1128 - acc: 0.9637 - val_loss: 1.2390 - val_acc: 0.6833
+Epoch 13/20
+ - 45s - loss: 0.1096 - acc: 0.9637 - val_loss: 1.3145 - val_acc: 0.6877
+Epoch 14/20
+ - 46s - loss: 0.1014 - acc: 0.9656 - val_loss: 1.3298 - val_acc: 0.6910
+Epoch 15/20
+ - 46s - loss: 0.1038 - acc: 0.9640 - val_loss: 1.2821 - val_acc: 0.6946
+Epoch 16/20
+ - 46s - loss: 0.1042 - acc: 0.9656 - val_loss: 1.2599 - val_acc: 0.7018
+Epoch 17/20
+ - 46s - loss: 0.0961 - acc: 0.9681 - val_loss: 1.3624 - val_acc: 0.6920
+Epoch 18/20
+ - 45s - loss: 0.0953 - acc: 0.9678 - val_loss: 1.3433 - val_acc: 0.6818
+Epoch 19/20
+ - 46s - loss: 0.0945 - acc: 0.9692 - val_loss: 1.3549 - val_acc: 0.6889
+Epoch 20/20
+ - 46s - loss: 0.0905 - acc: 0.9705 - val_loss: 1.2791 - val_acc: 0.6928
+('Test loss:', 1.2791042760848998)
+('Test accuracy:', 0.6928)
 Predicting...
 10000
 10000
 10
-[1.19849825e-02 1.35044998e-03 6.09283859e-04 4.20755561e-04
- 2.55887985e-01 7.59750977e-03 1.93551343e-04 7.21139729e-01
- 3.30465613e-04 4.85327211e-04]
-[8.4204403e-05 1.7427925e-07 1.9649807e-03 1.7293779e-03 5.7895584e-05
- 9.9426478e-01 1.6732101e-05 1.8782328e-03 3.4741688e-06 2.1927266e-07]
-[1.2979878e-05 7.7757217e-02 8.1681486e-05 5.3665591e-03 3.9511151e-04
- 4.0327763e-04 9.0937293e-01 1.3016012e-05 4.6136924e-05 6.5511540e-03]
-[3.7526847e-03 2.3314074e-04 7.5505310e-01 3.2022044e-02 1.6593055e-01
- 5.2415760e-04 9.9138543e-04 2.3172101e-02 6.3831243e-03 1.1937695e-02]
-Predictions for mobilenet_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
-Accuracy = 0.6847
+[6.2495208e-05 1.4927678e-06 5.1564919e-05 2.0054406e-04 7.1137166e-04
+ 3.2726477e-04 3.9705694e-07 9.9823749e-01 9.6872333e-05 3.1057376e-04]
+[4.41671535e-03 7.87040262e-05 1.21841684e-01 3.82062010e-02
+ 4.23136316e-06 8.18723500e-01 1.36735477e-02 1.08564063e-03
+ 2.41786693e-05 1.94565498e-03]
+[1.0106288e-03 5.5500054e-01 3.3497712e-05 2.7001577e-05 1.8258022e-05
+ 5.4943521e-06 4.4123146e-01 8.3354683e-09 6.5261929e-04 2.0205723e-03]
+[1.2903754e-03 3.9346280e-05 1.0954795e-01 3.0158395e-02 8.0830181e-01
+ 1.2730045e-04 1.1070006e-04 1.0377142e-03 4.9343277e-02 4.3179043e-05]
+Predictions for mobilenet_cifar10-2-5_50ep_woda_ft20ep-ref2-res.csv written.
+Accuracy = 0.6877
 --> mobilenetv2_cifar10-2-5_50ep_woda
 (32, 32, 3)
 50000
@@ -143,39 +316,127 @@ Predictions for mobilenetv2_cifar10-2-5_50ep_woda-res.csv written.
 Accuracy = 0.6322
 [12391  4115 17397 ... 16246 16245 16244]
 ('input shape', (32, 32, 3))
---> mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-exp training.
-Weight file found, loading.
+--> mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-exp2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 80s - loss: 0.9278 - acc: 0.6771 - val_loss: 1.0783 - val_acc: 0.6190
+Epoch 2/20
+ - 64s - loss: 0.9019 - acc: 0.6833 - val_loss: 1.0651 - val_acc: 0.6235
+Epoch 3/20
+ - 64s - loss: 0.8463 - acc: 0.7034 - val_loss: 0.9987 - val_acc: 0.6578
+Epoch 4/20
+ - 64s - loss: 0.8062 - acc: 0.7177 - val_loss: 1.0265 - val_acc: 0.6430
+Epoch 5/20
+ - 64s - loss: 0.7399 - acc: 0.7403 - val_loss: 0.9941 - val_acc: 0.6553
+Epoch 6/20
+ - 64s - loss: 0.7155 - acc: 0.7492 - val_loss: 1.0401 - val_acc: 0.6392
+Epoch 7/20
+ - 64s - loss: 0.7527 - acc: 0.7380 - val_loss: 1.3938 - val_acc: 0.5091
+Epoch 8/20
+ - 64s - loss: 0.9102 - acc: 0.6824 - val_loss: 1.0865 - val_acc: 0.6239
+Epoch 9/20
+ - 63s - loss: 0.7647 - acc: 0.7352 - val_loss: 1.2169 - val_acc: 0.5977
+Epoch 10/20
+ - 63s - loss: 0.6939 - acc: 0.7549 - val_loss: 0.9536 - val_acc: 0.6752
+Epoch 11/20
+ - 64s - loss: 0.6726 - acc: 0.7647 - val_loss: 0.9862 - val_acc: 0.6637
+Epoch 12/20
+ - 63s - loss: 0.6388 - acc: 0.7795 - val_loss: 0.9766 - val_acc: 0.6757
+Epoch 13/20
+ - 64s - loss: 0.6081 - acc: 0.7864 - val_loss: 1.0795 - val_acc: 0.6373
+Epoch 14/20
+ - 63s - loss: 0.7767 - acc: 0.7294 - val_loss: 1.0933 - val_acc: 0.6464
+Epoch 15/20
+ - 64s - loss: 0.6048 - acc: 0.7882 - val_loss: 0.9597 - val_acc: 0.6720
+Epoch 16/20
+ - 63s - loss: 0.5904 - acc: 0.7931 - val_loss: 0.9936 - val_acc: 0.6758
+Epoch 17/20
+ - 64s - loss: 0.5229 - acc: 0.8179 - val_loss: 1.0051 - val_acc: 0.6678
+Epoch 18/20
+ - 64s - loss: 0.5343 - acc: 0.8144 - val_loss: 1.6770 - val_acc: 0.5397
+Epoch 19/20
+ - 63s - loss: 0.5407 - acc: 0.8128 - val_loss: 1.0328 - val_acc: 0.6659
+Epoch 20/20
+ - 63s - loss: 0.4888 - acc: 0.8290 - val_loss: 1.0295 - val_acc: 0.6783
+('Test loss:', 1.0294737093925477)
+('Test accuracy:', 0.6783)
 Predicting...
 10000
 10000
 10
-[7.8869215e-04 2.6165022e-02 7.3748687e-03 1.4727727e-03 2.3361235e-03
- 2.5033362e-02 3.2749977e-05 9.1605270e-01 1.6941497e-04 2.0574294e-02]
-[1.4375528e-02 1.3120404e-04 6.3924037e-02 6.5434420e-01 6.8508230e-02
- 1.1307819e-01 1.7938726e-02 3.9943788e-02 2.2915516e-02 4.8406161e-03]
-[6.2483768e-03 2.9955557e-01 7.6477136e-03 1.0224197e-02 2.2636415e-03
- 2.7339603e-03 4.9876589e-01 3.4461924e-04 1.3218336e-01 4.0032674e-02]
-[6.0667947e-02 3.2919660e-04 1.8127124e-01 1.0204815e-01 5.1440293e-01
- 3.6275454e-02 2.2247922e-02 6.1191022e-02 1.6471634e-02 5.0944858e-03]
-Predictions for mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
-Accuracy = 0.6791
+[1.1175253e-03 4.9356808e-04 2.6304016e-03 6.3062729e-03 1.2095146e-03
+ 1.0494485e-02 8.7367835e-06 8.8782424e-01 6.4577151e-05 8.9850612e-02]
+[0.020164   0.01195551 0.13029005 0.07783964 0.00905561 0.23260488
+ 0.00138747 0.49408117 0.0025705  0.02005112]
+[1.3881106e-03 8.6684966e-01 3.0340177e-03 1.4676477e-03 2.5868442e-04
+ 1.0727551e-03 7.9715677e-02 1.7469758e-04 4.8554447e-03 4.1183304e-02]
+[0.39902133 0.01746206 0.13529804 0.10221204 0.09943419 0.03252268
+ 0.01392259 0.04599404 0.10739916 0.0467339 ]
+Predictions for mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-exp2-res.csv written.
+Accuracy = 0.6658
 ('input shape', (32, 32, 3))
---> mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-ref training.
-Weight file found, loading.
+--> mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-ref2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 84s - loss: 0.6470 - acc: 0.7830 - val_loss: 1.0164 - val_acc: 0.6523
+Epoch 2/20
+ - 65s - loss: 0.6463 - acc: 0.7823 - val_loss: 1.4984 - val_acc: 0.5213
+Epoch 3/20
+ - 65s - loss: 0.6445 - acc: 0.7759 - val_loss: 0.9276 - val_acc: 0.6956
+Epoch 4/20
+ - 64s - loss: 0.5484 - acc: 0.8108 - val_loss: 0.9593 - val_acc: 0.6756
+Epoch 5/20
+ - 65s - loss: 0.5032 - acc: 0.8281 - val_loss: 1.0611 - val_acc: 0.6458
+Epoch 6/20
+ - 65s - loss: 0.5114 - acc: 0.8255 - val_loss: 0.9707 - val_acc: 0.6880
+Epoch 7/20
+ - 65s - loss: 0.4689 - acc: 0.8369 - val_loss: 0.9300 - val_acc: 0.7024
+Epoch 8/20
+ - 65s - loss: 0.4910 - acc: 0.8320 - val_loss: 1.0410 - val_acc: 0.6721
+Epoch 9/20
+ - 65s - loss: 0.4736 - acc: 0.8374 - val_loss: 0.9932 - val_acc: 0.6846
+Epoch 10/20
+ - 66s - loss: 0.4029 - acc: 0.8615 - val_loss: 0.9842 - val_acc: 0.6942
+Epoch 11/20
+ - 65s - loss: 0.3812 - acc: 0.8687 - val_loss: 1.0530 - val_acc: 0.6754
+Epoch 12/20
+ - 65s - loss: 0.4390 - acc: 0.8476 - val_loss: 1.0203 - val_acc: 0.6814
+Epoch 13/20
+ - 65s - loss: 0.4754 - acc: 0.8367 - val_loss: 1.0194 - val_acc: 0.6876
+Epoch 14/20
+ - 65s - loss: 0.5730 - acc: 0.8044 - val_loss: 0.9929 - val_acc: 0.6912
+Epoch 15/20
+ - 66s - loss: 0.4244 - acc: 0.8522 - val_loss: 0.9390 - val_acc: 0.7037
+Epoch 16/20
+ - 65s - loss: 0.4709 - acc: 0.8378 - val_loss: 0.9641 - val_acc: 0.6978
+Epoch 17/20
+ - 65s - loss: 0.3606 - acc: 0.8746 - val_loss: 0.8993 - val_acc: 0.7173
+Epoch 18/20
+ - 66s - loss: 0.3189 - acc: 0.8876 - val_loss: 1.0021 - val_acc: 0.6978
+Epoch 19/20
+ - 65s - loss: 0.3348 - acc: 0.8844 - val_loss: 0.9948 - val_acc: 0.7099
+Epoch 20/20
+ - 65s - loss: 0.2906 - acc: 0.9005 - val_loss: 0.9895 - val_acc: 0.7114
+('Test loss:', 0.9894685280799865)
+('Test accuracy:', 0.7114)
 Predicting...
 10000
 10000
 10
-[5.9843780e-03 9.9473842e-04 5.4915715e-04 1.5363704e-03 8.6811715e-04
- 2.3697349e-03 2.9444736e-06 7.3658621e-01 5.9981081e-05 2.5104827e-01]
-[2.3732935e-03 3.2904889e-05 1.2831721e-02 9.0472537e-01 1.2048368e-03
- 5.3154375e-02 1.1214120e-02 2.9184506e-03 8.5082231e-03 3.0367945e-03]
-[5.1285699e-04 8.0117989e-01 4.7951599e-04 4.0522723e-06 6.4678593e-06
- 7.8045224e-07 1.4633994e-01 9.8844438e-08 5.0636098e-02 8.4032136e-04]
-[0.01708515 0.00160074 0.03109065 0.3754578  0.13358586 0.0777625
- 0.01979986 0.15709999 0.0074025  0.179115  ]
-Predictions for mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
-Accuracy = 0.6901
+[1.7564093e-03 6.5618578e-06 4.4270922e-04 1.0570585e-04 1.1313106e-03
+ 7.3860941e-04 9.0571938e-08 9.9365318e-01 2.5895637e-05 2.1395457e-03]
+[2.3309039e-03 1.2699982e-05 9.0236895e-02 2.4054697e-01 1.7939185e-04
+ 6.4591366e-01 1.2457056e-04 2.0252733e-02 1.9025979e-04 2.1189600e-04]
+[1.6520008e-07 9.9803203e-01 3.1309099e-07 6.1334013e-08 2.6488420e-09
+ 7.7987892e-08 1.4902640e-03 7.3767032e-09 1.4180639e-05 4.6285227e-04]
+[1.0343330e-02 1.5991538e-05 2.4014395e-02 9.1256257e-03 4.3833140e-01
+ 1.2621748e-02 1.5235826e-04 5.0199419e-01 1.8579472e-03 1.5430403e-03]
+Predictions for mobilenetv2_cifar10-2-5_50ep_woda_ft20ep-ref2-res.csv written.
+Accuracy = 0.6984
 --> nasnet_cifar10-2-5_50ep_woda
 (32, 32, 3)
 50000
@@ -199,40 +460,128 @@ Predictions for nasnet_cifar10-2-5_50ep_woda-res.csv written.
 Accuracy = 0.5324
 [10375  8856  6837 ... 16014 16485 16483]
 ('input shape', (32, 32, 3))
---> nasnet_cifar10-2-5_50ep_woda_ft20ep-exp training.
-Weight file found, loading.
+--> nasnet_cifar10-2-5_50ep_woda_ft20ep-exp2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 265s - loss: 0.5531 - acc: 0.8354 - val_loss: 2.0579 - val_acc: 0.5790
+Epoch 2/20
+ - 203s - loss: 0.4350 - acc: 0.8622 - val_loss: 1.4472 - val_acc: 0.6143
+Epoch 3/20
+ - 203s - loss: 0.3535 - acc: 0.8859 - val_loss: 1.3808 - val_acc: 0.5934
+Epoch 4/20
+ - 203s - loss: 0.3244 - acc: 0.8921 - val_loss: 1.5669 - val_acc: 0.5822
+Epoch 5/20
+ - 203s - loss: 0.2990 - acc: 0.9002 - val_loss: 1.8045 - val_acc: 0.5836
+Epoch 6/20
+ - 204s - loss: 0.3072 - acc: 0.8962 - val_loss: 1.6652 - val_acc: 0.5882
+Epoch 7/20
+ - 203s - loss: 0.2608 - acc: 0.9096 - val_loss: 1.7365 - val_acc: 0.6033
+Epoch 8/20
+ - 203s - loss: 0.2947 - acc: 0.8991 - val_loss: 11.8556 - val_acc: 0.1786
+Epoch 9/20
+ - 204s - loss: 0.3221 - acc: 0.8892 - val_loss: 10.8273 - val_acc: 0.2167
+Epoch 10/20
+ - 203s - loss: 0.2250 - acc: 0.9241 - val_loss: 3.2261 - val_acc: 0.5273
+Epoch 11/20
+ - 203s - loss: 0.2130 - acc: 0.9272 - val_loss: 2.2875 - val_acc: 0.5609
+Epoch 12/20
+ - 203s - loss: 0.1878 - acc: 0.9384 - val_loss: 2.6248 - val_acc: 0.5678
+Epoch 13/20
+ - 203s - loss: 0.1732 - acc: 0.9411 - val_loss: 2.5954 - val_acc: 0.5695
+Epoch 14/20
+ - 204s - loss: 0.4426 - acc: 0.8490 - val_loss: 6.2770 - val_acc: 0.4009
+Epoch 15/20
+ - 203s - loss: 0.2434 - acc: 0.9176 - val_loss: 4.8919 - val_acc: 0.4676
+Epoch 16/20
+ - 203s - loss: 0.1626 - acc: 0.9428 - val_loss: 2.9229 - val_acc: 0.5377
+Epoch 17/20
+ - 203s - loss: 0.1976 - acc: 0.9315 - val_loss: 4.5407 - val_acc: 0.4346
+Epoch 18/20
+ - 203s - loss: 0.1821 - acc: 0.9368 - val_loss: 2.1005 - val_acc: 0.6077
+Epoch 19/20
+ - 203s - loss: 0.1490 - acc: 0.9493 - val_loss: 2.6258 - val_acc: 0.5656
+Epoch 20/20
+ - 203s - loss: 0.1477 - acc: 0.9495 - val_loss: 2.5120 - val_acc: 0.5711
+('Test loss:', 2.512001552581787)
+('Test accuracy:', 0.5711)
 Predicting...
 10000
 10000
 10
-[4.5245390e-05 4.5769345e-03 5.4908122e-07 2.5287660e-05 1.2885308e-05
- 3.7682115e-03 3.9845074e-09 9.9118948e-01 1.8654870e-08 3.8137499e-04]
-[3.1776750e-03 1.9399006e-02 5.8212777e-04 1.4518090e-01 1.3974817e-05
- 2.6266916e-02 1.4660803e-02 1.0058577e-04 2.3874257e-02 7.6674378e-01]
-[6.48859091e-11 9.99962449e-01 5.66236680e-14 9.54428536e-10
- 3.76625787e-13 1.54597082e-12 2.17583326e-10 1.62558734e-11
- 1.09157225e-10 3.75172604e-05]
-[9.3298084e-01 1.7387150e-03 6.0276370e-02 1.2019969e-03 2.1007167e-04
- 2.3165561e-04 3.7300904e-04 2.2201346e-04 1.4135215e-04 2.6239473e-03]
-Predictions for nasnet_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
-Accuracy = 0.5975
+[3.1575982e-07 2.1213965e-01 9.4389004e-11 3.6788278e-03 1.1706275e-06
+ 4.7468352e-01 2.3606177e-08 2.8966823e-01 4.2436878e-07 1.9827856e-02]
+[3.0609134e-03 6.4424217e-05 3.3447027e-06 1.0520426e-01 6.1407218e-07
+ 8.7859261e-01 9.9178842e-06 4.8395321e-03 2.7917255e-07 8.2241399e-03]
+[9.7567598e-09 9.9998033e-01 2.2800684e-10 3.1083525e-09 5.0615904e-11
+ 5.2961024e-10 3.0975016e-07 2.3198735e-10 2.2728239e-08 1.9258317e-05]
+[1.7732118e-03 2.8836055e-05 1.3595478e-05 9.4552588e-01 8.0202045e-03
+ 8.7949111e-06 2.6483907e-04 9.1830363e-05 8.2816888e-04 4.3444566e-02]
+Predictions for nasnet_cifar10-2-5_50ep_woda_ft20ep-exp2-res.csv written.
+Accuracy = 0.561
 ('input shape', (32, 32, 3))
---> nasnet_cifar10-2-5_50ep_woda_ft20ep-ref training.
-Weight file found, loading.
+--> nasnet_cifar10-2-5_50ep_woda_ft20ep-ref2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 278s - loss: 0.4944 - acc: 0.8528 - val_loss: 2.4214 - val_acc: 0.5351
+Epoch 2/20
+ - 209s - loss: 0.4299 - acc: 0.8632 - val_loss: 2.6314 - val_acc: 0.5454
+Epoch 3/20
+ - 208s - loss: 0.3024 - acc: 0.9043 - val_loss: 2.9834 - val_acc: 0.5252
+Epoch 4/20
+ - 208s - loss: 0.3003 - acc: 0.9011 - val_loss: 2.9542 - val_acc: 0.5498
+Epoch 5/20
+ - 209s - loss: 0.2876 - acc: 0.9047 - val_loss: 1.9009 - val_acc: 0.5660
+Epoch 6/20
+ - 209s - loss: 0.2428 - acc: 0.9191 - val_loss: 1.6323 - val_acc: 0.6223
+Epoch 7/20
+ - 209s - loss: 0.1762 - acc: 0.9395 - val_loss: 1.5334 - val_acc: 0.6351
+Epoch 8/20
+ - 209s - loss: 0.1782 - acc: 0.9399 - val_loss: 1.6883 - val_acc: 0.6332
+Epoch 9/20
+ - 208s - loss: 0.2112 - acc: 0.9295 - val_loss: 3.9038 - val_acc: 0.4792
+Epoch 10/20
+ - 208s - loss: 0.1989 - acc: 0.9333 - val_loss: 2.2184 - val_acc: 0.5948
+Epoch 11/20
+ - 209s - loss: 0.1347 - acc: 0.9537 - val_loss: 1.9339 - val_acc: 0.6104
+Epoch 12/20
+ - 209s - loss: 0.1752 - acc: 0.9395 - val_loss: 2.2190 - val_acc: 0.6005
+Epoch 13/20
+ - 209s - loss: 0.2166 - acc: 0.9291 - val_loss: 2.2308 - val_acc: 0.5102
+Epoch 14/20
+ - 209s - loss: 0.3791 - acc: 0.8695 - val_loss: 2.4728 - val_acc: 0.5491
+Epoch 15/20
+ - 209s - loss: 0.2382 - acc: 0.9173 - val_loss: 2.3950 - val_acc: 0.5500
+Epoch 16/20
+ - 209s - loss: 0.1441 - acc: 0.9501 - val_loss: 1.6808 - val_acc: 0.6454
+Epoch 17/20
+ - 209s - loss: 0.1023 - acc: 0.9649 - val_loss: 1.8778 - val_acc: 0.6326
+Epoch 18/20
+ - 209s - loss: 0.1178 - acc: 0.9590 - val_loss: 2.0423 - val_acc: 0.6121
+Epoch 19/20
+ - 209s - loss: 0.1456 - acc: 0.9501 - val_loss: 2.6094 - val_acc: 0.5724
+Epoch 20/20
+ - 209s - loss: 0.1625 - acc: 0.9451 - val_loss: 1.8397 - val_acc: 0.6263
+('Test loss:', 1.8396849382400513)
+('Test accuracy:', 0.6263)
 Predicting...
 10000
 10000
 10
-[6.2532781e-05 1.2474139e-04 5.7990610e-07 3.4449596e-04 1.4134189e-04
- 7.6533441e-05 1.0555255e-07 9.9916828e-01 3.5022458e-05 4.6390669e-05]
-[3.6798138e-03 9.2756522e-07 5.0085136e-03 6.5943986e-02 2.0469735e-04
- 8.1936717e-01 4.8980797e-05 1.0404227e-01 9.7378140e-04 7.2979956e-04]
-[5.2284871e-10 9.9950981e-01 2.7810993e-11 6.0408398e-09 4.4214085e-10
- 2.8216654e-10 4.8867275e-04 3.5962275e-09 2.6584512e-10 1.5621614e-06]
-[0.00687016 0.01969837 0.7261532  0.02172137 0.00623668 0.00177468
- 0.02327542 0.04825841 0.14230347 0.0037082 ]
-Predictions for nasnet_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
-Accuracy = 0.6289
+[4.1913976e-05 9.3328905e-01 8.3372946e-04 5.9833760e-06 7.7293416e-06
+ 2.0816558e-04 1.3446884e-06 6.4381368e-02 2.9935188e-06 1.2275639e-03]
+[2.4738512e-05 8.0335456e-05 1.4163812e-02 2.3835306e-03 2.6665030e-06
+ 9.7368097e-01 1.6176997e-04 1.4739935e-04 8.0452674e-07 9.3538733e-03]
+[1.23020119e-08 9.99397278e-01 1.05905326e-10 3.57574925e-09
+ 8.06323674e-10 3.77210346e-11 1.75412262e-09 7.33247629e-11
+ 3.50525261e-06 5.99175575e-04]
+[3.0329889e-01 1.0583301e-05 6.6006756e-01 2.7913417e-04 8.1308477e-05
+ 8.6175982e-04 2.4490057e-02 6.4837448e-03 7.1187118e-05 4.3557496e-03]
+Predictions for nasnet_cifar10-2-5_50ep_woda_ft20ep-ref2-res.csv written.
+Accuracy = 0.6201
 --> resnet50_cifar10-2-5_50ep_woda
 (32, 32, 3)
 50000
@@ -256,38 +605,124 @@ Predictions for resnet50_cifar10-2-5_50ep_woda-res.csv written.
 Accuracy = 0.6186
 [ 6761 16650 15851 ...  4056 18090 18092]
 ('input shape', (32, 32, 3))
---> resnet50_cifar10-2-5_50ep_woda_ft20ep-exp training.
-Weight file found, loading.
+--> resnet50_cifar10-2-5_50ep_woda_ft20ep-exp2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 158s - loss: 0.8431 - acc: 0.7042 - val_loss: 1.3812 - val_acc: 0.6051
+Epoch 2/20
+ - 107s - loss: 0.8524 - acc: 0.6994 - val_loss: 1.1862 - val_acc: 0.5876
+Epoch 3/20
+ - 107s - loss: 0.7918 - acc: 0.7208 - val_loss: 1.0183 - val_acc: 0.6606
+Epoch 4/20
+ - 107s - loss: 0.7138 - acc: 0.7482 - val_loss: 2.3102 - val_acc: 0.6039
+Epoch 5/20
+ - 107s - loss: 0.6692 - acc: 0.7644 - val_loss: 1.1246 - val_acc: 0.6557
+Epoch 6/20
+ - 106s - loss: 0.6352 - acc: 0.7809 - val_loss: 3.0061 - val_acc: 0.2482
+Epoch 7/20
+ - 106s - loss: 0.9576 - acc: 0.6614 - val_loss: 1.1998 - val_acc: 0.6395
+Epoch 8/20
+ - 107s - loss: 0.7195 - acc: 0.7429 - val_loss: 1.1283 - val_acc: 0.6643
+Epoch 9/20
+ - 107s - loss: 0.5061 - acc: 0.8216 - val_loss: 1.1664 - val_acc: 0.6659
+Epoch 10/20
+ - 106s - loss: 0.5109 - acc: 0.8172 - val_loss: 1.1629 - val_acc: 0.6703
+Epoch 11/20
+ - 106s - loss: 0.3954 - acc: 0.8578 - val_loss: 1.2168 - val_acc: 0.6745
+Epoch 12/20
+ - 106s - loss: 0.3598 - acc: 0.8722 - val_loss: 1.1860 - val_acc: 0.6767
+Epoch 13/20
+ - 107s - loss: 0.3975 - acc: 0.8580 - val_loss: 1.1997 - val_acc: 0.6594
+Epoch 14/20
+ - 107s - loss: 0.3669 - acc: 0.8676 - val_loss: 1.6676 - val_acc: 0.6210
+Epoch 15/20
+ - 107s - loss: 0.2572 - acc: 0.9090 - val_loss: 1.4740 - val_acc: 0.6341
+Epoch 16/20
+ - 107s - loss: 0.2248 - acc: 0.9197 - val_loss: 1.5042 - val_acc: 0.6543
+Epoch 17/20
+ - 107s - loss: 0.2453 - acc: 0.9139 - val_loss: 1.3214 - val_acc: 0.6677
+Epoch 18/20
+ - 107s - loss: 0.1986 - acc: 0.9293 - val_loss: 1.4778 - val_acc: 0.6705
+Epoch 19/20
+ - 107s - loss: 0.1790 - acc: 0.9361 - val_loss: 1.3950 - val_acc: 0.6822
+Epoch 20/20
+ - 107s - loss: 0.1622 - acc: 0.9443 - val_loss: 1.7523 - val_acc: 0.6397
+('Test loss:', 1.752338002204895)
+('Test accuracy:', 0.6397)
 Predicting...
 10000
 10000
 10
-[3.7943097e-05 7.8970176e-04 3.3578726e-06 4.6330388e-04 3.3714771e-03
- 1.4446407e-03 2.9414607e-06 9.9382257e-01 3.3426633e-05 3.0568986e-05]
-[4.0081582e-06 2.1390435e-03 6.5089208e-03 7.3746532e-01 6.2899641e-04
- 1.8417336e-01 6.8436652e-02 5.3543242e-04 1.3250855e-05 9.5034200e-05]
-[1.7059244e-07 9.8725092e-01 1.4971581e-06 3.8778703e-06 1.3281520e-07
- 3.6220329e-06 2.3725322e-06 1.8088295e-07 3.5625355e-05 1.2701577e-02]
-[4.45333362e-01 2.99508031e-03 1.81641027e-01 1.03232556e-03
- 2.77445912e-01 1.09990407e-03 4.86964309e-05 7.80928060e-02
- 2.46662094e-04 1.20643275e-02]
-Predictions for resnet50_cifar10-2-5_50ep_woda_ft20ep-exp-res.csv written.
-Accuracy = 0.6743
+[4.3595582e-03 5.8208097e-02 2.3571019e-05 1.5613198e-03 1.7477799e-03
+ 9.9005818e-05 3.0223532e-07 9.1845816e-01 1.3328682e-02 2.2135219e-03]
+[5.1517360e-05 2.2071113e-06 5.5192452e-04 1.4269480e-03 1.3604520e-06
+ 9.9744618e-01 1.4776785e-09 4.7810312e-04 2.5212483e-05 1.6643264e-05]
+[3.9768324e-07 6.3474745e-01 1.1528986e-04 1.1605200e-04 4.2867236e-04
+ 9.0977490e-05 3.6403537e-02 4.8048387e-06 3.5628145e-05 3.2805720e-01]
+[9.8668158e-01 1.4045186e-06 1.7977633e-03 5.1214338e-05 1.1056407e-02
+ 6.3024266e-09 4.5054520e-07 4.2156676e-06 3.8196164e-04 2.4917848e-05]
+Predictions for resnet50_cifar10-2-5_50ep_woda_ft20ep-exp2-res.csv written.
+Accuracy = 0.6336
 ('input shape', (32, 32, 3))
---> resnet50_cifar10-2-5_50ep_woda_ft20ep-ref training.
-Weight file found, loading.
+--> resnet50_cifar10-2-5_50ep_woda_ft20ep-ref2 training.
+Start training
+Not using data augmentation.
+Train on 30000 samples, validate on 10000 samples
+Epoch 1/20
+ - 164s - loss: 0.3463 - acc: 0.8968 - val_loss: 1.5280 - val_acc: 0.6661
+Epoch 2/20
+ - 109s - loss: 0.2417 - acc: 0.9230 - val_loss: 1.3908 - val_acc: 0.6687
+Epoch 3/20
+ - 108s - loss: 0.2003 - acc: 0.9325 - val_loss: 1.2470 - val_acc: 0.6916
+Epoch 4/20
+ - 108s - loss: 0.1732 - acc: 0.9424 - val_loss: 1.4948 - val_acc: 0.6647
+Epoch 5/20
+ - 108s - loss: 0.1909 - acc: 0.9356 - val_loss: 1.4283 - val_acc: 0.6878
+Epoch 6/20
+ - 108s - loss: 0.1295 - acc: 0.9555 - val_loss: 1.7789 - val_acc: 0.6339
+Epoch 7/20
+ - 108s - loss: 0.1143 - acc: 0.9610 - val_loss: 1.7075 - val_acc: 0.6661
+Epoch 8/20
+ - 109s - loss: 0.1117 - acc: 0.9609 - val_loss: 2.1081 - val_acc: 0.6480
+Epoch 9/20
+ - 108s - loss: 0.0960 - acc: 0.9664 - val_loss: 1.7244 - val_acc: 0.6604
+Epoch 10/20
+ - 108s - loss: 0.1073 - acc: 0.9634 - val_loss: 1.8029 - val_acc: 0.6653
+Epoch 11/20
+ - 108s - loss: 0.1006 - acc: 0.9673 - val_loss: 1.8054 - val_acc: 0.6573
+Epoch 12/20
+ - 108s - loss: 0.2407 - acc: 0.9184 - val_loss: 1.3738 - val_acc: 0.7038
+Epoch 13/20
+ - 108s - loss: 0.0544 - acc: 0.9825 - val_loss: 1.6097 - val_acc: 0.7005
+Epoch 14/20
+ - 108s - loss: 0.0602 - acc: 0.9794 - val_loss: 1.7731 - val_acc: 0.6907
+Epoch 15/20
+ - 108s - loss: 0.0699 - acc: 0.9762 - val_loss: 1.6270 - val_acc: 0.6958
+Epoch 16/20
+ - 108s - loss: 0.0654 - acc: 0.9789 - val_loss: 1.7449 - val_acc: 0.6832
+Epoch 17/20
+ - 108s - loss: 0.0785 - acc: 0.9741 - val_loss: 1.6541 - val_acc: 0.6868
+Epoch 18/20
+ - 108s - loss: 0.0731 - acc: 0.9753 - val_loss: 1.6897 - val_acc: 0.6818
+Epoch 19/20
+ - 108s - loss: 0.0830 - acc: 0.9723 - val_loss: 1.5581 - val_acc: 0.6935
+Epoch 20/20
+ - 108s - loss: 0.0599 - acc: 0.9804 - val_loss: 1.7620 - val_acc: 0.6682
+('Test loss:', 1.7619761302947998)
+('Test accuracy:', 0.6682)
 Predicting...
 10000
 10000
 10
-[9.3031695e-06 5.8672700e-05 7.6478398e-05 1.5887164e-02 5.6003295e-03
- 4.9534473e-03 3.6447648e-06 9.7311765e-01 2.1237405e-05 2.7215082e-04]
-[3.33590265e-07 4.44634170e-05 6.38388330e-04 2.14761659e-03
- 9.19017839e-06 9.96993542e-01 3.82071994e-05 1.04454724e-04
- 3.01568633e-07 2.36437281e-05]
-[2.0283699e-09 9.9982065e-01 3.6855352e-09 1.1732461e-06 8.1425827e-10
- 1.0194783e-07 1.6989370e-05 4.1889250e-10 1.6010611e-04 1.0659356e-06]
-[9.4679594e-02 6.5707195e-06 9.0231639e-01 3.2030657e-05 1.8242098e-03
- 1.2429136e-06 6.5613983e-07 8.0128369e-04 4.2666565e-05 2.9543124e-04]
-Predictions for resnet50_cifar10-2-5_50ep_woda_ft20ep-ref-res.csv written.
-Accuracy = 0.6871
+[9.3547451e-06 5.2415744e-06 3.3696260e-06 1.5599199e-04 5.8598139e-06
+ 8.9934583e-05 2.1506219e-09 9.9972838e-01 1.6543929e-06 1.6047341e-07]
+[2.5571818e-08 7.5163229e-07 1.2656482e-06 2.6633861e-03 7.5586115e-09
+ 9.9733174e-01 1.1973651e-06 1.7701574e-07 7.0821855e-08 1.3655938e-06]
+[3.0794745e-08 9.9877578e-01 6.1565894e-05 1.8186479e-06 3.0824850e-07
+ 8.4347721e-06 3.3427561e-05 2.9487181e-08 1.0485832e-06 1.1176901e-03]
+[9.5401812e-01 2.9479358e-07 5.0792098e-04 2.1096721e-05 4.0237751e-02
+ 1.2277751e-06 2.0050399e-08 3.7092734e-03 1.3690415e-03 1.3510796e-04]
+Predictions for resnet50_cifar10-2-5_50ep_woda_ft20ep-ref2-res.csv written.
+Accuracy = 0.6681
