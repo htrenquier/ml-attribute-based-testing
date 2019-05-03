@@ -57,7 +57,7 @@ def log_predictions(y_predicted, model_name, path):
 
 def cifar_test():
     train_data, test_data = cifar10.load_data()
-    train_data, test_data = mt.format_data(train_data, test_data, 10)
+    test_data = mt.format_data(test_data, 10)
     for m in models:
         model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
         y_predicted = predict(model0, test_data)
@@ -82,7 +82,7 @@ def imagenet_test():
 def finetune_test():
     training_data_len = 20000
     train_data_orig, test_data_orig = cifar10.load_data()
-    formatted_train_data, formatted_test_data = mt.format_data(train_data_orig, test_data_orig, 10)
+    formatted_test_data = mt.format_data(test_data_orig, 10)
 
     for m in models:
         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
