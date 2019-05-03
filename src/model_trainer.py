@@ -170,7 +170,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             batch_size=batch_size,
             epochs=epochs,
             validation_data=(x_val, y_val),
-            verbose=2,
+            verbose=0,
             shuffle=True,
             callbacks=[checkpoint]
         )
@@ -214,14 +214,14 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             epochs=epochs,
             validation_data=(x_val, y_val),
             workers=4,
-            verbose=2,
+            verbose=1,
             steps_per_epoch=(50000 / batch_size),
             callbacks=[checkpoint]
         )
 
-    score = model.evaluate(x_val, y_val, verbose=0)
-    print('Test loss:', score[0])
-    print('Test accuracy:', score[1])
+    # score = model.evaluate(x_val, y_val, verbose=0)
+    # print('Test loss:', score[0])
+    # print('Val accuracy:', score[1])
     # model.save_weights(weight_file)
 
 
@@ -234,7 +234,7 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
         # WithOut DataAugmentation
         model_name = '%s_%s_%dep_woda' % (model_type, dataset, epochs)
 
-    print('--> ' + model_name)
+    print('###---> ' + model_name + ' <---###')
     weight_file = model_name + '.h5'
 
     if dataset == 'cifar10':
@@ -265,24 +265,30 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    if os.path.isfile(path+weight_file):
-        print('Weight file found, loading.')
-        model.load_weights(path+weight_file)
-    else:
-        print('Start training')
-        train_and_save(model, epochs, data_augmentation, path+weight_file, train_data, val_data, m_batch_size)
+    print('*-> ' + path+weight_file)
+    if not os.path.isfile(path+weight_file):
+        # print('Start training')
+        train_and_save(model, epochs, data_augmentation, path + weight_file, train_data, val_data, m_batch_size)
+
+    # print('Weight file found:' + path+weight_file + ', loading.')
+    model.load_weights(path + weight_file)
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
                   metrics=m_metric)
-    #model.summary()
+
+    x_val, y_val = val_data
+    score = model.evaluate(x_val, y_val, verbose=0)
+    # print('Test loss:', score[0])
+    print('Val accuracy:', score[1])
+    # model.summary()
     return model, model_name
 
 
-def fine_tune(model, model_name, ft_train_data, ft_test_data, ft_epochs, ft_data_augmentation, nametag, path=''):
+def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_augmentation, nametag, path=''):
 
     input_shape = ft_train_data[0].shape[1:]
-    print('input shape', input_shape)
+    # print('input shape', input_shape)
     model_type = model_name.split('_')[0]
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
     ft_model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
@@ -296,16 +302,22 @@ def fine_tune(model, model_name, ft_train_data, ft_test_data, ft_epochs, ft_data
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    print('--> ' + ft_model_name + ' training.')
-    if os.path.isfile(path+weights_file):
-        print('Weight file found: ' + path+weights_file + ', loading.')
-        model.load_weights(path+weights_file)
-    else:
-        print('Start training')
-        train_and_save(model, ft_epochs, ft_data_augmentation, path+weights_file, ft_train_data, ft_test_data, m_batch_size)
+    print('*-> ' + path + weights_file)
+    if not os.path.isfile(path+weights_file):
+        # print('Start training')
+        train_and_save(model, ft_epochs, ft_data_augmentation, path + weights_file, ft_train_data, ft_val_data,
+                       m_batch_size)
 
+    # print('Weight file found: ' + path+weights_file + ', loading.')
+    model.load_weights(path + weights_file)
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
+    x_val, y_val = ft_val_data
+    score = model.evaluate(x_val, y_val, verbose=0)
+    # print('Test loss:', score[0])
+    print('Val accuracy:', score[1])
+    # model.summary()
+    
     return model, ft_model_name

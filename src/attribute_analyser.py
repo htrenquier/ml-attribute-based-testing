@@ -237,7 +237,7 @@ def get_best_scores(images, num, diff_cube):
     for img in images:
         scores.append(evaluate(img, diff_cube))
     args = np.argsort(scores)
-    return args[:num]
+    return args[-num:]
 
 
 def evaluate(img, diff_cube):
@@ -425,7 +425,7 @@ def load_csv(file_name, col):
 def accuracy(predicted_classes, true_classes):
     nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
     acc = (len(true_classes) - nz) / len(true_classes)
-    print('Accuracy = ' + str(acc))
+    print('Test Accuracy = ' + str(acc))
     return acc
 
 
