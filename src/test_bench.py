@@ -87,11 +87,11 @@ def finetune_test():
     train_img_switch = []
     test_img_switch = []
     for img in train_data_orig[0]:
-        train_img_switch .append(np.roll(img, 1, 2))
+        train_img_switch.append(np.roll(img, 1, 2))
     for img in test_data_orig[0]:
         test_img_switch.append(np.roll(img, 1, 2))
-    train_data_orig[0] = train_img_switch
-    test_data_orig[0] = test_img_switch
+    train_data_orig[0][:] = np.array(train_img_switch)
+    test_data_orig[0][:] = np.array(test_img_switch)
 
     formatted_test_data = mt.format_data(test_data_orig, 10)
 
