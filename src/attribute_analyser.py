@@ -457,3 +457,4 @@ def sort_by_correctness(predictions, true_classes, orig_images):
         else:
             incorrect_images.append(orig_images[i])
     return correct_images, incorrect_images
+

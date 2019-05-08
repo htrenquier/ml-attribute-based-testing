@@ -4,6 +4,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras import utils
 import os
 from keras.callbacks import ModelCheckpoint
+
 import numpy as np
 
 def model_param(model_type):
@@ -262,6 +263,20 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
         input_shape = train_data_orig[0].shape[1:]
         train_data = [train_data_orig[0][:20000], train_data_orig[1][:20000]]
         val_data = [train_data_orig[0][40000:], train_data_orig[1][40000:]]
+        model = model_struct(model_type, input_shape, 10)
+        assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
+        print(dataset + ' loaded.')
+    elif dataset == 'cifar10-channelswitched':
+        train_data_orig, test_data_orig = cifar10.load_data()
+        input_shape = train_data_orig[0].shape[1:]
+        train_imgs = []
+        val_imgs = []
+        for img in train_data_orig[0][:20000]:
+            train_imgs.append(np.roll(img, 1, 2))
+        for img in train_data_orig[0][40000:]:
+            val_imgs.append(np.roll(img, 1, 2))
+        train_data = [train_imgs, train_data_orig[1][:20000]]
+        val_data = [val_imgs, train_data_orig[1][40000:]]
         model = model_struct(model_type, input_shape, 10)
         assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
         print(dataset + ' loaded.')

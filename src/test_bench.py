@@ -41,10 +41,8 @@ def predict(model, test_data):
 
 def log_predictions(y_predicted, model_name, path):
     model_file = model_name + '-res.csv'
-    if os.path.isfile(path + model_file):
-        print('Predictions for ' + model_file + ' already written!')
-    else:
-        f = open(path+model_file, "w+")
+    if not os.path.isfile(path + model_file):
+        f = open(path + model_file, "w+")
         for i in xrange(len(y_predicted)):
             line = '{0}, {1}, {2}, {3}\r\n'.format(str(i),
                                                    str(aa.confidence(y_predicted[i])),
@@ -52,7 +50,10 @@ def log_predictions(y_predicted, model_name, path):
                                                    str(y_predicted[i]))
             f.write(line)
         f.close()
-        print('Predictions for ' + model_file + ' written.')
+        # print('Predictions for ' + model_file + ' written.')
+    # else:
+        # print('Predictions for ' + model_file + ' already written!')
+
 
 
 def cifar_test():
@@ -82,10 +83,21 @@ def imagenet_test():
 def finetune_test():
     training_data_len = 20000
     train_data_orig, test_data_orig = cifar10.load_data()
+
+    train_img_switch = []
+    test_img_switch = []
+    for img in train_data_orig[0]:
+        train_img_switch .append(np.roll(img, 1, 2))
+    for img in test_data_orig[0]:
+        test_img_switch.append(np.roll(img, 1, 2))
+    train_data_orig[0] = train_img_switch
+    test_data_orig[0] = test_img_switch
+
     formatted_test_data = mt.format_data(test_data_orig, 10)
 
     for m in models:
-        model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
+        # model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
+        model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         y_predicted = predict(model0, formatted_test_data)
         log_predictions(y_predicted, model_name0, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
