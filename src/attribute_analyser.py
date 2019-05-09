@@ -235,12 +235,12 @@ def get_best_scores(images, num, diff_cube):
     assert isinstance(diff_cube, ColorDensityCube)
     scores = []
     for img in images:
-        scores.append(evaluate(img, diff_cube))
+        scores.append(cube_evaluate(img, diff_cube))
     args = np.argsort(scores)
     return args[-num:]
 
 
-def evaluate(img, diff_cube):
+def cube_evaluate(img, diff_cube):
     assert isinstance(diff_cube, ColorDensityCube)
     cube = ColorDensityCube(diff_cube.get_res())
     cube.feed(img)
@@ -255,6 +255,74 @@ def evaluate_batch(images, diff_cube):
         cube.feed(img)
     score_cube = cube.substract(diff_cube, 'avg')
     return np.mean(score_cube)
+
+
+def colorfulness(image):
+    # split the image into its respective RGB components
+    (B, G, R) = cv2.split(image.astype("float"))
+
+    # compute rg = R - G
+    rg = np.absolute(R - G)
+
+    # compute yb = 0.5 * (R + G) - B
+    yb = np.absolute(0.5 * (R + G) - B)
+
+    # compute the mean and standard deviation of both `rg` and `yb`
+    (rbMean, rbStd) = (np.mean(rg), np.std(rg))
+    (ybMean, ybStd) = (np.mean(yb), np.std(yb))
+
+    # combine the mean and standard deviations
+    stdRoot = np.sqrt((rbStd ** 2) + (ybStd ** 2))
+    meanRoot = np.sqrt((rbMean ** 2) + (ybMean ** 2))
+
+    # derive the "colorfulness" metric and return it
+    return stdRoot + (0.3 * meanRoot)
+
+
+def contrast(img):
+    img_ycc = cv2.cvtColor(img, cv2.COLOR_RGB2YCR_CB)
+    m = np.mean(img_ycc[0])
+    min, max = np.min(img_ycc[0]), np.max(img_ycc[0])
+    return m/(max-min)
+
+def finetune_by_colorfulness(ft_data_src, num, model_name0, res_path):
+    col_scores =[]
+    for img in ft_data_src:
+        col_scores.append(colorfulness(img))
+    col_scores = np.sort(col_scores)
+    return col_scores[:num]
+
+
+def finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name, res_path):
+    # ft_data_orig is the data to make a selection form
+
+    # study test data color distrib
+    cdc_high = ColorDensityCube(resolution=8)
+    for img in get_images(high_pr, test_data_orig[0]):
+        cdc_high.feed(img)
+    cdc_high.normalize()
+    cdc_high.plot_cube(save=True, title=model_name + '-high_pr', path=res_path)
+
+    cdc_low = ColorDensityCube(resolution=8)
+    for img in get_images(low_pr, test_data_orig[0]):
+        cdc_low.feed(img)
+    cdc_low.normalize()
+    cdc_low.plot_cube(save=True, title=model_name + '-low_pr', path=res_path)
+
+    cdc_diff = cdc_high.substract(cdc_low, state='norm')  # What does high has more than low?
+    # cdc_diff.plot_cube()
+
+    # Fine-tune data selection
+    cdc_finetune = ColorDensityCube(resolution=8)
+    finetune_data_args = get_best_scores(ft_data_src[0], 10000, cdc_diff)
+
+    for img_index in finetune_data_args:
+        cdc_finetune.feed(ft_data_src[0][img_index])
+    cdc_finetune.normalize()
+    cdc_finetune.plot_cube(save=True, title=model_name + '-ft_selection', path=res_path)
+
+    return finetune_data_args
+
 
 
 def imshow(img):
