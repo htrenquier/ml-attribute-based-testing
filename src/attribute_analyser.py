@@ -259,7 +259,8 @@ def evaluate_batch(images, diff_cube):
 
 def colorfulness(image):
     # split the image into its respective RGB components
-    (B, G, R) = cv2.split(image.astype("float"))
+    # (B, G, R) = cv2.split(image.astype("float"))
+    (R, G, B) = np.array(image[0])/255.0, np.array(image[1]/255.0), np.array(image[2]/255.0)
 
     # compute rg = R - G
     rg = np.absolute(R - G)
