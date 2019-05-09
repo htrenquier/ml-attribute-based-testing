@@ -290,7 +290,7 @@ def finetune_by_colorfulness(ft_data_src, num, model_name0, res_path):
     col_scores =[]
     for img in ft_data_src:
         col_scores.append(colorfulness(img))
-    col_scores = np.sort(col_scores)
+    col_scores = np.argsort(col_scores)
     return col_scores[:num]
 
 
