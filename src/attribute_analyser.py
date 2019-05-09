@@ -288,6 +288,7 @@ def contrast(img):
 
 def finetune_by_colorfulness(ft_data_src, num, model_name0, res_path):
     col_scores =[]
+    print(len(ft_data_src))
     for img in ft_data_src:
         col_scores.append(colorfulness(img))
     col_scores = np.argsort(col_scores)
