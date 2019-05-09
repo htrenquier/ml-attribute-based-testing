@@ -109,7 +109,7 @@ def finetune_test():
 
         ft_data_src = [train_data_orig[0][training_data_len:40000], train_data_orig[1][training_data_len:40000]]
         # ft_data_args = aa.finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name0, res_path)
-        ft_data_args = aa.finetune_by_colorfulness(ft_data_src, 10000, model_name0, res_path)
+        ft_data_args = aa.finetune_by_colorfulness(ft_data_src[0], 10000, model_name0, res_path)
         print(ft_data_args)
 
         # print(finetune_data_args)
