@@ -439,7 +439,8 @@ def prediction_rating(prediction, true_class):
     p_true = prediction[true_class]
     prediction = np.delete(prediction, true_class)
     p_max, p_min = np.max(prediction), np.min(prediction)
-    return (1 + p_true - p_max) / (p_max - p_min)
+    x = (1 + p_true - p_max) / (p_max - p_min)
+    return math.atan(x)*2/math.pi
 
 
 def prediction_ratings(predictions, true_classes):
