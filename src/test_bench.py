@@ -163,6 +163,11 @@ def data_analysis():
         for image in test_data_orig[0]:
             scores.append(aa.contrast(image))
 
+        max = np.max(scores)
+        index = np.where(scores == max)
+        del(scores[index])
+        del(pr[index])
+        
         aa.plot(pr, scores, True, res_path+model_name0+'contrast.png')
 
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
