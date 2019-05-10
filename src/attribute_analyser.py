@@ -337,7 +337,7 @@ def plot(x, y, save=False, title=None):
     if save:
         assert title is not None
         plt.savefig(title + '.png')
-    plt.show()
+    # plt.show()
 
 def avg_hist(images, channel):
     hist = np.zeros(256)
