@@ -161,9 +161,9 @@ def data_analysis():
         scores = []
 
         for image in test_data_orig[0]:
-            scores.append(aa.colorfulness(image))
+            scores.append(aa.contrast(image))
 
-        aa.plot(pr, scores, True, res_path+model_name0+'colorfulness.png')
+        aa.plot(pr, scores, True, res_path+model_name0+'contrast.png')
 
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
 
