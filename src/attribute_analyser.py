@@ -439,6 +439,9 @@ def prediction_rating(prediction, true_class):
     p_true = prediction[true_class]
     prediction = np.delete(prediction, true_class)
     p_max, p_min = np.max(prediction), np.min(prediction)
+    if p_max == p_min:
+        assert p_max < 0.01
+        return 1
     x = (1 + p_true - p_max) / (p_max - p_min)
     return math.atan(x)*2/math.pi
 

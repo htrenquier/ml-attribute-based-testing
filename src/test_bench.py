@@ -161,7 +161,7 @@ def data_analysis():
         scores = []
 
         for image in test_data_orig[0]:
-            scores.append(aa.contrast(image))
+            scores.append(aa.colorfulness(image))
 
         max = np.max(scores)
         index = list(scores).index(max)
