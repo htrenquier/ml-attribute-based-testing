@@ -164,7 +164,7 @@ def data_analysis():
             scores.append(aa.contrast(image))
 
         max = np.max(scores)
-        index = np.where(scores == max)
+        index = list(scores).index(max)
         scores.pop(index)
         pr.pop(index)
 
