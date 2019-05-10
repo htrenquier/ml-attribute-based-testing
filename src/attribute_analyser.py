@@ -333,7 +333,7 @@ def imshow(img):
 
 
 def plot(x, y, save=False, title=None):
-    plt.plot(x, y)
+    plt.plot(x, y, 'o')
     if save:
         assert title is not None
         plt.savefig(title + '.png')
