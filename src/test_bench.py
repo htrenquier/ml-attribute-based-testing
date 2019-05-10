@@ -165,9 +165,9 @@ def data_analysis():
 
         max = np.max(scores)
         index = np.where(scores == max)
-        del(scores[index])
-        del(pr[index])
-        
+        scores.pop(index)
+        pr.pop(index)
+
         aa.plot(pr, scores, True, res_path+model_name0+'contrast.png')
 
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
