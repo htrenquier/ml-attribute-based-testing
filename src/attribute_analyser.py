@@ -437,7 +437,7 @@ def confidence(prediction):
 
 def prediction_rating(prediction, true_class):
     p_true = prediction[true_class]
-    prediction = prediction.pop(true_class)
+    prediction = np.delete(prediction, true_class)
     p_max, p_min = np.max(prediction), np.min(prediction)
     return (1 + p_true - p_max) / (p_max - p_min)
 
