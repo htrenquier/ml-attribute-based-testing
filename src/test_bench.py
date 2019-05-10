@@ -163,7 +163,7 @@ def data_analysis():
         for image in test_data_orig:
             scores.append(aa.colorfulness(image))
 
-        aa.plot(pr, scores, True, model_name0+'colorfulness.png')
+        aa.plot(pr, scores, True, res_path+model_name0+'colorfulness.png')
 
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
 
