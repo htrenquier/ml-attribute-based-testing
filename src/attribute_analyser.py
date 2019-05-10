@@ -302,13 +302,13 @@ def finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name, re
     for img in get_images(high_pr, test_data_orig[0]):
         cdc_high.feed(img)
     cdc_high.normalize()
-    cdc_high.plot_cube(save=True, title=model_name + '-high_pr', path=res_path)
+    cdc_high.plot_cube(save=True, title=model_name + '-high_pr7', path=res_path)
 
     cdc_low = ColorDensityCube(resolution=8)
     for img in get_images(low_pr, test_data_orig[0]):
         cdc_low.feed(img)
     cdc_low.normalize()
-    cdc_low.plot_cube(save=True, title=model_name + '-low_pr', path=res_path)
+    cdc_low.plot_cube(save=True, title=model_name + '-low_pr7', path=res_path)
 
     cdc_diff = cdc_high.substract(cdc_low, state='norm')  # What does high has more than low?
     # cdc_diff.plot_cube()
@@ -320,7 +320,7 @@ def finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name, re
     for img_index in finetune_data_args:
         cdc_finetune.feed(ft_data_src[0][img_index])
     cdc_finetune.normalize()
-    cdc_finetune.plot_cube(save=True, title=model_name + '-ft_selection', path=res_path)
+    cdc_finetune.plot_cube(save=True, title=model_name + '-ft_selection7', path=res_path)
 
     return finetune_data_args
 
@@ -338,6 +338,7 @@ def plot(x, y, save=False, title=None):
         assert title is not None
         plt.savefig(title + '.png')
     # plt.show()
+
 
 def avg_hist(images, channel):
     hist = np.zeros(256)

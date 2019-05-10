@@ -108,8 +108,8 @@ def finetune_test():
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
 
         ft_data_src = [train_data_orig[0][training_data_len:40000], train_data_orig[1][training_data_len:40000]]
-        # ft_data_args = aa.finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name0, res_path)
-        ft_data_args = aa.finetune_by_colorfulness(ft_data_src[0], 10000, model_name0, res_path)
+        ft_data_args = aa.finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name0, res_path)
+        # ft_data_args = aa.finetune_by_colorfulness(ft_data_src[0], 10000, model_name0, res_path)
 
         print(ft_data_args)
 
@@ -128,14 +128,14 @@ def finetune_test():
 
         assert len(ft_data_selected) == 2 and len(ft_data_selected[0]) == 30000
 
-        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 50, False, 'exp-clfn', path=res_path)
+        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 50, False, 'exp7', path=res_path)
         y_predicted = predict(model1, formatted_test_data)
         log_predictions(y_predicted, model_name1, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False, 'ref-clfn', path=res_path)
+        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False, 'ref7', path=res_path)
         y_predicted = predict(model2, formatted_test_data)
         log_predictions(y_predicted, model_name2, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
@@ -178,5 +178,5 @@ def data_analysis():
 
 check_dirs(res_path, ilsvrc2012_path)
 # imagenet_test()
-# finetune_test()
-data_analysis()
+finetune_test()
+# data_analysis()
