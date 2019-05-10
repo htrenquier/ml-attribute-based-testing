@@ -110,6 +110,7 @@ def finetune_test():
         ft_data_src = [train_data_orig[0][training_data_len:40000], train_data_orig[1][training_data_len:40000]]
         # ft_data_args = aa.finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name0, res_path)
         ft_data_args = aa.finetune_by_colorfulness(ft_data_src[0], 10000, model_name0, res_path)
+
         print(ft_data_args)
 
         # print(finetune_data_args)
@@ -142,7 +143,34 @@ def finetune_test():
         aa.accuracy(predicted_classes, true_classes)
 
 
+def data_analysis():
+    training_data_len = 20000
+    train_data_orig, test_data_orig = cifar10.load_data()
+    formatted_test_data = mt.format_data(test_data_orig, 10)
+
+    for m in models:
+        model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
+        # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
+        y_predicted = predict(model0, formatted_test_data)
+        log_predictions(y_predicted, model_name0, path=res_path)
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        true_classes = np.argmax(formatted_test_data[1], axis=1)
+        aa.accuracy(predicted_classes, true_classes)
+
+        pr = aa.prediction_ratings(y_predicted, true_classes)
+        scores = []
+
+        for image in test_data_orig:
+            scores.append(aa.colorfulness(image))
+
+        aa.plot(pr, scores, True, model_name0+'colorfulness.png')
+
+        high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
+
+
+
 
 check_dirs(res_path, ilsvrc2012_path)
-#imagenet_test()
-finetune_test()
+# imagenet_test()
+# finetune_test()
+data_analysis()

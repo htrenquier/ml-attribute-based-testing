@@ -288,7 +288,6 @@ def contrast(img):
 
 def finetune_by_colorfulness(ft_data_src, num, model_name0, res_path):
     col_scores =[]
-    print(len(ft_data_src))
     for img in ft_data_src:
         col_scores.append(colorfulness(img))
     col_scores = np.argsort(col_scores)
@@ -332,6 +331,13 @@ def imshow(img):
     # plt.savefig(title + '.png')
     plt.show()
 
+
+def plot(x, y, save=False, title=None):
+    plt.plot(x, y)
+    if save:
+        assert title is not None
+        plt.savefig(title + '.png')
+    plt.show()
 
 def avg_hist(images, channel):
     hist = np.zeros(256)
