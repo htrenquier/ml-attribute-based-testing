@@ -160,7 +160,7 @@ def data_analysis():
         pr = aa.prediction_ratings(y_predicted, true_classes)
         scores = []
 
-        for image in test_data_orig:
+        for image in test_data_orig[0]:
             scores.append(aa.colorfulness(image))
 
         aa.plot(pr, scores, True, res_path+model_name0+'colorfulness.png')
