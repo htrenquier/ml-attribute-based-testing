@@ -165,6 +165,7 @@ def data_analysis():
 
         max = np.max(scores)
         index = list(scores).index(max)
+        print(index)
         scores.pop(index)
         pr.pop(index)
 
