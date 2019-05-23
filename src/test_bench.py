@@ -12,7 +12,7 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet')  # , 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -207,7 +207,7 @@ def bug_feature_detection():
         print(np.array(pr).shape)
         tr_data = X_test[0:20000], pr[0:20000]
         val_data = X_test[20000:30000], pr[20000:30000]
-        mt.train_reg(model1, m, tr_data, val_data, '', 10, False, path=res_path)
+        mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=res_path)
         print('done')
 
 
