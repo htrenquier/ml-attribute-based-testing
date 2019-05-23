@@ -1,5 +1,6 @@
 import model_trainer as mt
 import attribute_analyser as aa
+import dataset_splitter as ds
 import numpy as np
 from keras.datasets import cifar10
 import keras.applications as kapp
@@ -11,7 +12,7 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+models = ('densenet121', 'mobilenet')  # , 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -174,9 +175,46 @@ def data_analysis():
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
 
 
+def bug_feature_detection():
+
+    for m in models:
+        tr_data = ds.get_data('cifar10', (0, 20000))
+        val_data = ds.get_data('cifar10', (20000, 30000))
+        test_data = ds.get_data('cifar10', (30000, 60000))
+        f_test_data = mt.format_data(test_data, 10)  # f for formatted
+
+        model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
+        # y_predicted = predict(model0, f_test_data)
+        # # log_predictions(y_predicted, model_name0, path=res_path)
+        # predicted_classes = np.argmax(y_predicted, axis=1)
+        # true_classes = np.argmax(f_test_data[1], axis=1)
+        # aa.accuracy(predicted_classes, true_classes)
+        #
+        # pr = aa.prediction_ratings(y_predicted, true_classes)
+        # sorted_pr_args = np.argsort(pr)
+        #
+        # print(pr)
+        #
+        # pr_labels = np.zeros(len(y_predicted))
+        # for count, id in enumerate(sorted_pr_args):
+        #     pr_labels[id] = int(10*count/len(sorted_pr_args))
+        #
+        # print(pr_labels[:100])
+
+        model1 = mt.reg_from_(model0, m)
+        print('model created')
+        X_test, y_test = test_data
+        tr_data = X_test[0:20000], pr[0:20000]
+        val_data = X_test[20000:30000], pr[20000:30000]
+        mt.train_reg(model1, m, tr_data, val_data, '', 10, False, path=res_path)
+        print('done')
+
+
+
 
 
 check_dirs(res_path, ilsvrc2012_path)
 # imagenet_test()
-finetune_test()
+# finetune_test()
 # data_analysis()
+bug_feature_detection()

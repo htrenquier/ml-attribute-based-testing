@@ -480,7 +480,7 @@ def load_csv(file_name, col):
     :param col: column in the csv file to get info from
             0: image id
             1: confidence
-            2: predicted classes
+            2: predicted class
             3: confidences (loss vector)
     :return: array of /col/ info
     """
@@ -498,7 +498,7 @@ def load_csv(file_name, col):
                     infos = infos[col].lstrip(' [').rstrip(']\r\n')
                     info.append([float(k) for k in infos.split()])
                 else:
-                    info.append(int(str[col]))
+                    info.append(int(infos[col]))
 
             str = ''
     f.close()

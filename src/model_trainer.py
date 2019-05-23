@@ -4,6 +4,8 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras import utils
 import os
 from keras.callbacks import ModelCheckpoint
+from keras.models import Model
+from keras.layers.core import Dense
 
 import numpy as np
 
@@ -181,7 +183,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             batch_size=batch_size,
             epochs=epochs,
             validation_data=(x_val, y_val),
-            verbose=0,
+            verbose=1,
             shuffle=True,
             callbacks=[checkpoint]
         )
@@ -346,3 +348,97 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
     # model.summary()
 
     return model, ft_model_name
+
+
+def train2(model_type, tr_data, val_data, tag, epochs, data_augmentation, path=''):
+
+    if data_augmentation is True:
+        # With DataAugmentation
+        model_name = '%s_%s_%dep_wda' % (model_type, tag, epochs)
+    else:
+        # WithOut DataAugmentation
+        model_name = '%s_%s_%dep_woda' % (model_type, tag, epochs)
+
+    print('###---> ' + model_name + ' <---###')
+    weight_file = model_name + '.h5'
+
+    input_shape = tr_data[0].shape[1:]
+    model = model_struct(model_type, input_shape, 10)
+    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)
+
+    print('*-> ' + path+weight_file)
+    if not os.path.isfile(path+weight_file):
+        # print('Start training')
+        train_and_save(model, epochs, data_augmentation, path + weight_file, tr_data, val_data, m_batch_size)
+
+    # print('Weight file found:' + path+weight_file + ', loading.')
+    model.load_weights(path + weight_file)
+
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)
+
+    (x_val, y_val) = format_data(val_data, 10)
+    score = model.evaluate(x_val, y_val, verbose=0)
+    # print('Test loss:', score[0])
+    print('Val accuracy:', score[1])
+    # model.summary()
+    return model, model_name
+
+
+def reg_from_(model, model_type):
+    assert isinstance(model, Model)
+    input = model.input
+    model.layers.pop()
+    output = Dense(1, activation="linear")(model.layers[-1].output)
+    model = Model(input, output)
+    model.summary()
+    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)
+    return model
+
+
+def train_reg(model, model_type, tr_data, val_data, tag, epochs, data_augmentation, path=''):
+
+    if data_augmentation is True:
+        # With DataAugmentation
+        model_name = 'reg_%s_%s_%dep_wda' % (model_type, tag, epochs)
+    else:
+        # WithOut DataAugmentation
+        model_name = 'reg_%s_%s_%dep_woda' % (model_type, tag, epochs)
+
+    print('###---> ' + model_name + ' <---###')
+    weight_file = model_name + '.h5'
+
+    input_shape = tr_data[0].shape[1:]
+
+    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)
+
+    print('*-> ' + path+weight_file)
+    if not os.path.isfile(path+weight_file):
+        # print('Start training')
+        train_and_save(model, epochs, data_augmentation, path + weight_file, tr_data, val_data, m_batch_size)
+
+    # print('Weight file found:' + path+weight_file + ', loading.')
+    model.load_weights(path + weight_file)
+
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)
+
+    (x_val, y_val) = format_data(val_data, 10)
+    score = model.evaluate(x_val, y_val, verbose=0)
+    # print('Test loss:', score[0])
+    print('Val accuracy:', score[1])
+    # model.summary()
+    return model, model_name
