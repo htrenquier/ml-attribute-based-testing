@@ -184,22 +184,22 @@ def bug_feature_detection():
         f_test_data = mt.format_data(test_data, 10)  # f for formatted
 
         model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
-        # y_predicted = predict(model0, f_test_data)
-        # # log_predictions(y_predicted, model_name0, path=res_path)
-        # predicted_classes = np.argmax(y_predicted, axis=1)
-        # true_classes = np.argmax(f_test_data[1], axis=1)
-        # aa.accuracy(predicted_classes, true_classes)
-        #
-        # pr = aa.prediction_ratings(y_predicted, true_classes)
-        # sorted_pr_args = np.argsort(pr)
-        #
-        # print(pr)
-        #
-        # pr_labels = np.zeros(len(y_predicted))
-        # for count, id in enumerate(sorted_pr_args):
-        #     pr_labels[id] = int(10*count/len(sorted_pr_args))
-        #
-        # print(pr_labels[:100])
+        y_predicted = predict(model0, f_test_data)
+        # log_predictions(y_predicted, model_name0, path=res_path)
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        true_classes = np.argmax(f_test_data[1], axis=1)
+        aa.accuracy(predicted_classes, true_classes)
+
+        pr = aa.prediction_ratings(y_predicted, true_classes)
+        sorted_pr_args = np.argsort(pr)
+
+        print(pr)
+
+        pr_labels = np.zeros(len(y_predicted))
+        for count, id in enumerate(sorted_pr_args):
+            pr_labels[id] = int(10*count/len(sorted_pr_args))
+
+        print(pr_labels[:100])
 
         model1 = mt.reg_from_(model0, m)
         print('model created')
