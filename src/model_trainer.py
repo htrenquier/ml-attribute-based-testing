@@ -6,6 +6,7 @@ import os
 from keras.callbacks import ModelCheckpoint
 from keras.models import Model
 from keras.layers.core import Dense
+from keras.layers import GlobalAveragePooling2D
 
 import numpy as np
 
@@ -161,10 +162,15 @@ def format_data(data, num_classes):
 # def select_data(dataset_name,ratio):
 #     nb_train, nb_val, nb_test = ratio
 
-def train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, batch_size):
+def train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, batch_size, regression=False):
 
     (x_train, y_train) = format_data(train_data, 10)
     (x_val, y_val) = format_data(val_data, 10)
+
+    if regression:
+        # For regression
+        y_val = val_data[1]
+        y_train = train_data[1]
 
     checkpoint = ModelCheckpoint(
         weight_file,
@@ -394,9 +400,11 @@ def reg_from_(model, model_type):
     assert isinstance(model, Model)
     input = model.input
     model.layers.pop()
-    output = Dense(1, activation="linear")(model.layers[-1].output)
+    model.layers.pop()
+    x = GlobalAveragePooling2D()(model.layers[-1].output)
+    output = Dense(1, activation="linear")(x)
     model = Model(input, output)
-    model.summary()
+    # model.summary()
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
@@ -420,24 +428,26 @@ def train_reg(model, model_type, tr_data, val_data, tag, epochs, data_augmentati
 
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
 
-    model.compile(loss=m_loss,
+    model.compile(loss='mean_squared_error',
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
     print('*-> ' + path+weight_file)
     if not os.path.isfile(path+weight_file):
         # print('Start training')
-        train_and_save(model, epochs, data_augmentation, path + weight_file, tr_data, val_data, m_batch_size)
+        train_and_save(model, epochs, data_augmentation, path + weight_file, tr_data, val_data, m_batch_size, regression=True)
 
     # print('Weight file found:' + path+weight_file + ', loading.')
     model.load_weights(path + weight_file)
 
-    model.compile(loss=m_loss,
+    model.compile(loss='mean_squared_error',
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    (x_val, y_val) = format_data(val_data, 10)
-    score = model.evaluate(x_val, y_val, verbose=0)
+    X_val, y_val = val_data
+    X_val = X_val.astype('float32')
+    X_val /= 255
+    score = model.evaluate(X_val, y_val, verbose=0)
     # print('Test loss:', score[0])
     print('Val accuracy:', score[1])
     # model.summary()
