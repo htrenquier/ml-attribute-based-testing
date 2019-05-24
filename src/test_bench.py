@@ -191,20 +191,20 @@ def bug_feature_detection():
         aa.accuracy(predicted_classes, true_classes)
 
         pr = aa.prediction_ratings(y_predicted, true_classes)
-        sorted_pr_args = np.argsort(pr)
+        # sorted_pr_args = np.argsort(pr)
 
-        print(pr[:100])
+        # print(pr[:100])
+        # 
+        # pr_labels = np.zeros(len(y_predicted))
+        # for count, id in enumerate(sorted_pr_args):
+        #     pr_labels[id] = int(10*count/len(sorted_pr_args))
 
-        pr_labels = np.zeros(len(y_predicted))
-        for count, id in enumerate(sorted_pr_args):
-            pr_labels[id] = int(10*count/len(sorted_pr_args))
-
-        print(pr_labels[:100])
+        # print(pr_labels[:100])
 
         model1 = mt.reg_from_(model0, m)
-        print('model created')
+        print('Reg model created')
         X_test, y_test = test_data
-        print(np.array(pr).shape)
+        # print(np.array(pr).shape)
         tr_data = X_test[0:20000], pr[0:20000]
         val_data = X_test[20000:30000], pr[20000:30000]
         mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=res_path)
