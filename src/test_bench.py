@@ -207,7 +207,10 @@ def bug_feature_detection():
         # print(np.array(pr).shape)
         tr_data = X_test[0:20000], pr[0:20000]
         val_data = X_test[20000:30000], pr[20000:30000]
-        mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=res_path)
+        model1, model_name1 = mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=res_path)
+        score = model1.evaluate(val_data[0], val_data[1], verbose=0)
+        print('Test loss:', score[0])
+        print('Val accuracy:', score[1])
         print('done')
 
 
