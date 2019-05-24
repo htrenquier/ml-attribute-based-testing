@@ -194,7 +194,7 @@ def bug_feature_detection():
         # sorted_pr_args = np.argsort(pr)
 
         # print(pr[:100])
-        # 
+        #
         # pr_labels = np.zeros(len(y_predicted))
         # for count, id in enumerate(sorted_pr_args):
         #     pr_labels[id] = int(10*count/len(sorted_pr_args))
