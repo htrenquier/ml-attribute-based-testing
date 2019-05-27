@@ -12,8 +12,8 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
-models = ('densenet121', 'mobilenetv2')
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+# models = ('densenet121', 'mobilenetv2')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -209,16 +209,16 @@ def bug_feature_detection():
         tr_data = X_test[0:20000], pr[0:20000]
         val_data = X_test[20000:30000], pr[20000:30000]
         model1, model_name1 = mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=res_path)
-        score = model1.evaluate(val_data[0], val_data[1], verbose=0)
-        print('Test loss:', score[0])
-        print('Val accuracy:', score[1])
+        # score = model1.evaluate(val_data[0], val_data[1], verbose=0)
+        # print('Test loss:', score[0])
+        # print('Val accuracy:', score[1])
         formatted_test_data = mt.format_data(val_data, 10)
         y_true = pr[20000:30000]
         y_predicted = model1.predict(formatted_test_data[0])
-        print(np.array(y_predicted).shape)
+        # print(np.array(y_predicted).shape)
         diff = []
         for k in xrange(min(100, len(y_predicted))):
-            diff.append((y_predicted[k][0] - y_true[k])**2)
+            diff.append((y_predicted[k][0] - y_true[k]))
         print(np.mean(diff))
         print('           ~           ')
 
