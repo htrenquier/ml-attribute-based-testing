@@ -218,7 +218,7 @@ def bug_feature_detection():
         # print(np.array(y_predicted).shape)
         diff = []
         for k in xrange(min(100, len(y_predicted))):
-            diff.append((y_predicted[k][0] - y_true[k]))
+            diff.append(abs(y_predicted[k][0] - y_true[k]))
         print(np.mean(diff))
         print('           ~           ')
 
