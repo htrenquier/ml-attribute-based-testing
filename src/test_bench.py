@@ -220,6 +220,7 @@ def bug_feature_detection():
         for k in xrange(min(100, len(y_predicted))):
             diff.append(abs(y_predicted[k][0] - y_true[k]))
         print(np.mean(diff))
+        print(max(diff))
         print('           ~           ')
 
 
