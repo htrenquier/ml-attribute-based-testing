@@ -508,7 +508,7 @@ def load_csv(file_name, col):
 def accuracy(predicted_classes, true_classes):
     nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
     acc = (len(true_classes) - nz) / len(true_classes)
-    print('Test Accuracy = ' + str(acc))
+    # print('Test Accuracy = ' + str(acc))
     return acc
 
 
