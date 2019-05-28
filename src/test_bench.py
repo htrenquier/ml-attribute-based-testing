@@ -331,8 +331,8 @@ def cifar_color_domains_test():
 
 check_dirs(res_path, ilsvrc2012_path)
 # imagenet_test()
-# finetune_test()
+finetune_test()
 # data_analysis()
 # bug_feature_detection()
 # color_domain()
-cifar_color_domains_test()
+# cifar_color_domains_test()
