@@ -300,7 +300,7 @@ def color_domains_accuracy(model):
                     for k in images_cube[x][y][z]:
                         test_data[0].append(Xf[k])
                         test_data[1].append(yf[k])
-                    print(np.array(test_data[0]).shape)
+                    # print(np.array(test_data[0]).shape)
                     y_predicted = model.predict(np.array(test_data[0]))
                     predicted_classes = np.argmax(y_predicted, axis=1)
                     true_classes = np.argmax(test_data[1], axis=1)
