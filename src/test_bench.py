@@ -7,13 +7,15 @@ import keras.applications as kapp
 import tensorflow as tf
 import os, sys, errno
 import operator
+import matplotlib.pyplot as plt
+from sklearn import metrics
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
-# models = ('densenet121', 'mobilenetv2')
+# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+models = ('densenet121', 'mobilenetv2')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -106,6 +108,8 @@ def finetune_test():
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
+        color_domains_accuracy(model0)
+
         pr = aa.prediction_ratings(y_predicted, true_classes)
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
 
@@ -137,12 +141,16 @@ def finetune_test():
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
+        color_domains_accuracy(model1)
+
         model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False, 'ref7', path=res_path)
         y_predicted = predict(model2, formatted_test_data)
         log_predictions(y_predicted, model_name2, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
+
+        color_domains_accuracy(model2)
 
 
 def data_analysis():
@@ -191,8 +199,9 @@ def bug_feature_detection():
         true_classes = np.argmax(f_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
+        print(metrics.confusion_matrix(true_classes, predicted_classes))
         pr = aa.prediction_ratings(y_predicted, true_classes)
-        # sorted_pr_args = np.argsort(pr)
+        sorted_pr_args = np.argsort(pr)
 
         # print(pr[:100])
         #
@@ -214,16 +223,109 @@ def bug_feature_detection():
         # print('Val accuracy:', score[1])
         formatted_test_data = mt.format_data(val_data, 10)
         y_true = pr[20000:30000]
-        y_predicted = model1.predict(formatted_test_data[0])
+        y_predicted1 = model1.predict(formatted_test_data[0])
         # print(np.array(y_predicted).shape)
         diff = []
         for k in xrange(min(100, len(y_predicted))):
-            diff.append(abs(y_predicted[k][0] - y_true[k]))
+            diff.append(abs(y_predicted1[k][0] - y_true[k]))
         print(np.mean(diff))
         print(max(diff))
+
+
+
+        n_images = 10
+        n_rows = 10
+        for th in xrange(n_rows):
+            fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
+                                     subplot_kw={'xticks': (), 'yticks': ()})
+            for dec in xrange(n_images):
+                ax = axes[dec]
+                pr_rank = th * 10 + dec
+                img_id = sorted_pr_args[pr_rank]
+                print(str(pr_rank) + ': ' + str(y_test[img_id]))  # + ' conf. guessed = ' + str(guessed[img_id]))
+                ax.imshow(X_test[img_id], vmin=0, vmax=1)
+                ax.set_title('pr#' + str(pr_rank) + "\nid#" + str(img_id)
+                             + '\nr=' + str("{0:.2f}".format(pr[img_id]))
+                             + '\np_cl=' + str(predicted_classes[img_id])
+                             + '\nr_cl=' + str(true_classes[img_id]))
+            plt.show()
+
         print('           ~           ')
 
+def color_domain_test():
+    all_data_orig = ds.get_data('cifar10', (0, 20000))
+    g = 4
+    n_images = 5
+    # images_cube = ds.cifar10_color_domains(granularity=g, frequence=0.3)
+    images_cube = ds.cifar10_maxcolor_domains(granularity=g)
+    images_cube_sizes = np.zeros((g, g, g))
+    total = 0
+    for x in xrange(g):
+        for y in xrange(g):
+            for z in xrange(g):
+                l = len(images_cube[x][y][z])
+                images_cube_sizes[x][y][z] = l
+                total += l
+                id_list = images_cube[x][y][z][:n_images]
+                if len(id_list) > 10000:
+                    print(id_list)
+                    c = 0
+                    fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
+                                             subplot_kw={'xticks': (), 'yticks': ()})
+                    for img_id in id_list:
+                        ax = axes[c]
+                        c += 1
+                        ax.imshow(all_data_orig[0][img_id], vmin=0, vmax=1)
+                        ax.set_title("id#" + str(img_id))
+                    plt.show()
+    print(images_cube_sizes)
+    print('total', total)
 
+
+def color_domains_accuracy(model):
+    g = 4
+    data_range = (50000, 60000)
+    images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=data_range)
+    scores_cube = np.zeros((g, g, g))
+    sizes_cube = np.zeros((g, g, g))
+    data = ds.get_data('cifar10', data_range)
+    Xf, yf = mt.format_data(data, 10)
+    for x in xrange(g):
+        for y in xrange(g):
+            for z in xrange(g):
+                test_data = [[], []]
+                l = len(images_cube[x][y][z])
+                sizes_cube[x][y][z] = l
+                if len(images_cube[x][y][z]) > 1:
+                    for k in images_cube[x][y][z]:
+                        test_data[0].append(Xf[k])
+                        test_data[1].append(yf[k])
+                    print(np.array(test_data[0]).shape)
+                    y_predicted = model.predict(np.array(test_data[0]))
+                    predicted_classes = np.argmax(y_predicted, axis=1)
+                    true_classes = np.argmax(test_data[1], axis=1)
+                    acc = aa.accuracy(predicted_classes, true_classes)
+                else:
+                    acc = None
+                scores_cube[x][y][z] = acc
+    print("Sizes")
+    print(sizes_cube)
+    print("Scores")
+    print(scores_cube)
+
+
+def cifar_color_domains_test():
+    for m in models:
+        tr_data = ds.get_data('cifar10', (0, 20000))
+        val_data = ds.get_data('cifar10', (20000, 30000))
+        test_data = ds.get_data('cifar10', (30000, 60000))
+        f_test_data = mt.format_data(test_data, 10)  # f for formatted
+
+        model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
+    #
+    # for m in models:
+    #     model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
+        color_domains_accuracy(model0)
 
 
 
@@ -231,4 +333,6 @@ check_dirs(res_path, ilsvrc2012_path)
 # imagenet_test()
 # finetune_test()
 # data_analysis()
-bug_feature_detection()
+# bug_feature_detection()
+# color_domain()
+cifar_color_domains_test()
