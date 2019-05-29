@@ -168,9 +168,9 @@ class ColorDensityCube:
 
     def normalize(self):
         if self.num != 0:
-            self.norm_cube = self.avg()
+            self.norm_cube = np.array(self.avg())
         else:
-            self.norm_cube = self.cube
+            self.norm_cube = np.array(self.cube)
         max, min = abs(self.norm_cube).max(), 0  # abs(self.norm_cube).min()
         if not max:
             print('Cube is null')
@@ -223,12 +223,12 @@ class ColorDensityCube:
                 ec = np.where(size >= 0.0, 'w', 'r')
                 size = abs(size)
                 ax.scatter(x, y, axis, c=color, s=size, edgecolor=ec, alpha=1)
-        #plt.show()
+        plt.show()
         if save:
             assert title is not None
             fig.text(0.5, 0.975, title, ha='center')
             plt.savefig(path + title + '.png')
-        # plt.close()
+        plt.close()
 
 
 def get_best_scores(images, num, diff_cube):
@@ -286,6 +286,7 @@ def contrast(img):
     min, max = np.min(img_ycc[0]), np.max(img_ycc[0])
     return m/(max-min)
 
+
 def finetune_by_colorfulness(ft_data_src, num, model_name0, res_path):
     col_scores =[]
     for img in ft_data_src:
@@ -323,6 +324,24 @@ def finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name, re
     cdc_finetune.plot_cube(save=True, title=model_name + '-ft_selection7', path=res_path)
 
     return finetune_data_args
+
+
+def finetune_by_region(region_coord, ft_data_src, n_data, resolution):
+    """
+    return the n images which colors of region_coord are the most present. ascending order.
+    :param region_coord:
+    :param ft_data_src:
+    :param n_data:
+    :param resolution:
+    :return:
+    """
+    region_scores = []  # same order as ft_data_src
+    for image in ft_data_src[0]:
+        c = ColorDensityCube(resolution=resolution)
+        c.feed(image)
+        region_scores.append(c.get_cube()[region_coord[0]][region_coord[1]][region_coord[2]])
+    sorted_args = np.argsort(region_scores)
+    return sorted_args[-n_data:]
 
 
 

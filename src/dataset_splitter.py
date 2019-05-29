@@ -90,3 +90,47 @@ def cifar10_maxcolor_domains(granularity, data_range=(50000, 60000)):
         argsmax = np.where(c == np.amax(c))
         image_cube[argsmax[0][0]][argsmax[1][0]][argsmax[2][0]].append(counter)
     return image_cube
+
+
+def cifar10_nth_maxcolor_domains(granularity, n, data_range=(50000, 60000)):
+    assert granularity and not granularity & (granularity - 1)  # granularity is power of 2
+    image_cube = [[[[] for _ in xrange(granularity)]
+                   for _ in xrange(granularity)]
+                  for _ in xrange(granularity)]
+    data_orig = get_data('cifar10', data_range)
+    for counter, image in enumerate(data_orig[0]):
+        cube = aa.ColorDensityCube(resolution=granularity)
+        cube.feed(image)
+        c = cube.get_cube()
+        argsmax = np.where(c == np.amax(c))
+        for k in xrange(n-1):
+            c[argsmax[0][0]][argsmax[1][0]][argsmax[2][0]] = 0
+            argsmax = np.where(c == np.amax(c))
+        image_cube[argsmax[0][0]][argsmax[1][0]][argsmax[2][0]].append(counter)
+    return image_cube
+
+
+def cube_cardinals(cube):
+    g = len(cube)
+    for i in xrange(g):
+        for j in xrange(g):
+            for k in xrange(g):
+                cube[i][j][k] = len(cube[i][j][k])
+    return cube
+
+
+def print_ds_color_distrib():
+    print("Max colors")
+    g = 4
+    ds_range = (0, 60000)
+    max1 = cifar10_maxcolor_domains(g, ds_range)
+    max1 = cube_cardinals(max1)
+    cube_max1 = aa.ColorDensityCube(g, max1)
+    cube_max1.normalize()
+    cube_max1.plot_cube(title='Max color distribution')
+    print('max1 plotted')
+    max2 = cifar10_nth_maxcolor_domains(g, 2, ds_range)
+    max2 = cube_cardinals(max2)
+    cube_max2 = aa.ColorDensityCube(g, max2)
+    cube_max2.normalize()
+    cube_max2.plot_cube(title='2nd Max color distribution')

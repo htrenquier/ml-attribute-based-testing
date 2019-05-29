@@ -14,8 +14,9 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
-# models = ('densenet121', 'mobilenetv2')
+# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+models = ('densenet121', 'mobilenetv2')
+# models = ('densenet121', 'densenet169', 'densenet201')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -163,8 +164,9 @@ def data_analysis():
     training_data_len = 20000
     train_data_orig, test_data_orig = cifar10.load_data()
     formatted_test_data = mt.format_data(test_data_orig, 10)
+    # ds.print_ds_color_distrib()
 
-    for m in models:
+    for m in models[:0]:
         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         y_predicted = predict(model0, formatted_test_data)
@@ -259,6 +261,50 @@ def bug_feature_detection():
         print('           ~           ')
 
 
+def color_region_finetuning():
+    g = 8
+    images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=(50000, 60000))
+    domain_sizes = size_cube_color_domain(images_cube)
+
+    for m in models:
+        tr_data = ds.get_data('cifar10', (0, 20000))
+        val_data = ds.get_data('cifar10', (40000, 50000))
+        ft_data = ds.get_data('cifar10', (20000, 40000))
+
+        model0, model_name0 = mt.train2(m, tr_data, val_data, 'cr_0245', 50, data_augmentation=False, path=res_path)
+
+        # print('score cubes:', scores_cube)
+
+        for x in xrange(g):
+            for y in xrange(g):
+                for z in xrange(g):
+                    if domain_sizes[x][y][z] > 50:
+                        ft_model_name = 'ft_2445_r' + str(x) + str(y) + str(z) + '_cr_1'
+                        ft_data_args = aa.finetune_by_region((x, y, z), ft_data, 10000, g)
+
+                        # data extraction
+                        dselec = np.concatenate((tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
+                        dlabels = np.concatenate((tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
+                        ft_data_selected = [dselec, dlabels]
+                        train_data_ref = ds.get_data('cifar10', (20000, 30000))
+
+                        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 20, False,
+                                                           ft_model_name+'exp', path=res_path)
+                        scores_cube1 = color_domains_accuracy(model1, g)
+                        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False,
+                                                           ft_model_name+'ref', path=res_path)
+                        scores_cube2 = color_domains_accuracy(model2, g)
+
+                        cc = np.subtract(scores_cube1, scores_cube2)
+
+                        print('Region=' + str(x) + str(y) + str(z) + '  -  score = ' + str(cc[x][y][z]))
+                        print(cc)
+                        print('           ~           ')
+
+
+
+
+
 def color_domain_test():
     all_data_orig = ds.get_data('cifar10', (0, 20000))
     g = 4
@@ -289,9 +335,9 @@ def color_domain_test():
     print('total', total)
 
 
-def color_domains_accuracy(model, granularity=4, data_range=(50000, 60000)):
+def color_domains_accuracy(model, granularity=4, n=1, data_range=(50000, 60000)):
     g = granularity
-    images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=data_range)
+    images_cube = ds.cifar10_nth_maxcolor_domains(granularity=g, n=n, data_range=data_range)
     scores_cube = np.zeros((g, g, g))
     data = ds.get_data('cifar10', data_range)
     Xf, yf = mt.format_data(data, 10)
@@ -313,17 +359,24 @@ def color_domains_accuracy(model, granularity=4, data_range=(50000, 60000)):
                 scores_cube[x][y][z] = acc
     return scores_cube
 
-def print_size_cube_color_domain(granularity=4, data_range=(50000, 60000)):
-    g = granularity
-    images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=data_range)
-    sizes_cube = np.zeros((g, g, g))
-    for x in xrange(g):
-        for y in xrange(g):
-            for z in xrange(g):
-                l = len(images_cube[x][y][z])
-                sizes_cube[x][y][z] = l
-    print("Sizes")
-    print(sizes_cube)
+
+def size_cube_color_domain(cube):
+    """
+
+    :param cube: cube color domain containing the lists of indexes
+    :return: new cube with cardinal of indexes per area
+    """
+    sizes_cube = ds.cube_cardinals(cube)
+    # g = granularity
+    # images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=data_range)
+    # sizes_cube = np.zeros((g, g, g))
+    # for x in xrange(g):
+    #     for y in xrange(g):
+    #         for z in xrange(g):
+    #             l = len(images_cube[x][y][z])
+    #             sizes_cube[x][y][z] = l
+    return sizes_cube
+
 
 
 
@@ -338,14 +391,21 @@ def cifar_color_domains_test():
     #
     # for m in models:
     #     model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
-        color_domains_accuracy(model0)
+        cube = color_domains_accuracy(model0)
+        print('cube', cube)
+        sizes_cube = size_cube_color_domain(cube)
+        print('Sizes', sizes_cube)
+
+
+
 
 
 
 check_dirs(res_path, ilsvrc2012_path)
 # imagenet_test()
-finetune_test()
+# finetune_test()
 # data_analysis()
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
+color_region_finetuning()
