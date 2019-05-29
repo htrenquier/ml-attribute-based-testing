@@ -99,7 +99,7 @@ def finetune_test():
 
     formatted_test_data = mt.format_data(test_data_orig, 10)
     print_size_cube_color_domain()
-    
+
     for m in models:
         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
@@ -142,7 +142,7 @@ def finetune_test():
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        color_domains_accuracy(model1)
+        cc1 = color_domains_accuracy(model1)
 
         model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False, 'ref7', path=res_path)
         y_predicted = predict(model2, formatted_test_data)
@@ -151,7 +151,11 @@ def finetune_test():
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        color_domains_accuracy(model2)
+        cc2 = color_domains_accuracy(model2)
+
+        cc = np.subtract(cc1, cc2)
+        print(cc)
+
         print('           ~           ')
 
 
@@ -307,9 +311,7 @@ def color_domains_accuracy(model, granularity=4, data_range=(50000, 60000)):
                 else:
                     acc = None
                 scores_cube[x][y][z] = acc
-    print("Scores")
-    print(scores_cube)
-
+    return scores_cube
 
 def print_size_cube_color_domain(granularity=4, data_range=(50000, 60000)):
     g = granularity
