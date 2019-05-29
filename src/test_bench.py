@@ -98,7 +98,8 @@ def finetune_test():
     # test_data_orig[0][:] = np.array(test_img_switch)
 
     formatted_test_data = mt.format_data(test_data_orig, 10)
-
+    print_size_cube_color_domain()
+    
     for m in models:
         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
@@ -151,6 +152,7 @@ def finetune_test():
         aa.accuracy(predicted_classes, true_classes)
 
         color_domains_accuracy(model2)
+        print('           ~           ')
 
 
 def data_analysis():
@@ -252,6 +254,7 @@ def bug_feature_detection():
 
         print('           ~           ')
 
+
 def color_domain_test():
     all_data_orig = ds.get_data('cifar10', (0, 20000))
     g = 4
@@ -282,20 +285,16 @@ def color_domain_test():
     print('total', total)
 
 
-def color_domains_accuracy(model):
-    g = 4
-    data_range = (50000, 60000)
+def color_domains_accuracy(model, granularity=4, data_range=(50000, 60000)):
+    g = granularity
     images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=data_range)
     scores_cube = np.zeros((g, g, g))
-    sizes_cube = np.zeros((g, g, g))
     data = ds.get_data('cifar10', data_range)
     Xf, yf = mt.format_data(data, 10)
     for x in xrange(g):
         for y in xrange(g):
             for z in xrange(g):
                 test_data = [[], []]
-                l = len(images_cube[x][y][z])
-                sizes_cube[x][y][z] = l
                 if len(images_cube[x][y][z]) > 1:
                     for k in images_cube[x][y][z]:
                         test_data[0].append(Xf[k])
@@ -308,10 +307,22 @@ def color_domains_accuracy(model):
                 else:
                     acc = None
                 scores_cube[x][y][z] = acc
-    print("Sizes")
-    print(sizes_cube)
     print("Scores")
     print(scores_cube)
+
+
+def print_size_cube_color_domain(granularity=4, data_range=(50000, 60000)):
+    g = granularity
+    images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=data_range)
+    sizes_cube = np.zeros((g, g, g))
+    for x in xrange(g):
+        for y in xrange(g):
+            for z in xrange(g):
+                l = len(images_cube[x][y][z])
+                sizes_cube[x][y][z] = l
+    print("Sizes")
+    print(sizes_cube)
+
 
 
 def cifar_color_domains_test():
