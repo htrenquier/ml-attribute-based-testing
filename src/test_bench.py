@@ -262,7 +262,7 @@ def bug_feature_detection():
 
 
 def color_region_finetuning():
-    g = 8
+    g = 4
     images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=(50000, 60000))
     domain_sizes = size_cube_color_domain(images_cube)
 
