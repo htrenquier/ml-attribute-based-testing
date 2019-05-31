@@ -291,7 +291,7 @@ def color_region_finetuning():
                         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 20, False,
                                                            ft_model_name+'exp', path=res_path)
                         scores_cube1 = color_domains_accuracy(model1, g)
-                        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False,
+                        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 20, False,
                                                            ft_model_name+'ref', path=res_path)
                         scores_cube2 = color_domains_accuracy(model2, g)
 
