@@ -233,7 +233,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             epochs=epochs,
             validation_data=(x_val, y_val),
             workers=4,
-            verbose=1,
+            verbose=0,
             steps_per_epoch=(50000 / batch_size),
             callbacks=[checkpoint]
         )
@@ -324,7 +324,12 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
     # print('input shape', input_shape)
     model_type = model_name.split('_')[0]
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-    ft_model_name = model_name + '_ft' + str(ft_epochs) + 'ep-' + nametag
+    if ft_data_augmentation is True:
+        # With DataAugmentation
+        ft_model_name = model_name + '_ftwda' + str(ft_epochs) + 'ep-' + nametag
+    else:
+        # WithOut DataAugmentation
+        ft_model_name = model_name + '_ftwoda' + str(ft_epochs) + 'ep-' + nametag
     weights_file = ft_model_name + '.h5'
 
     if model is None:
