@@ -298,7 +298,7 @@ def color_region_finetuning():
                         cc = np.subtract(scores_cube1, scores_cube2)
 
                         print('Region=' + str(x) + str(y) + str(z) + '  -  score = ' + str(cc[x][y][z]))
-                        print(cc)
+                        # print(cc)
                         print('           ~           ')
 
 
