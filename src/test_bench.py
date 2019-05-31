@@ -274,7 +274,7 @@ def color_region_finetuning():
         model0, model_name0 = mt.train2(m, tr_data, val_data, 'cr_0245', 50, data_augmentation=False, path=res_path)
 
         train_data_ref = ds.get_data('cifar10', (20000, 30000))
-        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ref', path=res_path)
+        model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, False, 'ft_2345_ref', path=res_path)
         scores_cube2 = color_domains_accuracy(model2, g)
         # print('score cubes:', scores_cube)
 
@@ -291,7 +291,7 @@ def color_region_finetuning():
                         dlabels = np.concatenate((tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
                         ft_data_selected = [dselec, dlabels]
 
-                        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 30, True,
+                        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 30, False,
                                                            ft_model_name+'exp', path=res_path)
                         scores_cube1 = color_domains_accuracy(model1, g)
 
