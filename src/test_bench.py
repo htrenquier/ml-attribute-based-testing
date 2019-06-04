@@ -293,7 +293,7 @@ def color_region_finetuning():
                         ft_data_selected = [dselec, dlabels]
 
                         (x_val, y_val) = mt.format_data(val_data, 10)
-                        print('Finetuning ' + model_name0 + ' - (val_acc: ' + model0.evaluate(x_val, y_val, verbose=0)[1] + ')')
+                        print('Finetuning ' + model_name0 + ' - (val_acc: ' + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
                         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 30, True,
                                                            ft_model_name+'exp', path=res_path)
                         scores_cube1 = color_domains_accuracy(model1, g)
