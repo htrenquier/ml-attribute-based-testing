@@ -275,6 +275,7 @@ def color_region_finetuning():
         model_base, model_name0 = mt.train2(m, tr_data, val_data, 'cr_0245', 50, data_augmentation=False, path=res_path)
 
         # model0 = model_base  # avoid fitting model_base directly DOES NOT WORK
+        model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
 
         train_data_ref = ds.get_data('cifar10', (20000, 30000))
         model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
