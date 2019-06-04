@@ -272,7 +272,9 @@ def color_region_finetuning():
         ft_data = ds.get_data('cifar10', (20000, 40000))
 
         # cr = color region, 0-2 for tr data / 4-5 for val data
-        model0, model_name0 = mt.train2(m, tr_data, val_data, 'cr_0245', 50, data_augmentation=False, path=res_path)
+        model_base, model_name0 = mt.train2(m, tr_data, val_data, 'cr_0245', 50, data_augmentation=False, path=res_path)
+
+        model0 = model_base  # avoid fitting model_base directly
 
         train_data_ref = ds.get_data('cifar10', (20000, 30000))
         model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
@@ -291,6 +293,8 @@ def color_region_finetuning():
                         dselec = np.concatenate((tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
                         dlabels = np.concatenate((tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
                         ft_data_selected = [dselec, dlabels]
+
+                        model0 = model_base # avoid fitting model_base directly
 
                         (x_val, y_val) = mt.format_data(val_data, 10)
                         print('Finetuning ' + model_name0 + ' - (val_acc: ' + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
