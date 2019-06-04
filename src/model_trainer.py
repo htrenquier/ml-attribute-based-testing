@@ -361,6 +361,17 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
     return model, ft_model_name
 
 
+def load_by_name(model_name, input_shape, weight_file):
+    model_type = model_name.split('_')[0]
+    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+    model = model_struct(model_type, input_shape, 10)
+    model.load_weights(weight_file)
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)
+    return model
+
+
 def train2(model_type, tr_data, val_data, tag, epochs, data_augmentation, path=''):
 
     if data_augmentation is True:
