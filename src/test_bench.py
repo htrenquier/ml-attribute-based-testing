@@ -292,8 +292,8 @@ def color_region_finetuning():
                         dlabels = np.concatenate((tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
                         ft_data_selected = [dselec, dlabels]
 
-                        print('Finetuning ' + model_name0 + ' - (val_acc: ' +
-                              model0.evaluate(val_data[0], val_data[1], verbose=0)[1] + ')')
+                        (x_val, y_val) = mt.format_data(val_data, 10)
+                        print('Finetuning ' + model_name0 + ' - (val_acc: ' + model0.evaluate(x_val, y_val, verbose=0)[1] + ')')
                         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 30, True,
                                                            ft_model_name+'exp', path=res_path)
                         scores_cube1 = color_domains_accuracy(model1, g)
