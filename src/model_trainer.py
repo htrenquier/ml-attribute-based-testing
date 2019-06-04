@@ -334,7 +334,7 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
 
     if model is None:
         model = model_struct(model_type, input_shape, 10)
-        model.load_weights(weights_file)
+        # model.load_weights(weights_file)
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
