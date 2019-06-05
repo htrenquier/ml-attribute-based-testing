@@ -283,10 +283,10 @@ def color_region_finetuning():
 
         for x in xrange(g):
             model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-            print('Ref #' + str(g) + ' - ' + model_name0 + ' - (val_acc: '
+            print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
                   + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
             model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True,
-                                               'ft_2345_ref'+str(g), path=res_path)
+                                               'ft_2345_ref'+str(x), path=res_path)
             scores_cube2 = color_domains_accuracy(model2, g)
             print('scores cube:', scores_cube2)
 
