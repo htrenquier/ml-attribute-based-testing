@@ -16,7 +16,7 @@ os.chdir(os.path.dirname(sys.argv[0]))
 # 'densenet169', 'densenet201',
 # models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
 # models = ('densenet121', 'mobilenetv2')
-models = ('densenet121', 'densenet169', 'densenet201')
+models = ('mobilenet', 'densenet169', 'densenet201')
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -271,6 +271,7 @@ def color_region_finetuning():
         val_data = ds.get_data('cifar10', (40000, 50000))
         ft_data = ds.get_data('cifar10', (20000, 40000))
         train_data_ref = ds.get_data('cifar10', (20000, 30000))
+        test_data = ds.get_data('cifar10', (50000, 60000))
         (x_val, y_val) = mt.format_data(val_data, 10)
 
         # cr = color region, 0-2 for tr data / 4-5 for val data
@@ -282,13 +283,13 @@ def color_region_finetuning():
         # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
 
         for x in xrange(g):
-            model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-            print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
-                  + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-            model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True,
-                                               'ft_2345_ref'+str(x), path=res_path)
-            scores_cube2 = color_domains_accuracy(model2, g)
-            print('scores cube:', scores_cube2)
+            # model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
+            # print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
+            #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
+            # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True,
+            #                                    'ft_2345_ref'+str(x), path=res_path)
+            # scores_cube2 = color_domains_accuracy(model2, g)
+            # print('scores cube:', scores_cube2)
 
             for y in xrange(g):
                 for z in xrange(g):
@@ -301,19 +302,35 @@ def color_region_finetuning():
                         dlabels = np.concatenate((tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
                         ft_data_selected = [dselec, dlabels]
 
-                        model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path+model_name0+'.h5')  # avoid fitting model_base directly
+                        # avoids fitting model_base directly
+                        model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
 
                         print('Finetuning ' + model_name0 + ' - (val_acc: ' + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
                         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 30, True,
                                                            ft_model_name+'exp', path=res_path)
                         scores_cube1 = color_domains_accuracy(model1, g)
-
-                        cc = np.subtract(scores_cube1, scores_cube2)
+                        ################ TEST ACCURACY
+                        f_test_data = mt.format_data(test_data, 10)
+                        y_predicted = predict(model0, f_test_data)
+                        # log_predictions(y_predicted, model_name0, path=res_path)
+                        predicted_classes = np.argmax(y_predicted, axis=1)
+                        true_classes = np.argmax(f_test_data[1], axis=1)
+                        aa.accuracy(predicted_classes, true_classes)
+                        ################
+                        # cc = np.subtract(scores_cube1, scores_cube2)
 
                         print('Region=' + str(x) + str(y) + str(z) + '  -  score = ' + str(cc[x][y][z]))
                         # print(cc)
                         print('           ~           ')
 
+        for x in xrange(g):
+            model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
+            print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
+                  + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
+            model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True,
+                                               'ft_2345_ref' + str(x), path=res_path)
+            scores_cube2 = color_domains_accuracy(model2, g)
+            print('scores cube:', scores_cube2)
 
 
 

@@ -233,7 +233,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             epochs=epochs,
             validation_data=(x_val, y_val),
             workers=4,
-            verbose=2,
+            verbose=0,
             steps_per_epoch=(50000 / batch_size),
             callbacks=[checkpoint]
         )

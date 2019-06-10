@@ -43,6 +43,7 @@ def sigmoid(x):
 
 def read_ground_truth(gt_file):
     # gt for groundtruth
+    # ground truth reader for imagenet val data
     # file available @ http://dl.caffe.berkeleyvision.org/caffe_ilsvrc12.tar.gz
     true_classes = []
     filenames = []
@@ -55,6 +56,7 @@ def read_ground_truth(gt_file):
 
 
 def predict_batch(model, images):
+    # return predictions for a batch of images
     if images != []:
         y_predicted = model.predict(images)
         predicted_classes = np.argmax(y_predicted, axis=1)
@@ -65,7 +67,7 @@ def predict_batch(model, images):
 
 def predict_dataset(filenames, path, model, model_preprocess_function):
     """
-    For imagenet
+    For predicting large amount of images (e.g. imagenet)
     :param filenames: file of filenames
     :param model_preprocess_function:
     :param path: path of test images
@@ -76,7 +78,7 @@ def predict_dataset(filenames, path, model, model_preprocess_function):
     batch_size = 32
     batch = []
     for filename in filenames:
-        batch.append(process(path+filename, model_preprocess_function))
+        batch.append(preprocess(path+filename, model_preprocess_function))
         if len(batch) >= batch_size:
             y_predicted = y_predicted + model.predict(np.array(batch)).tolist()
             batch = []
@@ -84,15 +86,24 @@ def predict_dataset(filenames, path, model, model_preprocess_function):
     return y_predicted
 
 
-def process(file_path, model_preprocess_function):
+def preprocess(file_path, model_preprocess_function):
+    # image preprocessing for large dataset prediction
     img = image.load_img(file_path, target_size=(224, 224))
     x = image.img_to_array(img)
-    #x = np.expand_dims(x, axis=0)
+    # x = np.expand_dims(x, axis=0)
     x = model_preprocess_function(x)
     return x
 
 
 def avg_hist_imagenet(image_ids, channel, cs, path=''):
+    """
+    Returns an average histogram (pixel value distribution) for a list of image files
+    :param image_ids: image file name
+    :param channel: channel to study
+    :param cs: target color space (input cs is asssumed to be RGB)
+    :param path: path of the images (without image file name)
+    :return: the average distribution of pixel of :channel: across all :image_ids:
+    """
     hist = np.zeros(256)
     # print(channel)
     for id in image_ids:
@@ -104,6 +115,17 @@ def avg_hist_imagenet(image_ids, channel, cs, path=''):
 
 
 def plot_hists_imagenet(image_ids1, label1, image_ids2, label2, color_space, path, title='Untitled plot'):
+    """
+    Plots a comparaison per channel of :color_space: of the average histograms of sets of images :image_ids1: and
+    :image_ids2:.
+    :param image_ids1:
+    :param label1:
+    :param image_ids2:
+    :param label2:
+    :param color_space: color space of studied channels
+    :param path: path of the images
+    :param title: title of the plot.
+    """
     fig, axs = plt.subplots(1, len(color_space), sharex='row')
     fig.text(0.005, 0.5, 'Number of pixels', va='center', rotation='vertical')
     fig.text(0.5, 0.975, title, ha='center')
@@ -125,6 +147,10 @@ def plot_hists_imagenet(image_ids1, label1, image_ids2, label2, color_space, pat
 
 
 class ColorDensityCube:
+    """
+    Tool for 3D representation of image color distribution over the whole color spectrum.
+    It was made to keep the relation between the 3 channels
+    """
     def __init__(self, resolution=16, cube=None):
         assert resolution and not resolution & (resolution - 1)  # resolution is a power of 2
         self.res = resolution
@@ -145,6 +171,10 @@ class ColorDensityCube:
         self.cube[key] = value
 
     def feed(self, image):
+        """
+        Feeds an image in the cube, meaning the image's colors distribution will be projected onto the cube
+        :param image:
+        """
         for x in image:
             for y in x:
                 c0 = int(y[0]/self.win)
@@ -155,18 +185,12 @@ class ColorDensityCube:
         self.isNormalized = False
 
     def avg(self):
+        """ Averages the cube if multiple images have been fed """
+        assert self.num > 0
         return self.cube / self.num
 
-    def count(self):
-        count = 0
-        cube = self.avg()
-        for i in cube:
-            for j in i:
-                for k in j:
-                    count += k
-        return count
-
     def normalize(self):
+        """Normalize the cube values: values will be between 1 and 0"""
         if self.num != 0:
             self.norm_cube = np.array(self.avg())
         else:
@@ -179,6 +203,12 @@ class ColorDensityCube:
         self.isNormalized = True
 
     def substract(self, cube, state='avg'):
+        """
+        Subtracts cube to self
+        :param cube: target cube to subtract to self
+        :param state:
+        :return:
+        """
         diff_cube = ColorDensityCube(self.res)
         assert isinstance(cube, ColorDensityCube)
         for x in xrange(len(self.cube)):
@@ -527,7 +557,7 @@ def load_csv(file_name, col):
 def accuracy(predicted_classes, true_classes):
     nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
     acc = (len(true_classes) - nz) / len(true_classes)
-    # print('Test Accuracy = ' + str(acc))
+    print('Test Accuracy = ' + str(acc))
     return acc
 
 
