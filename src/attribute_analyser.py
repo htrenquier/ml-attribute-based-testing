@@ -1,5 +1,4 @@
 from __future__ import division
-import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from skimage.io import imread
@@ -11,6 +10,7 @@ from keras.applications.vgg16 import VGG16
 from sklearn import preprocessing
 from mpl_toolkits.mplot3d import Axes3D
 import math
+import dataset_splitter as ds
 
 # Color-spaces
 cs_bgr = ('Blue', 'Green', 'Red')
