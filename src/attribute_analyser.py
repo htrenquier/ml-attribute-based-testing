@@ -11,6 +11,7 @@ from sklearn import preprocessing
 from mpl_toolkits.mplot3d import Axes3D
 import math
 import dataset_splitter as ds
+import model_trainer as mt
 
 # Color-spaces
 cs_bgr = ('Blue', 'Green', 'Red')
