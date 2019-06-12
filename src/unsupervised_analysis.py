@@ -37,9 +37,9 @@ X_pca = pca.transform(X)
 n_clusters = 10
 
 # Agglomerative
-agglomerative = AgglomerativeClustering(n_clusters=n_clusters)
-labels_agg = agglomerative.fit_predict(X_pca)
-print("Cluster sizes agglomerative clustering: {}".format(np.bincount(labels_agg)))
+# agglomerative = AgglomerativeClustering(n_clusters=n_clusters)
+# labels_agg = agglomerative.fit_predict(X_pca)
+# print("Cluster sizes agglomerative clustering: {}".format(np.bincount(labels_agg)))
 
 
 # # K-Means
@@ -48,16 +48,15 @@ print("Cluster sizes agglomerative clustering: {}".format(np.bincount(labels_agg
 # labels_kmeans = kmeans.labels_
 # print("Cluster sizes kmeans: {}".format(np.bincount(labels_kmeans)))
 
+DBSCAN
+db = DBSCAN(eps=10, min_samples=10)
+labels_dbscan = db.fit_predict(X)
+print('Unique labels: {}' .format(np.unique(labels_dbscan)))
+print('Cluster sizes: {}' .format(np.bincount(labels_dbscan + 1)))
+
 labels = [[] for k in xrange(n_clusters)]
-for id, x in enumerate(labels_agg):
+for id, x in enumerate(labels_dbscan):
     labels[x].append(id)
-
-
-# DBSCAN
-# db = DBSCAN(eps=10, min_samples=10)
-# labels_dbscan = db.fit_predict(X)
-# print('Unique labels: {}' .format(np.unique(labels)))
-# print('Cluster sizes: {}' .format(np.bincount(labels + 1)))
 
 # people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
 # image_shape = people.images[0].shape
@@ -115,20 +114,35 @@ for f in file_list[:1]:
     print(per_class_score)
     print(np.mean(pr))
 
+    for l in xrange(len(labels)):
+        n_images = min(10, len(labels[l]))
+        print(n_images)
+        print(labels[l])
+        if n_images > 1:
+            fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
+                                     subplot_kw={'xticks': (), 'yticks': ()})
+            for i in xrange(min(10, n_images)):
+                ax = axes[i]
+                img_id = labels[l][i]
+                ax.imshow(test_imgs[img_id], vmin=0, vmax=1)
+                fig.suptitle('label #' + str(l) + ' (' + str(n_images) + '/' + str(len(labels[l])) + ' images)')
+            plt.show()
+
+
     n_images = 10
     n_rows = 10
-    for th in xrange(n_rows):
-        fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
-                                 subplot_kw={'xticks': (), 'yticks': ()})
-        for dec in xrange(n_images):
-            ax = axes[dec]
-            pr_rank = th*1000+dec
-            img_id = sorted_pr_indexes[pr_rank]
-            print(str(pr_rank) + ': ' + str(pr[img_id]) + ' conf. guessed = ' + str(guessed[img_id]))
-            ax.imshow(test_imgs[img_id], vmin=0, vmax=1)
-            ax.set_title('pr #' + str(pr_rank) + '\nds #' + str(img_id))
-        plt.show()
-        print(th)
+    # for th in xrange(n_rows):
+    #     fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
+    #                              subplot_kw={'xticks': (), 'yticks': ()})
+    #     for dec in xrange(n_images):
+    #         ax = axes[dec]
+    #         pr_rank = th*1000+dec
+    #         img_id = sorted_pr_indexes[pr_rank]
+    #         print(str(pr_rank) + ': ' + str(pr[img_id]) + ' conf. guessed = ' + str(guessed[img_id]))
+    #         ax.imshow(test_imgs[img_id], vmin=0, vmax=1)
+    #         ax.set_title('pr #' + str(pr_rank) + '\nds #' + str(img_id))
+    #     plt.show()
+    #     print(th)
 
 
     # #DBSCAN

@@ -318,19 +318,23 @@ def train(model_type, dataset, epochs, data_augmentation, path=''):
     return model, model_name
 
 
-def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_augmentation, nametag, path=''):
-
-    input_shape = ft_train_data[0].shape[1:]
-    # print('input shape', input_shape)
-    model_type = model_name.split('_')[0]
-    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+def fine_tune_file_name(model_name, ft_data_augmentation, ft_epochs, nametag):
     if ft_data_augmentation is True:
         # With DataAugmentation
         ft_model_name = model_name + '_ftwda' + str(ft_epochs) + 'ep-' + nametag
     else:
         # WithOut DataAugmentation
         ft_model_name = model_name + '_ftwoda' + str(ft_epochs) + 'ep-' + nametag
-    weights_file = ft_model_name + '.h5'
+    return ft_model_name
+
+
+def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_augmentation, nametag, path=''):
+
+    input_shape = ft_train_data[0].shape[1:]
+    # print('input shape', input_shape)
+    model_type = model_name.split('_')[0]
+    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+    weights_file = fine_tune_file_name(model_name, ft_data_augmentation, ft_epochs, nametag)
 
     if model is None:
         model = model_struct(model_type, input_shape, 10)
@@ -340,13 +344,13 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    print('*-> ' + path + weights_file)
     if not os.path.isfile(path+weights_file):
         # print('Start training')
         train_and_save(model, ft_epochs, ft_data_augmentation, path + weights_file, ft_train_data, ft_val_data,
                        m_batch_size)
+    else:
+        print('Weight file found: ' + path+weights_file + ', loading.')
 
-    # print('Weight file found: ' + path+weights_file + ', loading.')
     model.load_weights(path + weights_file)
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
@@ -361,15 +365,22 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
     return model, ft_model_name
 
 
-def load_by_name(model_name, input_shape, weight_file):
-    model_type = model_name.split('_')[0]
-    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-    model = model_struct(model_type, input_shape, 10)
-    model.load_weights(weight_file)
-    model.compile(loss=m_loss,
-                  optimizer=m_optimizer,
-                  metrics=m_metric)
-    return model
+def load_by_name(model_name, input_shape, weight_file_path):
+    if model_state_exists(weight_file_path):
+        model_type = model_name.split('_')[0]
+        (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+        model = model_struct(model_type, input_shape, 10)
+        model.load_weights(weight_file_path)
+        model.compile(loss=m_loss,
+                      optimizer=m_optimizer,
+                      metrics=m_metric)
+        return model
+    else:
+        raise IOError('File ' + weight_file_path + ' not found')
+
+
+def model_state_exists(weight_file_path):
+    return os.path.isfile(weight_file_path)
 
 
 def train2(model_type, tr_data, val_data, tag, epochs, data_augmentation, path=''):

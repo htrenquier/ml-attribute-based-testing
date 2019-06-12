@@ -86,6 +86,7 @@ def imagenet_test():
 
 
 def finetune_test():
+    """Outdated function"""
     training_data_len = 20000
     train_data_orig, test_data_orig = cifar10.load_data()
 
@@ -99,7 +100,6 @@ def finetune_test():
     # test_data_orig[0][:] = np.array(test_img_switch)
 
     formatted_test_data = mt.format_data(test_data_orig, 10)
-    print_size_cube_color_domain()
 
     for m in models:
         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
@@ -110,7 +110,7 @@ def finetune_test():
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        color_domains_accuracy(model0)
+        aa.color_domains_accuracy(model0)
 
         pr = aa.prediction_ratings(y_predicted, true_classes)
         high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
@@ -143,7 +143,7 @@ def finetune_test():
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        cc1 = color_domains_accuracy(model1)
+        cc1 = aa.color_domains_accuracy(model1)
 
         model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False, 'ref7', path=res_path)
         y_predicted = predict(model2, formatted_test_data)
@@ -152,7 +152,7 @@ def finetune_test():
         true_classes = np.argmax(formatted_test_data[1], axis=1)
         aa.accuracy(predicted_classes, true_classes)
 
-        cc2 = color_domains_accuracy(model2)
+        cc2 = aa.color_domains_accuracy(model2)
 
         cc = np.subtract(cc1, cc2)
         print(cc)
@@ -198,14 +198,15 @@ def bug_feature_detection():
         tr_data = ds.get_data('cifar10', (0, 20000))
         val_data = ds.get_data('cifar10', (20000, 30000))
         test_data = ds.get_data('cifar10', (30000, 60000))
-        f_test_data = mt.format_data(test_data, 10)  # f for formatted
+        f_test_data = mt.format_data(test_data, 10)  # f_~ for formatted
 
         model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
         y_predicted = predict(model0, f_test_data)
         # log_predictions(y_predicted, model_name0, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(f_test_data[1], axis=1)
-        aa.accuracy(predicted_classes, true_classes)
+        acc = aa.accuracy(predicted_classes, true_classes)
+        print('acc', acc)
 
         print(metrics.confusion_matrix(true_classes, predicted_classes))
         pr = aa.prediction_ratings(y_predicted, true_classes)
@@ -234,29 +235,57 @@ def bug_feature_detection():
         y_predicted1 = model1.predict(formatted_test_data[0])
         # print(np.array(y_predicted).shape)
         diff = []
-        for k in xrange(min(100, len(y_predicted))):
+        for k in xrange(min(10000, len(y_predicted))):
             diff.append(abs(y_predicted1[k][0] - y_true[k]))
-        print(np.mean(diff))
-        print(max(diff))
+        print('Difference:')
+        print('Mean ', np.mean(diff))
+        print('Max ', max(diff))
+
+        # for rank, iid in enumerate(sorted_pr_args[0:10000]):
+        #     q = predicted_classes[iid] == true_classes[iid]
+            # if not q:
+            #     print(str(iid) + ' - pr #' + str(rank) + ' =' + str(pr[iid]) + ' : ' + str(q) +
+            #       '//' + str(y_predicted[iid]))
 
 
+        n_guesses = len(y_predicted1)
+        y_predicted2 = [y_predicted1[k][0] for k in xrange(n_guesses)]
+        print('Prediction values:')
+        print('Mean', np.mean(y_predicted2))
+        print('Max', np.max(y_predicted2))
+        print('Min', np.min(y_predicted2))
 
-        n_images = 10
-        n_rows = 10
-        for th in xrange(n_rows):
-            fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
-                                     subplot_kw={'xticks': (), 'yticks': ()})
-            for dec in xrange(n_images):
-                ax = axes[dec]
-                pr_rank = th * 10 + dec
-                img_id = sorted_pr_args[pr_rank]
-                print(str(pr_rank) + ': ' + str(y_test[img_id]))  # + ' conf. guessed = ' + str(guessed[img_id]))
-                ax.imshow(X_test[img_id], vmin=0, vmax=1)
-                ax.set_title('pr#' + str(pr_rank) + "\nid#" + str(img_id)
-                             + '\nr=' + str("{0:.2f}".format(pr[img_id]))
-                             + '\np_cl=' + str(predicted_classes[img_id])
-                             + '\nr_cl=' + str(true_classes[img_id]))
-            plt.show()
+        opti_thr = float(np.sort(y_predicted2)[int(acc*10000)])
+        print('opti_thr', opti_thr)
+        # thresholds = (float(0.6), float(0.7), float(0.777), float(0.8), float(0.9), opti_thr)
+        thresholds = (float(0.9), float(1), float(1.1), float(1.2), opti_thr)
+
+        for thr in thresholds:
+            n_right_guesses = 0
+            for k in xrange(n_guesses):
+                q = (true_classes[20000+k] == predicted_classes[20000+k])
+                p = y_predicted1[k][0] > thr
+                if p == q:
+                    n_right_guesses = n_right_guesses + 1
+
+            print('acc for reg for true/false with thr of ' + str(thr) + ': ' + str(float(n_right_guesses)/n_guesses))
+
+        # n_images = 10
+        # n_rows = 10
+        # for th in xrange(n_rows):
+        #     fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
+        #                              subplot_kw={'xticks': (), 'yticks': ()})
+        #     for dec in xrange(n_images):
+        #         ax = axes[dec]
+        #         pr_rank = 7000 + th * 100 + dec
+        #         img_id = sorted_pr_args[pr_rank]
+        #         # print(str(pr_rank) + ': ' + str(y_test[img_id]))  # + ' conf. guessed = ' + str(guessed[img_id]))
+        #         ax.imshow(X_test[img_id], vmin=0, vmax=1)
+        #         ax.set_title('pr#' + str(pr_rank) + "\nid#" + str(img_id)
+        #                      + '\nr=' + str("{0:.2f}".format(pr[img_id]))
+        #                      + '\np_cl=' + str(predicted_classes[img_id])
+        #                      + '\nr_cl=' + str(true_classes[img_id]))
+        #     plt.show()
 
         print('           ~           ')
 
@@ -264,15 +293,17 @@ def bug_feature_detection():
 def color_region_finetuning():
     g = 4
     images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=(50000, 60000))
-    domain_sizes = size_cube_color_domain(images_cube)
-
+    domain_sizes = ds.cube_cardinals(images_cube)
+    tr_data = ds.get_data('cifar10', (0, 20000))
+    val_data = ds.get_data('cifar10', (40000, 50000))
+    ft_data = ds.get_data('cifar10', (20000, 40000))
+    train_data_ref = ds.get_data('cifar10', (20000, 30000))
+    test_data = ds.get_data('cifar10', (50000, 60000))
+    f_test_data = mt.format_data(test_data, 10)
+    ft_data_augmentation = True
+    ft_epochs = 30
+    
     for m in models:
-        tr_data = ds.get_data('cifar10', (0, 20000))
-        val_data = ds.get_data('cifar10', (40000, 50000))
-        ft_data = ds.get_data('cifar10', (20000, 40000))
-        train_data_ref = ds.get_data('cifar10', (20000, 30000))
-        test_data = ds.get_data('cifar10', (50000, 60000))
-        (x_val, y_val) = mt.format_data(val_data, 10)
 
         # cr = color region, 0-2 for tr data / 4-5 for val data
         model_base, model_name0 = mt.train2(m, tr_data, val_data, 'cr_0245', 50, data_augmentation=False, path=res_path)
@@ -283,56 +314,64 @@ def color_region_finetuning():
         # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
 
         for x in xrange(g):
-            # model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-            # print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
-            #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-            # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True,
-            #                                    'ft_2345_ref'+str(x), path=res_path)
-            # scores_cube2 = color_domains_accuracy(model2, g)
-            # print('scores cube:', scores_cube2)
+            nametag_prefix = 'ft_2345_ref' + str(x)
+            ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
+            weights_file = res_path + ft_model_name + '.h5'
+            print('*-> ' + weights_file)
+
+            if mt.model_state_exists(weights_file):
+                model2 = mt.load_by_name(model_name0, ft_data[0].shape[1:], weights_file)
+            else:
+                model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
+                # #Model state check (should be same acc than base model)
+                # print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
+                #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
+                model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, ft_epochs,
+                                                   ft_data_augmentation, nametag_prefix, path=res_path)
+            scores_cube2 = aa.color_domains_accuracy(model2, g)
+            print('Scores cube ref:', scores_cube2)
 
             for y in xrange(g):
                 for z in xrange(g):
                     if domain_sizes[x][y][z] > 50:
-                        ft_model_name = 'ft_2445_r' + str(x) + str(y) + str(z) + '_cr_1'
-                        ft_data_args = aa.finetune_by_region((x, y, z), ft_data, 10000, g)
+                        nametag_prefix = 'ft_2445_r' + str(x) + str(y) + str(z) + '_cr_1'
+                        ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs,
+                                                               nametag=nametag_prefix+'exp')
+                        weights_file = res_path+ft_model_name+'.h5'
+                        if mt.model_state_exists(weights_file):
+                            model1 = mt.load_by_name(model_name0, ft_data[0].shape[1:], weights_file)
+                        else:
+                            ft_data_args = aa.finetune_by_region((x, y, z), ft_data, 10000, g)
+                            # Data extraction
+                            dselec = np.concatenate(
+                                (tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
+                            dlabels = np.concatenate(
+                                (tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
+                            ft_data_selected = [dselec, dlabels]
+                            # Avoid fitting model_base:
+                            model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
+                            # Model state check (should be same acc than base model)
+                            # print('Finetuning ' + model_name0 + ' - (val_acc: '
+                            #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
+                            model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data,
+                                                               ft_epochs, ft_data_augmentation,
+                                                               nametag_prefix + 'exp', path=res_path)
 
-                        # data extraction
-                        dselec = np.concatenate((tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
-                        dlabels = np.concatenate((tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
-                        ft_data_selected = [dselec, dlabels]
+                        scores_cube1 = aa.color_domains_accuracy(model1, g)
+                        print('Region=' + str(x) + str(y) + str(z) + '  -  acc = ' + str(scores_cube1[x][y][z]))
+                        print('Mean score_cube', np.mean(scores_cube1))
 
-                        # avoids fitting model_base directly
-                        model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-
-                        print('Finetuning ' + model_name0 + ' - (val_acc: ' + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-                        model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 30, True,
-                                                           ft_model_name+'exp', path=res_path)
-                        scores_cube1 = color_domains_accuracy(model1, g)
-                        ################ TEST ACCURACY
-                        f_test_data = mt.format_data(test_data, 10)
-                        y_predicted = predict(model0, f_test_data)
+                        # --------------- TEST ACCURACY --------------- #
+                        y_predicted = predict(model1, f_test_data)
                         # log_predictions(y_predicted, model_name0, path=res_path)
                         predicted_classes = np.argmax(y_predicted, axis=1)
                         true_classes = np.argmax(f_test_data[1], axis=1)
-                        aa.accuracy(predicted_classes, true_classes)
-                        ################
-                        # cc = np.subtract(scores_cube1, scores_cube2)
-
+                        print('Test accuracy:', aa.accuracy(predicted_classes, true_classes))
+                        # --------------------------------------------- #
+                        cc = np.subtract(scores_cube1, scores_cube2)
                         print('Region=' + str(x) + str(y) + str(z) + '  -  score = ' + str(cc[x][y][z]))
                         # print(cc)
                         print('           ~           ')
-
-        for x in xrange(g):
-            model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-            print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
-                  + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-            model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True,
-                                               'ft_2345_ref' + str(x), path=res_path)
-            scores_cube2 = color_domains_accuracy(model2, g)
-            print('scores cube:', scores_cube2)
-
-
 
 
 def color_domain_test():
@@ -365,51 +404,6 @@ def color_domain_test():
     print('total', total)
 
 
-def color_domains_accuracy(model, granularity=4, n=1, data_range=(50000, 60000)):
-    g = granularity
-    images_cube = ds.cifar10_nth_maxcolor_domains(granularity=g, n=n, data_range=data_range)
-    scores_cube = np.zeros((g, g, g))
-    data = ds.get_data('cifar10', data_range)
-    Xf, yf = mt.format_data(data, 10)
-    for x in xrange(g):
-        for y in xrange(g):
-            for z in xrange(g):
-                test_data = [[], []]
-                if len(images_cube[x][y][z]) > 1:
-                    for k in images_cube[x][y][z]:
-                        test_data[0].append(Xf[k])
-                        test_data[1].append(yf[k])
-                    # print(np.array(test_data[0]).shape)
-                    y_predicted = model.predict(np.array(test_data[0]))
-                    predicted_classes = np.argmax(y_predicted, axis=1)
-                    true_classes = np.argmax(test_data[1], axis=1)
-                    acc = aa.accuracy(predicted_classes, true_classes)
-                else:
-                    acc = None
-                scores_cube[x][y][z] = acc
-    return scores_cube
-
-
-def size_cube_color_domain(cube):
-    """
-
-    :param cube: cube color domain containing the lists of indexes
-    :return: new cube with cardinal of indexes per area
-    """
-    sizes_cube = ds.cube_cardinals(cube)
-    # g = granularity
-    # images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=data_range)
-    # sizes_cube = np.zeros((g, g, g))
-    # for x in xrange(g):
-    #     for y in xrange(g):
-    #         for z in xrange(g):
-    #             l = len(images_cube[x][y][z])
-    #             sizes_cube[x][y][z] = l
-    return sizes_cube
-
-
-
-
 def cifar_color_domains_test():
     for m in models:
         tr_data = ds.get_data('cifar10', (0, 20000))
@@ -421,9 +415,9 @@ def cifar_color_domains_test():
     #
     # for m in models:
     #     model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
-        cube = color_domains_accuracy(model0)
+        cube = aa.color_domains_accuracy(model0)
         print('cube', cube)
-        sizes_cube = size_cube_color_domain(cube)
+        sizes_cube = ds.cube_cardinals(cube)
         print('Sizes', sizes_cube)
 
 

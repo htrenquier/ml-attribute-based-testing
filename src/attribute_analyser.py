@@ -557,7 +557,7 @@ def load_csv(file_name, col):
 def accuracy(predicted_classes, true_classes):
     nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
     acc = (len(true_classes) - nz) / len(true_classes)
-    print('Test Accuracy = ' + str(acc))
+    # print('Test Accuracy = ' + str(acc))
     return acc
 
 
@@ -590,3 +590,27 @@ def sort_by_correctness(predictions, true_classes, orig_images):
             incorrect_images.append(orig_images[i])
     return correct_images, incorrect_images
 
+
+def color_domains_accuracy(model, granularity=4, n=1, data_range=(50000, 60000)):
+    g = granularity
+    images_cube = ds.cifar10_nth_maxcolor_domains(granularity=g, n=n, data_range=data_range)
+    scores_cube = np.zeros((g, g, g))
+    data = ds.get_data('cifar10', data_range)
+    Xf, yf = mt.format_data(data, 10)
+    for x in xrange(g):
+        for y in xrange(g):
+            for z in xrange(g):
+                test_data = [[], []]
+                if len(images_cube[x][y][z]) > 1:
+                    for k in images_cube[x][y][z]:
+                        test_data[0].append(Xf[k])
+                        test_data[1].append(yf[k])
+                    # print(np.array(test_data[0]).shape)
+                    y_predicted = model.predict(np.array(test_data[0]))
+                    predicted_classes = np.argmax(y_predicted, axis=1)
+                    true_classes = np.argmax(test_data[1], axis=1)
+                    acc = accuracy(predicted_classes, true_classes)
+                else:
+                    acc = None
+                scores_cube[x][y][z] = acc
+    return scores_cube
