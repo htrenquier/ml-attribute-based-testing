@@ -333,8 +333,9 @@ def color_region_finetuning():
                 model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, ft_epochs,
                                                    ft_data_augmentation, nametag_prefix, path=res_path)
             scores_cube2 = aa.color_domains_accuracy(model2, g)
-            print('Scores cube ref:', scores_cube2)
-            print('Mean score_cube', np.nanmean(scores_cube2*region_sizes/10000))
+            # print('Scores cube ref:', scores_cube2)
+            weighted_cube = scores_cube2 * np.array(region_sizes) / float(10000)
+            print('Weighted average scores_cube', np.nansum(weighted_cube))
             for y in xrange(g):
                 for z in xrange(g):
                     if region_sizes[x][y][z] > 50:
@@ -366,11 +367,8 @@ def color_region_finetuning():
 
                         scores_cube1 = aa.color_domains_accuracy(model1, g)
                         print('Region=' + str(x) + str(y) + str(z) + '  -  acc = ' + str(scores_cube1[x][y][z]))
-                        weighted_cube = scores_cube1*region_sizes/10000
-                        print(scores_cube1)
-                        print(region_sizes)
-                        print(weighted_cube)
-                        print('Mean score_cube', np.nanmean(weighted_cube))
+                        weighted_cube = scores_cube1 * np.array(region_sizes) / float(10000)
+                        print('Weighted average score_cube', np.nansum(weighted_cube))
 
                         # --------------- TEST ACCURACY --------------- #
                         y_predicted = predict(model1, f_test_data)
