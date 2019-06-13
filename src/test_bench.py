@@ -321,6 +321,10 @@ def color_region_finetuning():
 
             if mt.model_state_exists(weights_file):
                 model2 = mt.load_by_name(model_name0, ft_data[0].shape[1:], weights_file)
+                (x_val, y_val) = mt.format_data(val_data, 10)
+                score = model2.evaluate(x_val, y_val, verbose=0)
+                # print('Test loss:', score[0])
+                print('Val accuracy:', score[1])
             else:
                 model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
                 # #Model state check (should be same acc than base model)
@@ -340,6 +344,9 @@ def color_region_finetuning():
                         weights_file = res_path+ft_model_name+'.h5'
                         if mt.model_state_exists(weights_file):
                             model1 = mt.load_by_name(model_name0, ft_data[0].shape[1:], weights_file)
+                            (x_val, y_val) = mt.format_data(val_data, 10)
+                            score = model1.evaluate(x_val, y_val, verbose=0)
+                            print('Val accuracy:', score[1])
                         else:
                             ft_data_args = aa.finetune_by_region((x, y, z), ft_data, 10000, g)
                             # Data extraction
@@ -359,7 +366,7 @@ def color_region_finetuning():
 
                         scores_cube1 = aa.color_domains_accuracy(model1, g)
                         print('Region=' + str(x) + str(y) + str(z) + '  -  acc = ' + str(scores_cube1[x][y][z]))
-                        print('Mean score_cube', np.mean(scores_cube1))
+                        print('Mean score_cube', np.nanmean(scores_cube1))
 
                         # --------------- TEST ACCURACY --------------- #
                         y_predicted = predict(model1, f_test_data)
