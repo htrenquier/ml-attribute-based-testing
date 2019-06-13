@@ -368,15 +368,7 @@ def color_region_finetuning():
                         scores_cube1 = aa.color_domains_accuracy(model1, g)
                         print('Region=' + str(x) + str(y) + str(z) + '  -  acc = ' + str(scores_cube1[x][y][z]))
                         weighted_cube = scores_cube1 * np.array(region_sizes) / float(10000)
-                        print('Weighted average score_cube', np.nansum(weighted_cube))
-
-                        # --------------- TEST ACCURACY --------------- #
-                        y_predicted = predict(model1, f_test_data)
-                        # log_predictions(y_predicted, model_name0, path=res_path)
-                        predicted_classes = np.argmax(y_predicted, axis=1)
-                        true_classes = np.argmax(f_test_data[1], axis=1)
-                        print('Test accuracy:', aa.accuracy(predicted_classes, true_classes))
-                        # --------------------------------------------- #
+                        print('(Approx) Test accuracy', np.nansum(weighted_cube))  # Weighted average score_cube
                         cc = np.subtract(scores_cube1, scores_cube2)
                         print('Region=' + str(x) + str(y) + str(z) + '  -  score = ' + str(cc[x][y][z]))
                         # print(cc)
