@@ -293,7 +293,7 @@ def bug_feature_detection():
 def color_region_finetuning():
     g = 4
     images_cube = ds.cifar10_maxcolor_domains(granularity=g, data_range=(50000, 60000))
-    domain_sizes = ds.cube_cardinals(images_cube)
+    region_sizes = ds.cube_cardinals(images_cube)
     tr_data = ds.get_data('cifar10', (0, 20000))
     val_data = ds.get_data('cifar10', (40000, 50000))
     ft_data = ds.get_data('cifar10', (20000, 40000))
@@ -334,10 +334,10 @@ def color_region_finetuning():
                                                    ft_data_augmentation, nametag_prefix, path=res_path)
             scores_cube2 = aa.color_domains_accuracy(model2, g)
             print('Scores cube ref:', scores_cube2)
-
+            print('Mean score_cube', np.nanmean(scores_cube2*region_sizes/10000))
             for y in xrange(g):
                 for z in xrange(g):
-                    if domain_sizes[x][y][z] > 50:
+                    if region_sizes[x][y][z] > 50:
                         nametag_prefix = 'ft_2445_r' + str(x) + str(y) + str(z) + '_cr_1'
                         ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs,
                                                                nametag=nametag_prefix+'exp')
@@ -366,7 +366,7 @@ def color_region_finetuning():
 
                         scores_cube1 = aa.color_domains_accuracy(model1, g)
                         print('Region=' + str(x) + str(y) + str(z) + '  -  acc = ' + str(scores_cube1[x][y][z]))
-                        print('Mean score_cube', np.nanmean(scores_cube1))
+                        print('Mean score_cube', np.nanmean(scores_cube1*region_sizes/10000))
 
                         # --------------- TEST ACCURACY --------------- #
                         y_predicted = predict(model1, f_test_data)
