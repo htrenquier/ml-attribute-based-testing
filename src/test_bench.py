@@ -367,6 +367,8 @@ def color_region_finetuning():
                         scores_cube1 = aa.color_domains_accuracy(model1, g)
                         print('Region=' + str(x) + str(y) + str(z) + '  -  acc = ' + str(scores_cube1[x][y][z]))
                         weighted_cube = scores_cube1*region_sizes/10000
+                        print(scores_cube1)
+                        print(region_sizes)
                         print(weighted_cube)
                         print('Mean score_cube', np.nanmean(weighted_cube))
 
