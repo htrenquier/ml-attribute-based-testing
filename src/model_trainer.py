@@ -362,7 +362,7 @@ def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_
     print('Val accuracy:', score[1])
     # model.summary()
 
-    return model, ft_model_name
+    return model, weights_file.strip('.h5') #?????/
 
 
 def load_by_name(model_name, input_shape, weight_file_path):
