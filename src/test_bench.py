@@ -9,6 +9,7 @@ import os, sys, errno
 import operator
 import matplotlib.pyplot as plt
 from sklearn import metrics
+from sklearn import preprocessing
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -232,14 +233,59 @@ def bug_feature_detection():
         # print('Val accuracy:', score[1])
         formatted_test_data = mt.format_data(val_data, 10)
         y_true = pr[20000:30000]
+        # # densenet
+        # ('Mean', 0.7694504688438)
+        # ('Std', 0.36810717870924914)
+        # ('Max', 1.0)
+        # ('Min', 3.5984962468501525e-09)
+        # # mobilenet
+        # ('Mean', 0.7531032740719625)
+        # ('Std', 0.21170846179242053)
+        # ('Max', 0.997079362506271)
+        # ('Min', 0.027418033376725572)
+        # #
+        print('Ground truth values:')
+        print('Mean', np.mean(y_true))
+        print('Std', np.std(y_true))
+        print('Max', np.max(y_true))
+        print('Min', np.min(y_true))
         y_predicted1 = model1.predict(formatted_test_data[0])
         # print(np.array(y_predicted).shape)
-        diff = []
+        n_guesses = len(y_predicted1)
+        y_predicted2 = [y_predicted1[k][0] for k in xrange(n_guesses)]
+        print('Prediction values:')
+        print('Mean', np.mean(y_predicted2))
+        print('Std', np.std(y_predicted2))
+        print('Max', np.max(y_predicted2))
+        print('Min', np.min(y_predicted2))
+        y_predicted3 = y_predicted2 / np.linalg.norm(y_predicted2)
+        print('Norm Prediction values:')
+        print('Mean', np.mean(y_predicted3))
+        print('Std', np.std(y_predicted3))
+        print('Max', np.max(y_predicted3))
+        print('Min', np.min(y_predicted3))
+
+        fig, axs = plt.subplots(1, 1)
+        axs.hist(y_true, bins=30)
+        axs.set_title('y_true for ' + m)
+        plt.show()
+
+        fig, axs = plt.subplots(1, 1)
+        axs.hist(y_predicted2, bins=30)
+        axs.set_title(m)
+        plt.show()
+
+        diff2 = []
+        diff3 = []
         for k in xrange(min(10000, len(y_predicted))):
-            diff.append(abs(y_predicted1[k][0] - y_true[k]))
+            diff2.append(abs(y_predicted2[k] - y_true[k]))
+            diff3.append(abs(y_predicted3[k] - y_true[k]))
         print('Difference:')
-        print('Mean ', np.mean(diff))
-        print('Max ', max(diff))
+        print('Mean ', np.mean(diff2))
+        print('Max ', max(diff2))
+        print('Difference Norm:')
+        print('Mean ', np.mean(diff3))
+        print('Max ', max(diff3))
 
         # for rank, iid in enumerate(sorted_pr_args[0:10000]):
         #     q = predicted_classes[iid] == true_classes[iid]
@@ -247,18 +293,11 @@ def bug_feature_detection():
             #     print(str(iid) + ' - pr #' + str(rank) + ' =' + str(pr[iid]) + ' : ' + str(q) +
             #       '//' + str(y_predicted[iid]))
 
-
-        n_guesses = len(y_predicted1)
-        y_predicted2 = [y_predicted1[k][0] for k in xrange(n_guesses)]
-        print('Prediction values:')
-        print('Mean', np.mean(y_predicted2))
-        print('Max', np.max(y_predicted2))
-        print('Min', np.min(y_predicted2))
-
+        # R/W guess prediction
         opti_thr = float(np.sort(y_predicted2)[int(acc*10000)])
         print('opti_thr', opti_thr)
-        # thresholds = (float(0.6), float(0.7), float(0.777), float(0.8), float(0.9), opti_thr)
-        thresholds = (float(0.9), float(1), float(1.1), float(1.2), opti_thr)
+        thresholds = (float(0.6), float(0.7), float(0.777), float(0.8), float(0.9), opti_thr)
+        # thresholds = (float(0.9), float(1), float(1.1), float(1.2), opti_thr)
 
         for thr in thresholds:
             n_right_guesses = 0
@@ -298,6 +337,7 @@ def color_region_finetuning():
     val_data = ds.get_data('cifar10', (40000, 50000))
     ft_data = ds.get_data('cifar10', (20000, 40000))
     train_data_ref = ds.get_data('cifar10', (20000, 30000))
+    train_data_ref2 = ds.get_data('cifar10', (30000, 40000))
     test_data = ds.get_data('cifar10', (50000, 60000))
     f_test_data = mt.format_data(test_data, 10)
     ft_data_augmentation = True
@@ -314,7 +354,7 @@ def color_region_finetuning():
         # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
 
         for x in xrange(g):
-            nametag_prefix = 'ft_2345_ref' + str(x)
+            nametag_prefix = 'ft_2345_ref' + str(x+4)
             ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
             weights_file = res_path + ft_model_name + '.h5'
             print('*-> ' + weights_file)
@@ -330,15 +370,16 @@ def color_region_finetuning():
                 # #Model state check (should be same acc than base model)
                 # print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
                 #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-                model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, ft_epochs,
+                model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref2, val_data, ft_epochs,
                                                    ft_data_augmentation, nametag_prefix, path=res_path)
             scores_cube2 = aa.color_domains_accuracy(model2, g)
             # print('Scores cube ref:', scores_cube2)
             weighted_cube = scores_cube2 * np.array(region_sizes) / float(10000)
-            print('Weighted average scores_cube', np.nansum(weighted_cube))
+            print('(Approx) Test accuracy', np.nansum(weighted_cube))  # Weighted average score_cube
             for y in xrange(g):
                 for z in xrange(g):
                     if region_sizes[x][y][z] > 50:
+                        print('#--> Region ' + str(x)+str(y)+str(z) + ' (' + str(region_sizes[x][y][z]) + ' images)')
                         nametag_prefix = 'ft_2445_r' + str(x) + str(y) + str(z) + '_cr_1'
                         ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs,
                                                                nametag=nametag_prefix+'exp')
@@ -364,13 +405,12 @@ def color_region_finetuning():
                             model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data,
                                                                ft_epochs, ft_data_augmentation,
                                                                nametag_prefix + 'exp', path=res_path)
-
                         scores_cube1 = aa.color_domains_accuracy(model1, g)
-                        print('Region=' + str(x) + str(y) + str(z) + '  -  acc = ' + str(scores_cube1[x][y][z]))
+                        print('  -  Region accuracy = ' + str(scores_cube1[x][y][z]))
                         weighted_cube = scores_cube1 * np.array(region_sizes) / float(10000)
-                        print('(Approx) Test accuracy', np.nansum(weighted_cube))  # Weighted average score_cube
+                        print('  -  (Approx) Test accuracy = ', np.nansum(weighted_cube))  # Weighted average score_cube
                         cc = np.subtract(scores_cube1, scores_cube2)
-                        print('Region=' + str(x) + str(y) + str(z) + '  -  score = ' + str(cc[x][y][z]))
+                        print('  -  Region score = ' + str(cc[x][y][z]))
                         # print(cc)
                         print('           ~           ')
 
