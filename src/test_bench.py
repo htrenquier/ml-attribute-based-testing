@@ -15,10 +15,10 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
-models = ['resnet50']
+# models = ['resnet50']
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -474,7 +474,7 @@ check_dirs(res_path, ilsvrc2012_path)
 # imagenet_test()
 # finetune_test()
 # data_analysis()
-bug_feature_detection()
+# bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-# color_region_finetuning()
+color_region_finetuning()
