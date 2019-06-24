@@ -356,7 +356,7 @@ def color_region_finetuning():
         # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
 
         for x in xrange(g):
-            nametag_prefix = 'ft_2345_ref' + str(x+4)
+            nametag_prefix = 'ft_2345_ref' + str(x+8)
             ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
             weights_file = res_path + ft_model_name + '.h5'
             print('*-> ' + weights_file)
