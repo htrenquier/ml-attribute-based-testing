@@ -338,7 +338,8 @@ def color_region_finetuning():
     val_data = ds.get_data('cifar10', (40000, 50000))
     ft_data = ds.get_data('cifar10', (20000, 40000))
     train_data_ref = ds.get_data('cifar10', (20000, 30000))
-    train_data_ref2 = ds.get_data('cifar10', (30000, 40000))
+    # train_data_ref2 = ds.get_data('cifar10', (30000, 40000))
+    train_data_ref2 = ds.get_data('cifar10', (25000, 35000))
     test_data = ds.get_data('cifar10', (50000, 60000))
     f_test_data = mt.format_data(test_data, 10)
     ft_data_augmentation = True
@@ -371,6 +372,7 @@ def color_region_finetuning():
                 # #Model state check (should be same acc than base model)
                 # print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
                 #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
+                assert len(train_data_ref2[0]) == 10000
                 model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref2, val_data, ft_epochs,
                                                    ft_data_augmentation, nametag_prefix, path=res_path)
             scores_cube2 = aa.color_domains_accuracy(model2, g)
@@ -379,7 +381,7 @@ def color_region_finetuning():
             print('(Approx) Test accuracy', np.nansum(weighted_cube))  # Weighted average score_cube
             for y in xrange(g):
                 for z in xrange(g):
-                    if region_sizes[x][y][z] > 50:
+                    if region_sizes[x][y][z] > 1000:
                         print('#--> Region ' + str(x)+str(y)+str(z) + ' (' + str(region_sizes[x][y][z]) + ' images)')
                         nametag_prefix = 'ft_2445_r' + str(x) + str(y) + str(z) + '_cr_1'
                         ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs,
