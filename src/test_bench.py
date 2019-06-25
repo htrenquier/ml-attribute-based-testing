@@ -15,8 +15,7 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-# models = ('densenet121', 'mobilenet',
-models = ('mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
 # models = ['resnet50']
@@ -339,8 +338,8 @@ def color_region_finetuning():
     val_data = ds.get_data('cifar10', (40000, 50000))
     ft_data = ds.get_data('cifar10', (20000, 40000))
     train_data_ref = ds.get_data('cifar10', (20000, 30000))
-    # train_data_ref2 = ds.get_data('cifar10', (30000, 40000))
-    train_data_ref2 = ds.get_data('cifar10', (25000, 35000))
+    train_data_ref2 = ds.get_data('cifar10', (30000, 40000))
+    # train_data_ref2 = ds.get_data('cifar10', (25000, 35000))
     test_data = ds.get_data('cifar10', (50000, 60000))
     f_test_data = mt.format_data(test_data, 10)
     ft_data_augmentation = True
@@ -357,7 +356,7 @@ def color_region_finetuning():
         # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
 
         for x in xrange(g):
-            nametag_prefix = 'ft_2345_ref' + str(x+8)
+            nametag_prefix = 'ft_2345_ref' + str(x+4)
             ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
             weights_file = res_path + ft_model_name + '.h5'
             print('*-> ' + weights_file)
@@ -373,8 +372,12 @@ def color_region_finetuning():
                 # #Model state check (should be same acc than base model)
                 # print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
                 #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-                assert len(train_data_ref2[0]) == 10000
-                model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref2, val_data, ft_epochs,
+
+                dselec = np.concatenate((tr_data[0], train_data_ref2[0]))
+                dlabels = np.concatenate((tr_data[1], train_data_ref2[1]))
+                ft_data_selected_ref = [dselec, dlabels]
+                assert len(ft_data_selected_ref[0]) == 30000
+                model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data_selected_ref, val_data, ft_epochs,
                                                    ft_data_augmentation, nametag_prefix, path=res_path)
             scores_cube2 = aa.color_domains_accuracy(model2, g)
             # print('Scores cube ref:', scores_cube2)
@@ -402,8 +405,7 @@ def color_region_finetuning():
                             dlabels = np.concatenate(
                                 (tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
                             ft_data_selected = [dselec, dlabels]
-                            print(len(ft_data_selected[0]))
-                            assert len(ft_data_selected[0]) == 10000
+                            assert len(ft_data_selected[0]) == 30000
                             # Avoid fitting model_base:
                             model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
                             # Model state check (should be same acc than base model)
