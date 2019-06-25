@@ -400,6 +400,7 @@ def color_region_finetuning():
                             dlabels = np.concatenate(
                                 (tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
                             ft_data_selected = [dselec, dlabels]
+                            print(len(ft_data_selected[0]))
                             assert len(ft_data_selected[0]) == 10000
                             # Avoid fitting model_base:
                             model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
