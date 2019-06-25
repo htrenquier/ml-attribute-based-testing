@@ -15,7 +15,8 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
+# models = ('densenet121', 'mobilenet',
+models = ('mobilenetv2', 'nasnet', 'resnet50') #  , 'vgg16', 'vgg19')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
 # models = ['resnet50']
@@ -394,6 +395,7 @@ def color_region_finetuning():
                             print('Val accuracy:', score[1])
                         else:
                             ft_data_args = aa.finetune_by_region((x, y, z), ft_data, 10000, g)
+                            print(len(ft_data_args))
                             # Data extraction
                             dselec = np.concatenate(
                                 (tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
