@@ -204,182 +204,34 @@ from keras.utils import to_categorical
 # train_data_ref = [train_data_orig[0][:training_data_len]+train_data_orig[0][30000:40000],
 #                   train_data_orig[1][:training_data_len]+train_data_orig[1][30000:40000]]
 # print(np.array(train_data_ref).shape)
+from math import log
 
+sums = [0 for k in xrange(K)]
 
-class Solution(object):
-    def isMatch(self, s, p):
-        """
-        :type s: str
-        :type p: str
-        :rtype: bool
-        """
-        s = list(s)
-        p = list(p)
-        return self.isMatch_rec(s, p)
+def sed(K, N, maxN, sol):
+    sums = [0 for k in xrange(K)]
 
-    def isMatch_rec(self, s, p):
-        ans = False
-        conditional_ans = False
-        prev_p = ''
-        while s:
-            print(s)
-            print(p)
-            current_s = s.pop(0)
-            if p:
-                # print('Tries to pop')
-                current_p = p.pop(0)
-            else:
-                return False
-            if p:
-                if p[0] == '*':
-                    conditional_ans = self.isMatch_rec(s.insert(0, current_s), p.pop(0))
+    while sums[-1] < N:
+        sol += 1
+        sums[0] = sums[0] + sol*(sol+1)/2
+        for k in xrange(1, len(sums)-1):
+            sums[k] = sums[k] + sums[k-1]
+        maxN += computeN(sol + 1, maxN)
+    if maxN > N:
+        return sol
+    else:
+        sol += 1
+        maxN +=
+def maxN(K, sol):
+    if not bool(sol):
+        return sol
+    if K == 1:
+        return sol
+    else:
+        s = sum([maxN(K-1, s) for s in xrange(sol)]) + sol
+        if log(s, 2) > K:
+            return 0
+        return s
 
-            if current_p == '*':
-                # print('case *')
-                while p:
-                    if (p[0] == prev_p):
-                        p.pop(0)
-                        if s:
-                            s.pop(0)
-                        else:
-                            return ans or conditional_ans
-                    else:
-                        break
-                while (current_s == prev_p) or (prev_p == '.'):
-                    # print('while')
-                    if s:
-                        current_s = s.pop(0)
-                    else:
-                        # print('here')
-                        return (not(p) and ((current_s == prev_p) or (prev_p == '.')))
-                        break
-                if p:
-                    p.pop(0)
-            elif current_p == '.':
-                # print('case .')
-                prev_p = current_p
-                continue
-            else:
-                # print('case else')
-                if current_p != current_s:
-                    if p:
-                        if p.pop(0) != '*':
-                            return False
-                        else:
-                            s.insert(0, current_s)
-                    else:
-                        return False
-            prev_p = current_p
-        return (ans and not (s or p)) or conditional_ans
-
-    def removeAllNonStars(self, s, p):
-        k = 1
-        while k <= len(p):
-            if p[-k] == '*':
-                k += 2
-            else:
-                curr_s = s.pop()
-
-    def isMatchLeft(self, s, p):
-        while s:
-            curr_s = s.pop(0)
-            if p:
-                curr_p = p.pop(0)
-            else:
-                return False
-            if p:
-                if p[0] != '*':
-                    if curr_s == curr_p or curr_p == '.':
-                        continue
-                    else:
-                        return False
-                else:
-                    return self.isMatchRight(s.insert(0, curr_s), p.insert(0, curr_p))
-            else:
-                return (curr_s == curr_p or curr_p == '.') and (not s)
-
-    def isMatchRight(self, s, p):
-        while s:
-            curr_s = s.pop()
-            if p:
-                curr_p = p.pop()
-            else:
-                return False
-            if curr_p == '*':
-                return self.isMatchStarredRight(s.append(curr_s), p.append(curr_p))
-            else:
-                if (curr_s == curr_p or curr_p == '.'):
-                    continue
-                else:
-                    return False
-        return (not p)
-
-    def isMatchStarredRight(self, s, p):
-        # called when p[-1] == '*'
-        while p.pop() == '*':
-            starred_char = p.pop()
-            if s:
-                if s[-1] != starred_char:
-                    if p:
-                        if p[-1] == '*':
-                            continue
-                        else:
-                            self.isMatchStarredLeft(s, p)
-                    else:
-                        return False  # or (not s)
-                else:
-                    # s[-1] is starred_char should check p[-1]
-
-                    if len(p) > 1:
-                        if p[-1] == '*':
-
-            if p:
-                if p[-1] == starred
-
-    def isMatch_rec(self, s, p):
-        ans = False
-        conditional_ans = False
-        prev_p = ''
-        while s:
-            print(s)
-            print(p)
-            current_s = s.pop(0)
-            if p:
-                # print('Tries to pop')
-                current_p = p.pop(0)
-            else:
-                return False
-            if p:
-                if p[0] == '*':
-                    conditional_ans = self.isMatch_rec(s.insert(0, current_s), p.pop(0))
-
-            if current_p == '*':
-                # print('case *')
-
-                while (current_s == prev_p) or (prev_p == '.'):
-                    # print('while')
-                    if s:
-                        current_s = s.pop(0)
-                    else:
-                        # print('here')
-                        return (not (p) and ((current_s == prev_p) or (prev_p == '.'))) or conditional_ans
-                        break
-                if p:
-                    p.pop(0)
-            elif current_p == '.':
-                # print('case .')
-                prev_p = current_p
-                continue
-            else:
-                # print('case else')
-                if current_p != current_s:
-                    if p:
-                        if p.pop(0) != '*':
-                            return False or conditional_ans
-                        else:
-                            s.insert(0, current_s)
-                    else:
-                        return False or conditional_ans
-            prev_p = current_p
-        return (ans and not (s or p)) or conditional_ans
+print(maxN(4, 21))
 

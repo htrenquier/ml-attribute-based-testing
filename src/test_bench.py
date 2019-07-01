@@ -380,7 +380,7 @@ def color_region_finetuning():
                 model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data_selected_ref, val_data, ft_epochs,
                                                    ft_data_augmentation, nametag_prefix, path=res_path)
             scores_cube2 = aa.color_domains_accuracy(model2, g)
-            # print('Scores cube ref:', scores_cube2)
+            print('Scores cube ref:', scores_cube2)
             weighted_cube = scores_cube2 * np.array(region_sizes) / float(10000)
             print('(Approx) Test accuracy', np.nansum(weighted_cube))  # Weighted average score_cube
             for y in xrange(g):
@@ -398,7 +398,6 @@ def color_region_finetuning():
                             print('Val accuracy:', score[1])
                         else:
                             ft_data_args = aa.finetune_by_region((x, y, z), ft_data, 10000, g)
-                            print(len(ft_data_args))
                             # Data extraction
                             dselec = np.concatenate(
                                 (tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
@@ -415,6 +414,7 @@ def color_region_finetuning():
                                                                ft_epochs, ft_data_augmentation,
                                                                nametag_prefix + 'exp', path=res_path)
                         scores_cube1 = aa.color_domains_accuracy(model1, g)
+                        print('Scores cube exp:', scores_cube1)
                         print('  -  Region accuracy = ' + str(scores_cube1[x][y][z]))
                         weighted_cube = scores_cube1 * np.array(region_sizes) / float(10000)
                         print('  -  (Approx) Test accuracy = ', np.nansum(weighted_cube))  # Weighted average score_cube
