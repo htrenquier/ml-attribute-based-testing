@@ -470,8 +470,17 @@ def cifar_color_domains_test():
         sizes_cube = ds.cube_cardinals(cube)
         print('Sizes', sizes_cube)
 
-
-
+def mt_noise_test():
+    np.random.seed(0)
+    tr_data = ds.get_data('cifar10', (0, 40000))
+    val_data = ds.get_data('cifar10', (40000, 50000))
+    for noise_level in xrange(0, 0.1, 0.02):
+        for k in xrange(len(tr_data[0])):
+            tr_data[0][k] = tr_data[0][k] * np.random.random((32, 32, 3)) * noise_level
+            for m in models:
+                print('Training', m)
+                model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar_mt_0445_noise_' + noise_level, 40, data_augmentation=False, path=res_path)
+                print(model_name0, 'trained')
 
 
 
@@ -482,4 +491,5 @@ check_dirs(res_path, ilsvrc2012_path)
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-color_region_finetuning()
+# color_region_finetuning()
+mt_noise_test()
