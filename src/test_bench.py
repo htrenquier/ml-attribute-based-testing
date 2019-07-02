@@ -479,7 +479,7 @@ def mt_noise_test():
             tr_data[0][k] = tr_data[0][k] * np.random.random((32, 32, 3)) * noise_level/100
             for m in models:
                 print('Training', m)
-                model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar_mt_0445_noise_' + noise_level, 40, data_augmentation=False, path=res_path)
+                model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar_mt_0445_noise_' + str(noise_level), 40, data_augmentation=False, path=res_path)
                 print(model_name0, 'trained')
 
 
