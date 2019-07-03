@@ -355,6 +355,7 @@ def color_region_finetuning():
 
         # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
 
+        scores_cubes = []
         for x in xrange(g):
             nametag_prefix = 'ft_2345_ref' + str(x+4)
             ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
@@ -383,6 +384,12 @@ def color_region_finetuning():
             print('Scores cube ref:', scores_cube2)
             weighted_cube = scores_cube2 * np.array(region_sizes) / float(10000)
             print('(Approx) Test accuracy', np.nansum(weighted_cube))  # Weighted average score_cube
+            scores_cubes.append(scores_cube2)
+
+        avg_ref_score_cube = np.nanmean(scores_cubes, axis=0)
+        max_ref_score_cube = np.max(scores_cubes, axis=0)
+
+        for x in xrange(g):
             for y in xrange(g):
                 for z in xrange(g):
                     if region_sizes[x][y][z] > 1000:
@@ -418,8 +425,11 @@ def color_region_finetuning():
                         print('  -  Region accuracy = ' + str(scores_cube1[x][y][z]))
                         weighted_cube = scores_cube1 * np.array(region_sizes) / float(10000)
                         print('  -  (Approx) Test accuracy = ', np.nansum(weighted_cube))  # Weighted average score_cube
-                        cc = np.subtract(scores_cube1, scores_cube2)
-                        print('  -  Region score = ' + str(cc[x][y][z]))
+                        # cc = np.subtract(scores_cube1, scores_cube2)
+                        cc_avg = np.subtract(scores_cube1, avg_ref_score_cube)
+                        print('  -  Region score (avg ref)= ' + str(cc_avg[x][y][z]))
+                        cc_max = np.subtract(scores_cube1, max_ref_score_cube)
+                        print('  -  Region score (avg ref)= ' + str(cc_max[x][y][z]))
                         # print(cc)
                         print('           ~           ')
 
@@ -491,5 +501,5 @@ check_dirs(res_path, ilsvrc2012_path)
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-# color_region_finetuning()
-mt_noise_test()
+color_region_finetuning()
+# mt_noise_test()
