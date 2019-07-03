@@ -484,7 +484,7 @@ def mt_noise_test():
     np.random.seed(0)
     tr_data = ds.get_data('cifar10', (0, 40000))
     val_data = ds.get_data('cifar10', (40000, 50000))
-    for noise_level in xrange(2, 10, 4):
+    for noise_level in xrange(2, 10, 2):
         for k in xrange(len(tr_data[0])):
             tr_data[0][k] = tr_data[0][k] * np.random.random((32, 32, 3)) * noise_level/100
         for m in models:
@@ -501,5 +501,5 @@ check_dirs(res_path, ilsvrc2012_path)
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-color_region_finetuning()
-# mt_noise_test()
+# color_region_finetuning()
+mt_noise_test()
