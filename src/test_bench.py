@@ -484,9 +484,12 @@ def mt_noise_test():
     np.random.seed(0)
     tr_data = ds.get_data('cifar10', (0, 40000))
     val_data = ds.get_data('cifar10', (40000, 50000))
-    for noise_level in xrange(20, 30, 2):
-        for k in xrange(len(tr_data[0])):
-            tr_data[0][k] = tr_data[0][k] * np.random.random((32, 32, 3)) * noise_level/1000
+    for noise_level in xrange(5, 45, 10):
+        for k in xrange(min(len(tr_data[0]), 1)):
+            noise_mat = np.repeat(np.random.random((32, 32))[:, :, np.newaxis], 3, axis=2)
+            tr_data[0][k] = np.clip(tr_data[0][k].astype('uint16') * (1 + (noise_mat-0.5) * noise_level/100), 0, 255)\
+                .astype('uint8')
+            # aa.imshow(tr_data[0][k])
         for m in models:
             print('Training', m)
             model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar_mt_0445_noise_' + str(noise_level), 40, data_augmentation=False, path=res_path)
