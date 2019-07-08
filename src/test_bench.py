@@ -485,7 +485,7 @@ def mt_noise_test():
     tr_data = ds.get_data('cifar10', (0, 40000))
     val_data = ds.get_data('cifar10', (40000, 50000))
     for noise_level in xrange(5, 45, 10):
-        for k in xrange(min(len(tr_data[0]), 1)):
+        for k in xrange(len(tr_data[0])):
             noise_mat = np.repeat(np.random.random((32, 32))[:, :, np.newaxis], 3, axis=2)
             tr_data[0][k] = np.clip(tr_data[0][k].astype('uint16') * (1 + (noise_mat-0.5) * noise_level/100), 0, 255)\
                 .astype('uint8')
