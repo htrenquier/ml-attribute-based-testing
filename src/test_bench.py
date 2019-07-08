@@ -1,6 +1,6 @@
 import model_trainer as mt
 import attribute_analyser as aa
-import dataset_splitter as ds
+import data_splitting as ds
 import numpy as np
 from keras.datasets import cifar10
 import keras.applications as kapp
@@ -10,6 +10,10 @@ import operator
 import matplotlib.pyplot as plt
 from sklearn import metrics
 from sklearn import preprocessing
+import logging
+import metrics
+import metrics_color
+import plotting
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -46,22 +50,6 @@ def predict(model, test_data):
     return y_predicted
 
 
-def log_predictions(y_predicted, model_name, path):
-    model_file = model_name + '-res.csv'
-    if not os.path.isfile(path + model_file):
-        f = open(path + model_file, "w+")
-        for i in xrange(len(y_predicted)):
-            line = '{0}, {1}, {2}, {3}\r\n'.format(str(i),
-                                                   str(aa.confidence(y_predicted[i])),
-                                                   str(np.argmax(y_predicted[i])),
-                                                   str(y_predicted[i]))
-            f.write(line)
-        f.close()
-        # print('Predictions for ' + model_file + ' written.')
-    # else:
-        # print('Predictions for ' + model_file + ' already written!')
-
-
 
 def cifar_test():
     train_data, test_data = cifar10.load_data()
@@ -69,22 +57,22 @@ def cifar_test():
     for m in models:
         model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
         y_predicted = predict(model0, test_data)
-        log_predictions(y_predicted, model_name, path=res_path)
+        logging.log_predictions(y_predicted, model_name, file_path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(test_data[1], axis=1)
-        aa.accuracy(predicted_classes, true_classes)
+        metrics.accuracy(predicted_classes, true_classes)
 
 
 # https://gist.githubusercontent.com/maraoz/388eddec39d60c6d52d4/raw/791d5b370e4e31a4e9058d49005be4888ca98472/gistfile1.txt
 # index to label
 def imagenet_test():
-    file_names, true_classes = aa.read_ground_truth(ilsvrc2012_val_labels)
+    file_names, true_classes = logging.read_ground_truth(ilsvrc2012_val_labels)
     for m in models:
         model, preprocess_func = mt.load_imagenet_model(m)
         y_predicted = aa.predict_dataset(file_names, ilsvrc2012_val_path, model, preprocess_func)
-        log_predictions(y_predicted, model_name=m+'_imagenet', path=res_path)
+        logging.log_predictions(y_predicted, model_name=m+'_imagenet', file_path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
-        aa.accuracy(predicted_classes, true_classes)
+        metrics.accuracy(predicted_classes, true_classes)
 
 
 def finetune_test():
@@ -107,18 +95,18 @@ def finetune_test():
         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         y_predicted = predict(model0, formatted_test_data)
-        log_predictions(y_predicted, model_name0, path=res_path)
+        logging.log_predictions(y_predicted, model_name0, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(formatted_test_data[1], axis=1)
-        aa.accuracy(predicted_classes, true_classes)
+        metrics.accuracy(predicted_classes, true_classes)
 
-        aa.color_domains_accuracy(model0)
+        metrics_color.color_domains_accuracy(model0)
 
-        pr = aa.prediction_ratings(y_predicted, true_classes)
-        high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
+        pr = metrics.prediction_ratings(y_predicted, true_classes)
+        high_pr, low_pr = metrics.sort_by_confidence(pr, len(pr) // 4)
 
         ft_data_src = [train_data_orig[0][training_data_len:40000], train_data_orig[1][training_data_len:40000]]
-        ft_data_args = aa.finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name0, res_path)
+        ft_data_args = metrics_color.finetune_by_cdc(high_pr, low_pr, test_data_orig, ft_data_src, model_name0, res_path)
         # ft_data_args = aa.finetune_by_colorfulness(ft_data_src[0], 10000, model_name0, res_path)
 
         print(ft_data_args)
@@ -140,21 +128,21 @@ def finetune_test():
 
         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 50, False, 'exp7', path=res_path)
         y_predicted = predict(model1, formatted_test_data)
-        log_predictions(y_predicted, model_name1, path=res_path)
+        logging.log_predictions(y_predicted, model_name1, file_path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(formatted_test_data[1], axis=1)
-        aa.accuracy(predicted_classes, true_classes)
+        metrics.accuracy(predicted_classes, true_classes)
 
-        cc1 = aa.color_domains_accuracy(model1)
+        cc1 = metrics_color.color_domains_accuracy(model1)
 
         model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False, 'ref7', path=res_path)
         y_predicted = predict(model2, formatted_test_data)
-        log_predictions(y_predicted, model_name2, path=res_path)
+        logging.log_predictions(y_predicted, model_name2, file_path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(formatted_test_data[1], axis=1)
-        aa.accuracy(predicted_classes, true_classes)
+        metrics.accuracy(predicted_classes, true_classes)
 
-        cc2 = aa.color_domains_accuracy(model2)
+        cc2 = metrics_color.color_domains_accuracy(model2)
 
         cc = np.subtract(cc1, cc2)
         print(cc)
@@ -172,16 +160,16 @@ def data_analysis():
         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         y_predicted = predict(model0, formatted_test_data)
-        log_predictions(y_predicted, model_name0, path=res_path)
+        logging.log_predictions(y_predicted, model_name0, file_path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(formatted_test_data[1], axis=1)
-        aa.accuracy(predicted_classes, true_classes)
+        metrics.accuracy(predicted_classes, true_classes)
 
-        pr = aa.prediction_ratings(y_predicted, true_classes)
+        pr = metrics.prediction_ratings(y_predicted, true_classes)
         scores = []
 
         for image in test_data_orig[0]:
-            scores.append(aa.colorfulness(image))
+            scores.append(metrics_color.colorfulness(image))
 
         max = np.max(scores)
         index = list(scores).index(max)
@@ -189,9 +177,9 @@ def data_analysis():
         scores.pop(index)
         pr.pop(index)
 
-        aa.plot(pr, scores, True, res_path+model_name0+'contrast.png')
+        plotting.quick_plot(pr, scores, res_path+model_name0+'contrast.png')
 
-        high_pr, low_pr = aa.sort_by_confidence(pr, len(pr) // 4)
+        high_pr, low_pr = metrics.sort_by_confidence(pr, len(pr) // 4)
 
 
 def bug_feature_detection():
@@ -207,7 +195,7 @@ def bug_feature_detection():
         # log_predictions(y_predicted, model_name0, path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         true_classes = np.argmax(f_test_data[1], axis=1)
-        acc = aa.accuracy(predicted_classes, true_classes)
+        acc = metrics.accuracy(predicted_classes, true_classes)
         print('acc', acc)
 
         print(metrics.confusion_matrix(true_classes, predicted_classes))
@@ -380,7 +368,7 @@ def color_region_finetuning():
                 assert len(ft_data_selected_ref[0]) == 30000
                 model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data_selected_ref, val_data, ft_epochs,
                                                    ft_data_augmentation, nametag_prefix, path=res_path)
-            scores_cube2 = aa.color_domains_accuracy(model2, g)
+            scores_cube2 = metrics_color.color_domains_accuracy(model2, g)
             # print('Scores cube ref:', scores_cube2)
             weighted_cube = scores_cube2 * np.array(region_sizes) / float(10000)
             print('(Approx) Test accuracy', np.nansum(weighted_cube))  # Weighted average score_cube
@@ -404,7 +392,7 @@ def color_region_finetuning():
                             score = model1.evaluate(x_val, y_val, verbose=0)
                             print('Val accuracy:', score[1])
                         else:
-                            ft_data_args = aa.finetune_by_region((x, y, z), ft_data, 10000, g)
+                            ft_data_args = metrics_color.finetune_by_region((x, y, z), ft_data, 10000, g)
                             # Data extraction
                             dselec = np.concatenate(
                                 (tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
@@ -420,7 +408,7 @@ def color_region_finetuning():
                             model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data,
                                                                ft_epochs, ft_data_augmentation,
                                                                nametag_prefix + 'exp', path=res_path)
-                        scores_cube1 = aa.color_domains_accuracy(model1, g)
+                        scores_cube1 = metrics_color.color_domains_accuracy(model1, g)
                         # print('Scores cube exp:', scores_cube1)
                         print('  -  Region accuracy = ' + str(scores_cube1[x][y][z]))
                         weighted_cube = scores_cube1 * np.array(region_sizes) / float(10000)
@@ -475,7 +463,7 @@ def cifar_color_domains_test():
     #
     # for m in models:
     #     model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
-        cube = aa.color_domains_accuracy(model0)
+        cube = metrics_color.color_domains_accuracy(model0)
         print('cube', cube)
         sizes_cube = ds.cube_cardinals(cube)
         print('Sizes', sizes_cube)
@@ -489,7 +477,7 @@ def mt_noise_test():
             noise_mat = np.repeat(np.random.random((32, 32))[:, :, np.newaxis], 3, axis=2)
             tr_data[0][k] = np.clip(tr_data[0][k].astype('uint16') * (1 + (noise_mat-0.5) * noise_level/100), 0, 255)\
                 .astype('uint8')
-            # aa.imshow(tr_data[0][k])
+            # plotting.imshow(tr_data[0][k])
         for m in models:
             print('Training', m)
             model0, model_name0 = mt.train2(m, tr_data, val_data, 'cifar_mt_0445_noise_' + str(noise_level), 40, data_augmentation=False, path=res_path)

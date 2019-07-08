@@ -1,0 +1,77 @@
+from os import path
+import metrics as m
+import numpy as np
+
+
+def read_ground_truth(gt_file):
+    """
+    Ground Truth read function for imagenet validation data
+    :param gt_file: file available @ http://dl.caffe.berkeleyvision.org/caffe_ilsvrc12.tar.gz
+    :return: List[str], List[int] with ground truth file name and class
+    """
+    true_classes = []
+    filenames = []
+    with open(gt_file, 'r') as f:
+        for l in f.readlines():
+            line = l.split()
+            filenames.append(line[0].strip())
+            true_classes.append(int(line[1].strip()))
+    return filenames, true_classes
+
+
+def log_predictions(y_predicted, model_name, file_path):
+    model_file = model_name + '-predictions.csv'
+    if path.isfile(file_path + model_file):
+        model_file = model_file + 'new'
+    f = open(file_path + model_file+'new', "w+")
+    for pred in y_predicted:
+        f.write(str(pred)[1:-1])
+    f.close()
+
+
+def log_predictions2(y_predicted, model_name, file_path):
+    model_file = model_name + '-res.csv'
+    if not path.isfile(file_path + model_file):
+        f = open(file_path + model_file, "w+")
+        for i in xrange(len(y_predicted)):
+            line = '{0}, {1}, {2}, {3}\r\n'.format(str(i),
+                                                   str(m.confidence(y_predicted[i])),
+                                                   str(np.argmax(y_predicted[i])),
+                                                   str(y_predicted[i]))
+            f.write(line)
+        f.close()
+        # print('Predictions for ' + model_file + ' written.')
+    # else:
+        # print('Predictions for ' + model_file + ' already written!')
+
+
+def load_csv(file_name, col):
+    """
+    Extracts info from csv file from test_bench
+    :param file_name: file to get info from
+    :param col: column in the csv file to get info from
+            0: image id
+            1: confidence
+            2: predicted class
+            3: confidences (loss vector)
+    :return: array of /col/ info
+    """
+    f = open(file_name, "r")
+    info = []
+    str = ''
+    for l in f.readlines():
+        str = str + l
+        if ']' in str:
+            infos = str.split(", ")
+            if len(infos) > 1:
+                if col == 1:
+                    info.append(float(infos[col]))
+                elif col == 3:
+                    infos = infos[col].lstrip(' [').rstrip(']\r\n')
+                    info.append([float(k) for k in infos.split()])
+                else:
+                    info.append(int(infos[col]))
+
+            str = ''
+    f.close()
+    return info
