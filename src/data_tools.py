@@ -1,41 +1,87 @@
 from keras.datasets import cifar10
 import numpy as np
-import attribute_analyser as aa
-import math
+import metrics
+import metrics_color
+from keras.preprocessing import image
+from keras import utils
 
-def get_d_name(d_name):
-    if d_name == 'cifar10':
-        # Load CIFAR10 data
-        train_data, test_data = cifar10.load_data()
-        print(d_name + ' loaded.')
-        input_shape = train_data[0].shape[1:]
-        print(input_shape)
-        val_data = test_data
-    
-    elif d_name == 'cifar10-2-5':
-        train_data_orig, test_data_orig = cifar10.load_data()
-        input_shape = train_data_orig[0].shape[1:]
-        train_data = [train_data_orig[0][:20000], train_data_orig[1][:20000]]
-        val_data = [train_data_orig[0][40000:], train_data_orig[1][40000:]]
-        assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
-        print(d_name + ' loaded.')
-    elif d_name == 'cifar10-channelswitched':
-        train_data_orig, test_data_orig = cifar10.load_data()
-        input_shape = train_data_orig[0].shape[1:]
-        train_imgs = []
-        val_imgs = []
-        for img in train_data_orig[0][:20000]:
-            train_imgs.append(np.roll(img, 1, 2))
-        for img in train_data_orig[0][40000:]:
-            val_imgs.append(np.roll(img, 1, 2))
-        train_data = [np.array(train_imgs), train_data_orig[1][:20000]]
-        val_data = [np.array(val_imgs), train_data_orig[1][40000:]]
-        assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
-        print(d_name + ' loaded.')
+def format_data(data, num_classes):
+    """
+    Formats image data for model predicting
+    :param data: (data, label) format
+    :param num_classes: int
+    :return: (data, label) float32 formated images data
+    """
+    (x, y) = data
+    x = x.astype('float32')
+    x /= 255
+    y = utils.to_categorical(y, num_classes)
+    return x, y
+
+
+def predict_and_acc(model, test_data):
+    """
+    Predicts and computes accuracy of a model.
+    :param model:
+    :param test_data: Unformatted test data
+    :return: float Accuracy, List[int] Predicted classes, List[List[float]] List of predictions
+    """
+    test_data_f = format_data(test_data, 10)
+    y_predicted = model.predict(test_data_f[0])
+    predicted_classes = np.argmax(y_predicted, axis=1)
+    true_classes = np.argmax(test_data_f[1], axis=1)
+    acc = metrics.accuracy(predicted_classes, true_classes)
+    return acc, predicted_classes, y_predicted
+
+
+def predict_batch(model, images):
+    """
+    Returns class predictions for image batch
+    :param model:
+    :param images:
+    :return: List[int] of predicted classes
+    """
+    if images:
+        y_predicted = model.predict(images)
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        return predicted_classes.tolist()
     else:
-        print('Not implemented')
-        return
-    return train_data, val_data
+        return []
+
+
+def predict_dataset(filenames, path, model, model_preprocess_function):
+    """
+    For predicting large amount of images (e.g. imagenet)
+    :param filenames: file of filenames
+    :param model_preprocess_function:
+    :param path: path of test images
+    :param model:
+    :return: predictions
+    """
+    y_predicted = []
+    batch_size = 32
+    batch = []
+    for filename in filenames:
+        batch.append(preprocess(path+filename, model_preprocess_function))
+        if len(batch) >= batch_size:
+            y_predicted = y_predicted + model.predict(np.array(batch)).tolist()
+            batch = []
+    y_predicted = y_predicted + model.predict(np.array(batch)).tolist()
+    return y_predicted
+
+
+def preprocess(file_path, model_preprocess_function):
+    """
+    Image pre-processing for large dataset prediction
+    :param file_path:
+    :param model_preprocess_function:
+    :return:
+    """
+    img = image.load_img(file_path, target_size=(224, 224))
+    x = image.img_to_array(img)
+    # x = np.expand_dims(x, axis=0)
+    x = model_preprocess_function(x)
+    return x
 
 
 def train_val_split(d_name, (train_start, train_end), (val_start, val_end)):
@@ -67,7 +113,7 @@ def cifar10_color_domains(granularity, frequence, data_range=(50000, 60000)):
     data_orig = get_data('cifar10', data_range)
     n_pix = 32*32
     for counter, image in enumerate(data_orig[0]):
-        cube = aa.ColorDensityCube(resolution=granularity)
+        cube = metrics_color.ColorDensityCube(resolution=granularity)
         cube.feed(image)
         for i in xrange(granularity):
             for j in xrange(granularity):
@@ -84,7 +130,7 @@ def cifar10_maxcolor_domains(granularity, data_range=(50000, 60000)):
                   for _ in xrange(granularity)]
     data_orig = get_data('cifar10', data_range)
     for counter, image in enumerate(data_orig[0]):
-        cube = aa.ColorDensityCube(resolution=granularity)
+        cube = metrics_color.ColorDensityCube(resolution=granularity)
         cube.feed(image)
         c = cube.get_cube()
         argsmax = np.where(c == np.amax(c))
@@ -99,7 +145,7 @@ def cifar10_nth_maxcolor_domains(granularity, n, data_range=(50000, 60000)):
                   for _ in xrange(granularity)]
     data_orig = get_data('cifar10', data_range)
     for counter, image in enumerate(data_orig[0]):
-        cube = aa.ColorDensityCube(resolution=granularity)
+        cube = metrics_color.ColorDensityCube(resolution=granularity)
         cube.feed(image)
         c = cube.get_cube()
         argsmax = np.where(c == np.amax(c))
@@ -125,12 +171,12 @@ def print_ds_color_distrib():
     ds_range = (0, 60000)
     max1 = cifar10_maxcolor_domains(g, ds_range)
     max1 = cube_cardinals(max1)
-    cube_max1 = aa.ColorDensityCube(g, max1)
+    cube_max1 = metrics_color.ColorDensityCube(g, max1)
     cube_max1.normalize()
     cube_max1.plot_cube(title='Max color distribution')
     print('max1 plotted')
     max2 = cifar10_nth_maxcolor_domains(g, 2, ds_range)
     max2 = cube_cardinals(max2)
-    cube_max2 = aa.ColorDensityCube(g, max2)
+    cube_max2 = metrics_color.ColorDensityCube(g, max2)
     cube_max2.normalize()
     cube_max2.plot_cube(title='2nd Max color distribution')

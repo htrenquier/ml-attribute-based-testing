@@ -1,4 +1,3 @@
-import attribute_analyser as aa
 import operator
 import model_trainer as mt
 from keras.datasets import cifar10

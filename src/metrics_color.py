@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import metrics
-import data_splitting as ds
+import data_tools as ds
 import model_trainer as mt
 import cv2
 
