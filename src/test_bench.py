@@ -1,19 +1,15 @@
-
 import numpy as np
 from keras.datasets import cifar10
-import keras.applications as kapp
 import tensorflow as tf
 import os, sys, errno
-import operator
 import matplotlib.pyplot as plt
 from sklearn import metrics
-from sklearn import preprocessing
-import logging
 import metrics
 import metrics_color
 import plotting
 import model_trainer as mt
 import data_tools as dt
+import tests_logging as logg
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -57,7 +53,7 @@ def cifar_test():
         # model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
         # y_predicted = predict(model0, test_data)
         acc, _, y_predicted = metrics.predict_and_acc(model0, test_data)
-        logging.log_predictions(y_predicted, model_name, file_path=res_path)
+        logg.log_predictions(y_predicted, model_name, file_path=res_path)
         # predicted_classes = np.argmax(y_predicted, axis=1)
         # true_classes = np.argmax(test_data[1], axis=1)
         # metrics.accuracy(predicted_classes, true_classes)
@@ -66,11 +62,11 @@ def cifar_test():
 # https://gist.githubusercontent.com/maraoz/388eddec39d60c6d52d4/raw/791d5b370e4e31a4e9058d49005be4888ca98472/gistfile1.txt
 # index to label
 def imagenet_test():
-    file_names, true_classes = logging.read_ground_truth(ilsvrc2012_val_labels)
+    file_names, true_classes = logg.read_ground_truth(ilsvrc2012_val_labels)
     for m in models:
         model, preprocess_func = mt.load_imagenet_model(m)
         y_predicted = dt.predict_dataset(file_names, ilsvrc2012_val_path, model, preprocess_func)
-        logging.log_predictions(y_predicted, model_name=m + '_imagenet', file_path=res_path)
+        logg.log_predictions(y_predicted, model_name=m + '_imagenet', file_path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         metrics.accuracy(predicted_classes, true_classes)
 
@@ -95,7 +91,7 @@ def imagenet_test():
 #         model0, model_name0 = mt.train(m, 'cifar10-2-5', 50, data_augmentation=False, path=res_path)
 #         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
 #         y_predicted = predict(model0, formatted_test_data)
-#         logging.log_predictions(y_predicted, model_name0, path=res_path)
+#         logg.log_predictions(y_predicted, model_name0, path=res_path)
 #         predicted_classes = np.argmax(y_predicted, axis=1)
 #         true_classes = np.argmax(formatted_test_data[1], axis=1)
 #         metrics.accuracy(predicted_classes, true_classes)
@@ -128,7 +124,7 @@ def imagenet_test():
 #
 #         model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data, 50, False, 'exp7', path=res_path)
 #         y_predicted = predict(model1, formatted_test_data)
-#         logging.log_predictions(y_predicted, model_name1, file_path=res_path)
+#         logg.log_predictions(y_predicted, model_name1, file_path=res_path)
 #         predicted_classes = np.argmax(y_predicted, axis=1)
 #         true_classes = np.argmax(formatted_test_data[1], axis=1)
 #         metrics.accuracy(predicted_classes, true_classes)
@@ -137,7 +133,7 @@ def imagenet_test():
 #
 #         model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 50, False, 'ref7', path=res_path)
 #         y_predicted = predict(model2, formatted_test_data)
-#         logging.log_predictions(y_predicted, model_name2, file_path=res_path)
+#         logg.log_predictions(y_predicted, model_name2, file_path=res_path)
 #         predicted_classes = np.argmax(y_predicted, axis=1)
 #         true_classes = np.argmax(formatted_test_data[1], axis=1)
 #         metrics.accuracy(predicted_classes, true_classes)
@@ -160,7 +156,7 @@ def data_analysis():
         model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', res_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         acc, predicted_classes, y_predicted = metrics.predict_and_acc(model0, test_data)
-        logging.log_predictions(y_predicted, model_name0, file_path=res_path)
+        logg.log_predictions(y_predicted, model_name0, file_path=res_path)
         # predicted_classes = np.argmax(y_predicted, axis=1)
         # true_classes = np.argmax(formatted_test_data[1], axis=1)
         # metrics.accuracy(predicted_classes, true_classes)
