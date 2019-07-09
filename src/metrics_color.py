@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import metrics
-import data_tools as ds
-import model_trainer as mt
+import data_tools as dt
 import cv2
 
 # Color-spaces
@@ -157,10 +156,10 @@ def evaluate_batch(images, diff_cube):
 
 def color_domains_accuracy(model, granularity=4, n=1, data_range=(50000, 60000)):
     g = granularity
-    images_cube = ds.cifar10_nth_maxcolor_domains(granularity=g, n=n, data_range=data_range)
+    images_cube = dt.cifar10_nth_maxcolor_domains(granularity=g, n=n, data_range=data_range)
     scores_cube = np.zeros((g, g, g))
-    data = ds.get_data('cifar10', data_range)
-    xf, yf = mt.format_data(data, 10)
+    data = dt.get_data('cifar10', data_range)
+    xf, yf = dt.format_data(data, 10)
     for x in xrange(g):
         for y in xrange(g):
             for z in xrange(g):

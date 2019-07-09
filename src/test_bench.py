@@ -359,9 +359,9 @@ def color_region_finetuning():
                         print('  -  (Approx) Test accuracy = ', np.nansum(weighted_cube))  # Weighted average score_cube
                         # cc = np.subtract(scores_cube1, scores_cube2)
                         cc_avg = np.subtract(scores_cube1, avg_ref_score_cube)
-                        print('  -  Region score (avg ref)= ' + str(cc_avg[x][y][z]))
+                        print('  -  Region score (avg ref) = ' + str(cc_avg[x][y][z]))
                         cc_max = np.subtract(scores_cube1, max_ref_score_cube)
-                        print('  -  Region score (max ref)= ' + str(cc_max[x][y][z]))
+                        print('  -  Region score (max ref) = ' + str(cc_max[x][y][z]))
                         # print(cc)
                         print('           ~           ')
 
