@@ -3,6 +3,31 @@ import metrics as m
 import numpy as np
 
 
+class Log:
+    def __init__(self, log_filename, **col_names):
+        self.log_filename = log_filename + '.csv'
+        self.nb_col = len(col_names)
+        self.vals = []
+        if col_names:
+            with open(self.log_filename, 'w') as f:
+                f.write(",".join(tuple(col_names)))
+
+    def w_line(self, line):
+        with open(self.log_filename, 'w+') as f:
+            f.write(str(line))
+
+    def w_array(self, array):
+        with open(self.log_filename, 'w+') as f:
+            f.write(str(array)[1:-1])
+
+    def add_val(self, val):
+        self.vals.append(val)
+
+    def w_vals(self):
+        self.w_array(self.vals)
+        self.vals = []
+
+
 def read_ground_truth(gt_file):
     """
     Ground Truth read function for imagenet validation data

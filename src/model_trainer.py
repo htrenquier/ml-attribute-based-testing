@@ -7,6 +7,7 @@ from keras.models import Model
 from keras.layers.core import Dense
 from keras.layers import GlobalAveragePooling2D
 import metrics
+import data_tools as dt
 
 import numpy as np
 
@@ -165,7 +166,7 @@ def load_imagenet_model(model_type):
 
 def train_and_save(model, epochs, data_augmentation, weight_file, train_data, val_data, batch_size, regression=False):
     """
-    Trains a model. Saves the best weights only.
+    Trains a model. Saves the best weights only cf. ModelCheckpoint callback.
     :param model: Compiled model to train
     :param epochs: int Number of epochs
     :param data_augmentation: bool for real-time data augmentation
@@ -176,8 +177,8 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
     :param regression:
     :return: None
     """
-    (x_train, y_train) = format_data(train_data, 10)
-    (x_val, y_val) = format_data(val_data, 10)
+    (x_train, y_train) = dt.format_data(train_data, 10)
+    (x_val, y_val) = dt.format_data(val_data, 10)
 
     if regression:
         # For regression
@@ -256,81 +257,28 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
     # model.save_weights(weight_file)
 
 
-def train(model_type, dataset, epochs, data_augmentation, path=''):
-
-    if data_augmentation is True:
-        # With DataAugmentation
-        model_name = '%s_%s_%dep_wda' % (model_type, dataset, epochs)
-    else:
-        # WithOut DataAugmentation
-        model_name = '%s_%s_%dep_woda' % (model_type, dataset, epochs)
-
-    print('###---> ' + model_name + ' <---###')
-    weight_file = model_name + '.h5'
-
-    if dataset == 'cifar10':
-        # Load CIFAR10 data
-        train_data, test_data = cifar10.load_data()
-        print(dataset + ' loaded.')
-        input_shape = train_data[0].shape[1:]
-        print(input_shape)
-        model = model_struct(model_type, input_shape, 10)
-        print(model_type + ' structure loaded.')
-        val_data = test_data
-
-    elif dataset == 'cifar10-2-5':
-        train_data_orig, test_data_orig = cifar10.load_data()
-        input_shape = train_data_orig[0].shape[1:]
-        train_data = [train_data_orig[0][:20000], train_data_orig[1][:20000]]
-        val_data = [train_data_orig[0][40000:], train_data_orig[1][40000:]]
-        model = model_struct(model_type, input_shape, 10)
-        assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
-        print(dataset + ' loaded.')
-    elif dataset == 'cifar10-channelswitched':
-        train_data_orig, test_data_orig = cifar10.load_data()
-        input_shape = train_data_orig[0].shape[1:]
-        train_imgs = []
-        val_imgs = []
-        for img in train_data_orig[0][:20000]:
-            train_imgs.append(np.roll(img, 1, 2))
-        for img in train_data_orig[0][40000:]:
-            val_imgs.append(np.roll(img, 1, 2))
-        train_data = [np.array(train_imgs), train_data_orig[1][:20000]]
-        val_data = [np.array(val_imgs), train_data_orig[1][40000:]]
-        model = model_struct(model_type, input_shape, 10)
-        assert len(train_data[0]) == 20000 and len(val_data[0]) == 10000
-        print(dataset + ' loaded.')
-    else:
-        print('Not implemented')
-        return
-
-    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-
-    model.compile(loss=m_loss,
-                  optimizer=m_optimizer,
-                  metrics=m_metric)
-
-    print('*-> ' + path+weight_file)
-    if not os.path.isfile(path+weight_file):
-        # print('Start training')
-        train_and_save(model, epochs, data_augmentation, path + weight_file, train_data, val_data, m_batch_size)
-
-    # print('Weight file found:' + path+weight_file + ', loading.')
-    model.load_weights(path + weight_file)
-
-    model.compile(loss=m_loss,
-                  optimizer=m_optimizer,
-                  metrics=m_metric)
-
-    (x_val, y_val) = format_data(val_data, 10)
-    score = model.evaluate(x_val, y_val, verbose=0)
-    # print('Test loss:', score[0])
-    print('Val accuracy:', score[1])
-    # model.summary()
-    return model, model_name
+def weight_file_name(model_type, tag, epochs, data_augmentation, prefix='', suffix=''):
+    """
+    Standard for weight file name
+    :param model_type:
+    :param tag:
+    :param epochs:
+    :param data_augmentation:
+    :param prefix:
+    :param suffix:
+    :return: Name of the weight file
+    """
+    name = "_".join((model_type, tag, str(epochs)+'ep', 'wda' if data_augmentation else 'woda'))
+    if prefix:
+        name = prefix + "_" + name
+    if suffix:
+        name += "_" + suffix
+    print('###---> ' + name + ' <---###')
+    weight_file = name + '.h5'
+    return weight_file
 
 
-def fine_tune_file_name(model_name, ft_data_augmentation, ft_epochs, nametag):
+def ft_weight_file_name(model_name, ft_data_augmentation, ft_epochs, nametag):
     """
     Builds the model weight file's name according to parameters
     :param model_name:
@@ -339,6 +287,7 @@ def fine_tune_file_name(model_name, ft_data_augmentation, ft_epochs, nametag):
     :param nametag: extra tag for version
     :return: weight file's name
     """
+
     if ft_data_augmentation is True:
         # With DataAugmentation
         ft_model_name = model_name + '_ftwda' + str(ft_epochs) + 'ep-' + nametag
@@ -348,41 +297,52 @@ def fine_tune_file_name(model_name, ft_data_augmentation, ft_epochs, nametag):
     return ft_model_name
 
 
-def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_augmentation, nametag, path=''):
-
-    input_shape = ft_train_data[0].shape[1:]
-    # print('input shape', input_shape)
-    model_type = model_name.split('_')[0]
-    (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-    weights_file = fine_tune_file_name(model_name, ft_data_augmentation, ft_epochs, nametag)
-
-    if model is None:
-        model = model_struct(model_type, input_shape, 10)
-        # model.load_weights(weights_file)
-
-    model.compile(loss=m_loss,
-                  optimizer=m_optimizer,
-                  metrics=m_metric)
-
-    if not os.path.isfile(path+weights_file):
-        # print('Start training')
-        train_and_save(model, ft_epochs, ft_data_augmentation, path + weights_file, ft_train_data, ft_val_data,
-                       m_batch_size)
-    else:
-        print('Weight file found: ' + path+weights_file + ', loading.')
-
-    model.load_weights(path + weights_file)
-    model.compile(loss=m_loss,
-                  optimizer=m_optimizer,
-                  metrics=m_metric)
-
-    (x_val, y_val) = metrics.format_data(ft_val_data, 10)
-    score = model.evaluate(x_val, y_val, verbose=0)
-    # print('Test loss:', score[0])
-    print('Val accuracy:', score[1])
-    # model.summary()
-
-    return model, weights_file.strip('.h5') #?????/
+# def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_augmentation, nametag, path=''):
+#     """
+#     Trains pre-trained compiled model
+#     :param model: trained model instance
+#     :param model_name:
+#     :param ft_train_data:
+#     :param ft_val_data:
+#     :param ft_epochs:
+#     :param ft_data_augmentation:
+#     :param nametag:
+#     :param path:
+#     :return:
+#     """
+#     input_shape = ft_train_data[0].shape[1:]
+#     # print('input shape', input_shape)
+#     model_type = model_name.split('_')[0]
+#     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
+#     weights_file = ft_weight_file_name(model_name, ft_data_augmentation, ft_epochs, nametag)
+#
+#     if model is None:
+#         model = model_struct(model_type, input_shape, 10)
+#         # model.load_weights(weights_file)
+#
+#     model.compile(loss=m_loss,
+#                   optimizer=m_optimizer,
+#                   metrics=m_metric)
+#
+#     if not os.path.isfile(path+weights_file):
+#         # print('Start training')
+#         train_and_save(model, ft_epochs, ft_data_augmentation, path + weights_file, ft_train_data, ft_val_data,
+#                        m_batch_size)
+#     else:
+#         print('Weight file found: ' + path+weights_file + ', loading.')
+#
+#     model.load_weights(path + weights_file)
+#     model.compile(loss=m_loss,
+#                   optimizer=m_optimizer,
+#                   metrics=m_metric)
+#
+#     (x_val, y_val) = dt.format_data(ft_val_data, 10)
+#     score = model.evaluate(x_val, y_val, verbose=0)
+#     # print('Test loss:', score[0])
+#     print('Val accuracy:', score[1])
+#     # model.summary()
+#
+#     return model, weights_file.strip('.h5') #?????/
 
 
 def load_by_name(model_name, input_shape, weight_file_path):
@@ -408,42 +368,58 @@ def model_state_exists(weight_file_path):
     return os.path.isfile(weight_file_path)
 
 
-def train2(model_type, tr_data, val_data, epochs, data_augmentation, tag='', path=''):
-
-    if data_augmentation:
-        model_name = '%s_%s_%dep_wda' % (model_type, tag, epochs)
-    else:
-        model_name = '%s_%s_%dep_woda' % (model_type, tag, epochs)
-
-    print('###---> ' + model_name + ' <---###')
-    weight_file = model_name + '.h5'
-
+def train2(model_type, tr_data, val_data, epochs, data_augmentation, tag='', path='', weights_file=None):
+    """
+    Instantiates and trains a model. First checks is it exists.
+    If weights is set, it loads the pre-trained state of the model (for fine tuning).
+    :param model_type:
+    :param tr_data: training data
+    :param val_data: validation data
+    :param epochs: number of training epochs
+    :param data_augmentation: bool for data_augmentation
+    :param tag: additionnal tag for the weight file's name
+    :param path: path for storing result weight file
+    :param weights_file: weights of previous model's state (for additional training)
+    :return: trained model instance and its weight file name without extension
+    """
     input_shape = tr_data[0].shape[1:]
+
+    if weights_file:
+        new_weights_file = weights_file.rstrip('.h5') + ('_ftwda' if data_augmentation else '_ftwoda') \
+                      + str(epochs) + 'ep-' + tag + '.h5'
+    else:
+        new_weights_file = weight_file_name(model_type, tag, epochs, data_augmentation)
+
     model = model_struct(model_type, input_shape, 10)
     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
                   metrics=m_metric)
 
-    print('*-> ' + path+weight_file)
-    if not os.path.isfile(path+weight_file):
-        # print('Start training')
-        train_and_save(model, epochs, data_augmentation, path + weight_file, tr_data, val_data, m_batch_size)
-
-    # print('Weight file found:' + path+weight_file + ', loading.')
-    model.load_weights(path + weight_file)
+    print('*-> ' + path + new_weights_file)
+    if model_state_exists(path + new_weights_file):
+        model.load_weights(path + new_weights_file)
+    else:
+        if weights_file:
+            model.load_weights(path + weights_file)
+        train_and_save(model, epochs, data_augmentation, path + new_weights_file, tr_data, val_data, m_batch_size)
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
-                  metrics=m_metric)
+                  metrics=m_metric)         # Is it necessary after training?
+
+    model.load_weights(path + new_weights_file)  # Is it necessary when saving best only?
+
+    model.compile(loss=m_loss,
+                  optimizer=m_optimizer,
+                  metrics=m_metric)         # Is it necessary after loading weights?
 
     # (x_val, y_val) = format_data(val_data, 10)
     # score = model.evaluate(x_val, y_val, verbose=0)
     # print('Test loss:', score[0])
     # print('Val accuracy:', score[1])
     # model.summary()
-    return model, model_name
+    return model, new_weights_file.rstrip('.h5')
 
 
 def reg_from_(model, model_type):
@@ -503,22 +479,3 @@ def train_reg(model, model_type, tr_data, val_data, tag, epochs, data_augmentati
     return model, weight_file.strip('.h5')
 
 
-def weight_file_name(model_type, tag, epochs, data_augmentation, prefix='', suffix=''):
-    """
-    Standard for weight file name
-    :param model_type:
-    :param tag:
-    :param epochs:
-    :param data_augmentation:
-    :param prefix:
-    :param suffix:
-    :return: Name of the weight file
-    """
-    name = "_".join((model_type, tag, str(epochs)+'ep', 'wda' if data_augmentation else 'woda'))
-    if prefix:
-        name = prefix + "_" + name
-    if suffix:
-        name += "_" + suffix
-    print('###---> ' + name + ' <---###')
-    weight_file = name + '.h5'
-    return weight_file

@@ -185,32 +185,18 @@ def bug_feature_detection():
         tr_data = dt.get_data('cifar10', (0, 20000))
         val_data = dt.get_data('cifar10', (20000, 30000))
         test_data = dt.get_data('cifar10', (30000, 60000))
-        # f_test_data = dt.format_data(test_data, 10)  # f_~ for formatted
 
         model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, tag='cifar10-2-5', path=res_path)
         acc, predicted_classes, y_predicted = dt.predict_and_acc(model0, test_data[0])
         # log_predictions(y_predicted, model_name0, path=res_path)
-        # predicted_classes = np.argmax(y_predicted, axis=1)
-        # true_classes = np.argmax(f_test_data[1], axis=1)
-        # acc = metrics.accuracy(predicted_classes, true_classes)
         print('acc', acc)
 
         print(metrics.confusion_matrix(test_data[1], predicted_classes))
         pr = metrics.prediction_ratings(y_predicted, test_data[1])
-        sorted_pr_args = np.argsort(pr)
-
-        # print(pr[:100])
-        #
-        # pr_labels = np.zeros(len(y_predicted))
-        # for count, id in enumerate(sorted_pr_args):
-        #     pr_labels[id] = int(10*count/len(sorted_pr_args))
-
-        # print(pr_labels[:100])
 
         model1 = mt.reg_from_(model0, m)
         print('Reg model created')
         X_test, y_test = test_data
-        # print(np.array(pr).shape)
         tr_data = X_test[0:20000], pr[0:20000]
         val_data = X_test[20000:30000], pr[20000:30000]
         model1, model_name1 = mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=res_path)
@@ -219,17 +205,6 @@ def bug_feature_detection():
         # print('Val accuracy:', score[1])
         formatted_test_data = dt.format_data(val_data, 10)
         y_true = pr[20000:30000]
-        # # densenet
-        # ('Mean', 0.7694504688438)
-        # ('Std', 0.36810717870924914)
-        # ('Max', 1.0)
-        # ('Min', 3.5984962468501525e-09)
-        # # mobilenet
-        # ('Mean', 0.7531032740719625)
-        # ('Std', 0.21170846179242053)
-        # ('Max', 0.997079362506271)
-        # ('Min', 0.027418033376725572)
-        # #
         print('Ground truth values:')
         print('Mean', np.mean(y_true))
         print('Std', np.std(y_true))
@@ -272,12 +247,6 @@ def bug_feature_detection():
         print('Difference Norm:')
         print('Mean ', np.mean(diff3))
         print('Max ', max(diff3))
-
-        # for rank, iid in enumerate(sorted_pr_args[0:10000]):
-        #     q = predicted_classes[iid] == true_classes[iid]
-            # if not q:
-            #     print(str(iid) + ' - pr #' + str(rank) + ' =' + str(pr[iid]) + ' : ' + str(q) +
-            #       '//' + str(y_predicted[iid]))
 
         # R/W guess prediction
         opti_thr = float(np.sort(y_predicted2)[int(acc*10000)])
@@ -334,37 +303,24 @@ def color_region_finetuning():
 
         # cr = color region, 0-2 for tr data / 4-5 for val data
         model_base, model_name0 = mt.train2(m, tr_data, val_data,  50, False, 'cr_0245', path=res_path)
-
-        # model0 = model_base  # avoid fitting model_base directly DOES NOT WORK
-        # model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-
-        # model2, model_name2 = mt.fine_tune(model0, model_name0, train_data_ref, val_data, 30, True, 'ft_2345_ref2', path=res_path)
-
         scores_cubes = []
+
         for x in xrange(g):
             nametag_prefix = 'ft_2345_ref' + str(x+4)
-            ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
+            ft_model_name = mt.ft_weight_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
             weights_file = res_path + ft_model_name + '.h5'
             print('*-> ' + weights_file)
 
             if mt.model_state_exists(weights_file):
                 model2 = mt.load_by_name(model_name0, ft_data[0].shape[1:], weights_file)
-                (x_val, y_val) = dt.format_data(val_data, 10)
-                score = model2.evaluate(x_val, y_val, verbose=0)
-                # print('Test loss:', score[0])
-                print('Val accuracy:', score[1])
+                score = dt.predict_and_acc(model2, val_data)
+                print('Val accuracy:', score[0])
             else:
-                model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-                # #Model state check (should be same acc than base model)
-                # print('Ref #' + str(x) + ' - ' + model_name0 + ' - (val_acc: '
-                #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-
-                dselec = np.concatenate((tr_data[0], train_data_ref2[0]))
-                dlabels = np.concatenate((tr_data[1], train_data_ref2[1]))
-                ft_data_selected_ref = [dselec, dlabels]
+                ft_data_selected_ref = [np.concatenate((tr_data[0], train_data_ref2[0])),
+                                        np.concatenate((tr_data[1], train_data_ref2[1]))]
                 assert len(ft_data_selected_ref[0]) == 30000
-                model2, model_name2 = mt.fine_tune(model0, model_name0, ft_data_selected_ref, val_data, ft_epochs,
-                                                   ft_data_augmentation, nametag_prefix, path=res_path)
+                model2, model_name2 = mt.train2(m, ft_data_selected_ref, val_data, ft_epochs, ft_data_augmentation,
+                                                nametag_prefix, res_path, weights_file=model_name0 + '.h5')
             scores_cube2 = metrics_color.color_domains_accuracy(model2, g)
             # print('Scores cube ref:', scores_cube2)
             weighted_cube = scores_cube2 * np.array(region_sizes) / float(10000)
@@ -380,31 +336,22 @@ def color_region_finetuning():
                     if region_sizes[x][y][z] > 1000:
                         print('#--> Region ' + str(x)+str(y)+str(z) + ' (' + str(region_sizes[x][y][z]) + ' images)')
                         nametag_prefix = 'ft_2445_r' + str(x) + str(y) + str(z) + '_cr_1'
-                        ft_model_name = mt.fine_tune_file_name(model_name0, ft_data_augmentation, ft_epochs,
+
+                        ft_model_name = mt.ft_weight_file_name(model_name0, ft_data_augmentation, ft_epochs,
                                                                nametag=nametag_prefix+'exp')
                         weights_file = res_path+ft_model_name+'.h5'
+
                         if mt.model_state_exists(weights_file):
                             model1 = mt.load_by_name(model_name0, ft_data[0].shape[1:], weights_file)
-                            (x_val, y_val) = dt.format_data(val_data, 10)
-                            score = model1.evaluate(x_val, y_val, verbose=0)
-                            print('Val accuracy:', score[1])
+                            score = dt.predict_and_acc(model1, val_data)
+                            print('Val accuracy:', score[0])
                         else:
                             ft_data_args = metrics_color.finetune_by_region((x, y, z), ft_data, 10000, g)
-                            # Data extraction
-                            dselec = np.concatenate(
-                                (tr_data[0], np.array(operator.itemgetter(*ft_data_args)(ft_data[0]))))
-                            dlabels = np.concatenate(
-                                (tr_data[1], np.array(operator.itemgetter(*ft_data_args)(ft_data[1]))))
-                            ft_data_selected = [dselec, dlabels]
+                            ft_data_selected = dt.get_finetune_data(tr_data, ft_data, ft_data_args)
                             assert len(ft_data_selected[0]) == 30000
-                            # Avoid fitting model_base:
-                            model0 = mt.load_by_name(model_name0, ft_data[0].shape[1:], res_path + model_name0 + '.h5')
-                            # Model state check (should be same acc than base model)
-                            # print('Finetuning ' + model_name0 + ' - (val_acc: '
-                            #       + str(model0.evaluate(x_val, y_val, verbose=0)[1]) + ')')
-                            model1, model_name1 = mt.fine_tune(model0, model_name0, ft_data_selected, val_data,
-                                                               ft_epochs, ft_data_augmentation,
-                                                               nametag_prefix + 'exp', path=res_path)
+                            model1, model_name1 = mt.train2(m, ft_data_selected, val_data, ft_epochs,
+                                                            ft_data_augmentation, nametag_prefix + 'exp',
+                                                            res_path, weights_file=model_name0 + '.h5')
                         scores_cube1 = metrics_color.color_domains_accuracy(model1, g)
                         # print('Scores cube exp:', scores_cube1)
                         print('  -  Region accuracy = ' + str(scores_cube1[x][y][z]))

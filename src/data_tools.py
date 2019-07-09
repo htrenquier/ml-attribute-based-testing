@@ -1,9 +1,11 @@
 from keras.datasets import cifar10
 import numpy as np
+import operator
 import metrics
 import metrics_color
 from keras.preprocessing import image
 from keras import utils
+
 
 def format_data(data, num_classes):
     """
@@ -103,6 +105,17 @@ def get_data(d_name, (st, end)):
     X = np.concatenate((full_train_data[0], full_test_data[0]), axis=0)[st:end]
     y = np.concatenate((full_train_data[1], full_test_data[1]), axis=0)[st:end]
     return X, y
+
+
+def get_data_by_ids(data_src, data_ids):
+    return [operator.itemgetter(*data_ids)(data_src[0]),
+            operator.itemgetter(*data_ids)(data_src[1])]
+
+
+def get_finetune_data(pre_data, ft_data_src, data_ids):
+    add_data = get_data_by_ids(ft_data_src, data_ids)
+    return [np.concatenate(pre_data[0], add_data[0]),
+            np.concatenate(pre_data[1], add_data[1])]
 
 
 def cifar10_color_domains(granularity, frequence, data_range=(50000, 60000)):
