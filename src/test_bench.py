@@ -23,6 +23,9 @@ ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
 res_path = '../res/'
+h5_path = '../res/h5/'
+csv_path = '../res/csv/'
+png_path = '../res/png/'
 
 
 def check_dirs(*paths):
@@ -49,11 +52,11 @@ def check_dirs(*paths):
 def cifar_test():
     train_data, test_data = cifar10.load_data()
     for m in models:
-        model0, model_name = mt.train2(m, train_data, test_data, 50, True, 'cifar10', res_path)
+        model0, model_name = mt.train2(m, train_data, test_data, 50, True, 'cifar10', h5_path)
         # model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
         # y_predicted = predict(model0, test_data)
         acc, _, y_predicted = metrics.predict_and_acc(model0, test_data)
-        logg.log_predictions(y_predicted, model_name, file_path=res_path)
+        logg.log_predictions(y_predicted, model_name, file_path=csv_path)
         # predicted_classes = np.argmax(y_predicted, axis=1)
         # true_classes = np.argmax(test_data[1], axis=1)
         # metrics.accuracy(predicted_classes, true_classes)
@@ -66,7 +69,7 @@ def imagenet_test():
     for m in models:
         model, preprocess_func = mt.load_imagenet_model(m)
         y_predicted = dt.predict_dataset(file_names, ilsvrc2012_val_path, model, preprocess_func)
-        logg.log_predictions(y_predicted, model_name=m + '_imagenet', file_path=res_path)
+        logg.log_predictions(y_predicted, model_name=m + '_imagenet', file_path=csv_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         metrics.accuracy(predicted_classes, true_classes)
 
@@ -153,10 +156,10 @@ def data_analysis():
     test_data = dt.get_data('cifar10', (50000, 60000))
 
     for m in models[:0]:
-        model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', res_path)
+        model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', h5_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         acc, predicted_classes, y_predicted = metrics.predict_and_acc(model0, test_data)
-        logg.log_predictions(y_predicted, model_name0, file_path=res_path)
+        logg.log_predictions(y_predicted, model_name0, file_path=csv_path)
         # predicted_classes = np.argmax(y_predicted, axis=1)
         # true_classes = np.argmax(formatted_test_data[1], axis=1)
         # metrics.accuracy(predicted_classes, true_classes)
@@ -173,7 +176,7 @@ def data_analysis():
         scores.pop(index)
         pr.pop(index)
 
-        plotting.quick_plot(pr, scores, res_path+model_name0+'contrast.png')
+        plotting.quick_plot(pr, scores, png_path+model_name0+'contrast.png')
 
 
 def bug_feature_detection():
@@ -183,9 +186,9 @@ def bug_feature_detection():
         val_data = dt.get_data('cifar10', (20000, 30000))
         test_data = dt.get_data('cifar10', (30000, 60000))
 
-        model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, tag='cifar10-2-5', path=res_path)
+        model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, tag='cifar10-2-5', path=h5_path)
         acc, predicted_classes, y_predicted = dt.predict_and_acc(model0, test_data[0])
-        # log_predictions(y_predicted, model_name0, path=res_path)
+        # log_predictions(y_predicted, model_name0, path=csv_path)
         print('acc', acc)
 
         print(metrics.confusion_matrix(test_data[1], predicted_classes))
@@ -196,7 +199,7 @@ def bug_feature_detection():
         X_test, y_test = test_data
         tr_data = X_test[0:20000], pr[0:20000]
         val_data = X_test[20000:30000], pr[20000:30000]
-        model1, model_name1 = mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=res_path)
+        model1, model_name1 = mt.train_reg(model1, m, tr_data, val_data, '', 50, False, path=h5_path)
         # score = model1.evaluate(val_data[0], val_data[1], verbose=0)
         # print('Test loss:', score[0])
         # print('Val accuracy:', score[1])
@@ -299,13 +302,13 @@ def color_region_finetuning():
     for m in models:
 
         # cr = color region, 0-2 for tr data / 4-5 for val data
-        model_base, model_name0 = mt.train2(m, tr_data, val_data,  50, False, 'cr_0245', path=res_path)
+        model_base, model_name0 = mt.train2(m, tr_data, val_data,  50, False, 'cr_0245', path=h5_path)
         scores_cubes = []
 
         for x in xrange(g):
             nametag_prefix = 'ft_2345_ref' + str(x+4)
             ft_model_name = mt.ft_weight_file_name(model_name0, ft_data_augmentation, ft_epochs, nametag_prefix)
-            weights_file = res_path + ft_model_name + '.h5'
+            weights_file = h5_path + ft_model_name + '.h5'
             print('*-> ' + weights_file)
 
             if mt.model_state_exists(weights_file):
@@ -317,7 +320,7 @@ def color_region_finetuning():
                                         np.concatenate((tr_data[1], train_data_ref2[1]))]
                 assert len(ft_data_selected_ref[0]) == 30000
                 model2, model_name2 = mt.train2(m, ft_data_selected_ref, val_data, ft_epochs, ft_data_augmentation,
-                                                nametag_prefix, res_path, weights_file=model_name0 + '.h5')
+                                                nametag_prefix, h5_path, weights_file=model_name0 + '.h5')
             scores_cube2 = metrics_color.color_domains_accuracy(model2, g)
             # print('Scores cube ref:', scores_cube2)
             weighted_cube = scores_cube2 * np.array(region_sizes) / float(10000)
@@ -336,7 +339,7 @@ def color_region_finetuning():
 
                         ft_model_name = mt.ft_weight_file_name(model_name0, ft_data_augmentation, ft_epochs,
                                                                nametag=nametag_prefix+'exp')
-                        weights_file = res_path+ft_model_name+'.h5'
+                        weights_file = h5_path+ft_model_name+'.h5'
 
                         if mt.model_state_exists(weights_file):
                             model1 = mt.load_by_name(model_name0, ft_data[0].shape[1:], weights_file)
@@ -348,7 +351,7 @@ def color_region_finetuning():
                             assert len(ft_data_selected[0]) == 30000
                             model1, model_name1 = mt.train2(m, ft_data_selected, val_data, ft_epochs,
                                                             ft_data_augmentation, nametag_prefix + 'exp',
-                                                            res_path, weights_file=model_name0 + '.h5')
+                                                            h5_path, weights_file=model_name0 + '.h5')
                         scores_cube1 = metrics_color.color_domains_accuracy(model1, g)
                         # print('Scores cube exp:', scores_cube1)
                         print('  -  Region accuracy = ' + str(scores_cube1[x][y][z]))
@@ -400,7 +403,7 @@ def cifar_color_domains_test():
         test_data = dt.get_data('cifar10', (30000, 60000))
         f_test_data = dt.format_data(test_data, 10)  # f for formatted
 
-        model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', path=res_path)
+        model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', path=h5_path)
     #
     # for m in models:
     #     model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
@@ -423,11 +426,11 @@ def mt_noise_test():
         for m in models:
             print('Training', m)
             model0, model_name0 = mt.train2(m, tr_data, val_data, 40, False,
-                                            'cifar_mt_0445_noise_' + str(noise_level), path=res_path)
+                                            'cifar_mt_0445_noise_' + str(noise_level), path=h5_path)
             print(model_name0, 'trained')
 
 
-check_dirs(res_path, ilsvrc2012_path)
+check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # imagenet_test()
 # finetune_test()
 # data_analysis()
