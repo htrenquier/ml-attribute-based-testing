@@ -1,5 +1,4 @@
-import model_trainer as mt
-import data_tools as dt
+
 import numpy as np
 from keras.datasets import cifar10
 import keras.applications as kapp
@@ -9,10 +8,12 @@ import operator
 import matplotlib.pyplot as plt
 from sklearn import metrics
 from sklearn import preprocessing
-import test_logging
+import logging
 import metrics
 import metrics_color
 import plotting
+import model_trainer as mt
+import data_tools as dt
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -56,7 +57,7 @@ def cifar_test():
         # model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
         # y_predicted = predict(model0, test_data)
         acc, _, y_predicted = metrics.predict_and_acc(model0, test_data)
-        test_logging.log_predictions(y_predicted, model_name, file_path=res_path)
+        logging.log_predictions(y_predicted, model_name, file_path=res_path)
         # predicted_classes = np.argmax(y_predicted, axis=1)
         # true_classes = np.argmax(test_data[1], axis=1)
         # metrics.accuracy(predicted_classes, true_classes)
@@ -65,11 +66,11 @@ def cifar_test():
 # https://gist.githubusercontent.com/maraoz/388eddec39d60c6d52d4/raw/791d5b370e4e31a4e9058d49005be4888ca98472/gistfile1.txt
 # index to label
 def imagenet_test():
-    file_names, true_classes = test_logging.read_ground_truth(ilsvrc2012_val_labels)
+    file_names, true_classes = logging.read_ground_truth(ilsvrc2012_val_labels)
     for m in models:
         model, preprocess_func = mt.load_imagenet_model(m)
         y_predicted = dt.predict_dataset(file_names, ilsvrc2012_val_path, model, preprocess_func)
-        test_logging.log_predictions(y_predicted, model_name=m + '_imagenet', file_path=res_path)
+        logging.log_predictions(y_predicted, model_name=m + '_imagenet', file_path=res_path)
         predicted_classes = np.argmax(y_predicted, axis=1)
         metrics.accuracy(predicted_classes, true_classes)
 
@@ -159,7 +160,7 @@ def data_analysis():
         model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', res_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         acc, predicted_classes, y_predicted = metrics.predict_and_acc(model0, test_data)
-        test_logging.log_predictions(y_predicted, model_name0, file_path=res_path)
+        logging.log_predictions(y_predicted, model_name0, file_path=res_path)
         # predicted_classes = np.argmax(y_predicted, axis=1)
         # true_classes = np.argmax(formatted_test_data[1], axis=1)
         # metrics.accuracy(predicted_classes, true_classes)
@@ -430,7 +431,6 @@ def mt_noise_test():
             print(model_name0, 'trained')
 
 
-
 check_dirs(res_path, ilsvrc2012_path)
 # imagenet_test()
 # finetune_test()
@@ -438,5 +438,5 @@ check_dirs(res_path, ilsvrc2012_path)
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-# color_region_finetuning()
-mt_noise_test()
+color_region_finetuning()
+# mt_noise_test()
