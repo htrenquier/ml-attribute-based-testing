@@ -404,20 +404,30 @@ def train2(model_type, tr_data, val_data, epochs, data_augmentation, tag='', pat
             model.load_weights(path + weights_file)
         train_and_save(model, epochs, data_augmentation, path + new_weights_file, tr_data, val_data, m_batch_size)
 
+
+    (x_val, y_val) = dt.format_data(val_data, 10)
+    score = model.evaluate(x_val, y_val, verbose=0)
+    print(' before 1 Test loss:', score[0])
+    print('Val accuracy:', score[1])
+
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
-                  metrics=m_metric)         # Is it necessary after training?
+                  metrics=m_metric)         # 1: Is it necessary after training?
 
-    model.load_weights(path + new_weights_file)  # Is it necessary when saving best only?
+    model.load_weights(path + new_weights_file)  # 2: Is it necessary when saving best only?
+
+    score = model.evaluate(x_val, y_val, verbose=0)
+    print(' before 1 Test loss:', score[0])
+    print('Val accuracy:', score[1])
 
     model.compile(loss=m_loss,
                   optimizer=m_optimizer,
-                  metrics=m_metric)         # Is it necessary after loading weights?
+                  metrics=m_metric)         # 3: Is it necessary after loading weights?
 
-    # (x_val, y_val) = format_data(val_data, 10)
-    # score = model.evaluate(x_val, y_val, verbose=0)
-    # print('Test loss:', score[0])
-    # print('Val accuracy:', score[1])
+    (x_val, y_val) = dt.format_data(val_data, 10)
+    score = model.evaluate(x_val, y_val, verbose=0)
+    print('Test loss:', score[0])
+    print('Val accuracy:', score[1])
     # model.summary()
     return model, new_weights_file.rstrip('.h5')
 

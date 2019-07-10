@@ -431,6 +431,12 @@ def mt_noise_test():
             print('Validation accuracy = ', acc)
             print(model_name0, 'trained')
 
+def callback_test():
+    tr_data = dt.get_data('cifar10', (0, 10000))
+    val_data = dt.get_data('cifar10', (40000, 50000))
+    mt.train2('densenet121', tr_data, val_data, 10, False,
+              'cifar_mt_0145_callback_test1', path=h5_path)
+
 
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # imagenet_test()
@@ -439,5 +445,6 @@ check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-color_region_finetuning()
-mt_noise_test()
+# color_region_finetuning()
+# mt_noise_test()
+callback_test()
