@@ -417,7 +417,7 @@ def mt_noise_test():
     np.random.seed(0)
     tr_data = dt.get_data('cifar10', (0, 40000))
     val_data = dt.get_data('cifar10', (40000, 50000))
-    for noise_level in xrange(5, 105, 10):
+    for noise_level in xrange(5, 100, 10):
         for k in xrange(len(tr_data[0])):
             noise_mat = np.repeat(np.random.random((32, 32))[:, :, np.newaxis], 3, axis=2)
             tr_data[0][k] = np.clip(tr_data[0][k].astype('uint16') * (1 + (noise_mat-0.5) * noise_level/100), 0, 255)\
@@ -427,6 +427,8 @@ def mt_noise_test():
             print('Training', m)
             model0, model_name0 = mt.train2(m, tr_data, val_data, 40, False,
                                             'cifar_mt_0445_noise_' + str(noise_level), path=h5_path)
+            acc, _, _ = dt.predict_and_acc(model_name0, val_data)
+            print('Validation accuracy = ', acc)
             print(model_name0, 'trained')
 
 
@@ -437,5 +439,5 @@ check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-# color_region_finetuning()
+color_region_finetuning()
 mt_noise_test()
