@@ -45,7 +45,7 @@ def accuracy(predicted_classes, true_classes):
     :return: float Accuracy of the input predictions
     """
     nz = np.count_nonzero(np.subtract(predicted_classes, true_classes))
-    acc = (len(true_classes) - nz) / len(true_classes)
+    acc = float(len(true_classes) - nz) / len(true_classes)
     # print('Test Accuracy = ' + str(acc))
     return acc
 

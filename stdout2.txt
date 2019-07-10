@@ -1,6 +1,0 @@
-Device mapping:
-/job:localhost/replica:0/task:0/device:XLA_CPU:0 -> device: XLA_CPU device
-/job:localhost/replica:0/task:0/device:XLA_GPU:0 -> device: XLA_GPU device
-/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1060 6GB, pci bus id: 0000:65:00.0, compute capability: 6.1
-Directory ../res/ exists
-Directory ../ilsvrc2012/ exists
