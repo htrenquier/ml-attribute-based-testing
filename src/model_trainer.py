@@ -202,7 +202,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             batch_size=batch_size,
             epochs=epochs,
             validation_data=(x_val, y_val),
-            verbose=0,
+            verbose=1,
             shuffle=True,
             callbacks=[checkpoint]
         )
