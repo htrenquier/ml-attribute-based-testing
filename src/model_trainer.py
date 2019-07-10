@@ -202,7 +202,7 @@ def train_and_save(model, epochs, data_augmentation, weight_file, train_data, va
             batch_size=batch_size,
             epochs=epochs,
             validation_data=(x_val, y_val),
-            verbose=1,
+            verbose=0,
             shuffle=True,
             callbacks=[checkpoint]
         )
@@ -297,54 +297,6 @@ def ft_weight_file_name(model_name, ft_data_augmentation, ft_epochs, nametag):
     return ft_model_name
 
 
-# def fine_tune(model, model_name, ft_train_data, ft_val_data, ft_epochs, ft_data_augmentation, nametag, path=''):
-#     """
-#     Trains pre-trained compiled model
-#     :param model: trained model instance
-#     :param model_name:
-#     :param ft_train_data:
-#     :param ft_val_data:
-#     :param ft_epochs:
-#     :param ft_data_augmentation:
-#     :param nametag:
-#     :param path:
-#     :return:
-#     """
-#     input_shape = ft_train_data[0].shape[1:]
-#     # print('input shape', input_shape)
-#     model_type = model_name.split('_')[0]
-#     (m_batch_size, m_loss, m_optimizer, m_metric) = model_param(model_type)
-#     weights_file = ft_weight_file_name(model_name, ft_data_augmentation, ft_epochs, nametag)
-#
-#     if model is None:
-#         model = model_struct(model_type, input_shape, 10)
-#         # model.load_weights(weights_file)
-#
-#     model.compile(loss=m_loss,
-#                   optimizer=m_optimizer,
-#                   metrics=m_metric)
-#
-#     if not os.path.isfile(path+weights_file):
-#         # print('Start training')
-#         train_and_save(model, ft_epochs, ft_data_augmentation, path + weights_file, ft_train_data, ft_val_data,
-#                        m_batch_size)
-#     else:
-#         print('Weight file found: ' + path+weights_file + ', loading.')
-#
-#     model.load_weights(path + weights_file)
-#     model.compile(loss=m_loss,
-#                   optimizer=m_optimizer,
-#                   metrics=m_metric)
-#
-#     (x_val, y_val) = dt.format_data(ft_val_data, 10)
-#     score = model.evaluate(x_val, y_val, verbose=0)
-#     # print('Test loss:', score[0])
-#     print('Val accuracy:', score[1])
-#     # model.summary()
-#
-#     return model, weights_file.strip('.h5') #?????/
-
-
 def load_by_name(model_name, input_shape, weight_file_path):
     if model_state_exists(weight_file_path):
         model_type = model_name.split('_')[0]
@@ -404,30 +356,17 @@ def train2(model_type, tr_data, val_data, epochs, data_augmentation, tag='', pat
             model.load_weights(path + weights_file)
         train_and_save(model, epochs, data_augmentation, path + new_weights_file, tr_data, val_data, m_batch_size)
 
+    model.load_weights(path + new_weights_file)  # Loading best state according to val_acc
 
     (x_val, y_val) = dt.format_data(val_data, 10)
     score = model.evaluate(x_val, y_val, verbose=0)
     print(' before 1 Test loss:', score[0])
     print('Val accuracy:', score[1])
 
-    model.compile(loss=m_loss,
-                  optimizer=m_optimizer,
-                  metrics=m_metric)         # 1: Is it necessary after training?
+    # model.compile(loss=m_loss,
+    #               optimizer=m_optimizer,
+    #               metrics=m_metric)         # 3: Is it necessary after loading weights?
 
-    model.load_weights(path + new_weights_file)  # 2: Is it necessary when saving best only?
-
-    score = model.evaluate(x_val, y_val, verbose=0)
-    print(' before 1 Test loss:', score[0])
-    print('Val accuracy:', score[1])
-
-    model.compile(loss=m_loss,
-                  optimizer=m_optimizer,
-                  metrics=m_metric)         # 3: Is it necessary after loading weights?
-
-    (x_val, y_val) = dt.format_data(val_data, 10)
-    score = model.evaluate(x_val, y_val, verbose=0)
-    print('Test loss:', score[0])
-    print('Val accuracy:', score[1])
     # model.summary()
     return model, new_weights_file.rstrip('.h5')
 

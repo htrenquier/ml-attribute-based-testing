@@ -434,7 +434,7 @@ def mt_noise_test():
 def callback_test():
     tr_data = dt.get_data('cifar10', (0, 1000))
     val_data = dt.get_data('cifar10', (40000, 50000))
-    mt.train2('densenet121', tr_data, val_data, 30, False,
+    mt.train2('densenet121', tr_data, val_data, 15, False,
               'cifar_mt_0145_callback_test1', path=h5_path)
 
 
