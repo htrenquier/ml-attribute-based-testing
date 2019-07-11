@@ -18,7 +18,7 @@ os.chdir(os.path.dirname(sys.argv[0]))
 models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
-models = ['resnet50']
+models = ['densenet121']
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -417,8 +417,8 @@ def mt_noise_test():
     np.random.seed(0)
     tr_data = dt.get_data('cifar10', (0, 40000))
     val_data = dt.get_data('cifar10', (40000, 50000))
-    for noise_level in xrange(5, 10, 10):
-        for k in xrange(len(tr_data[0])):
+    for noise_level in xrange(5, 100, 10):
+        for k in [0]:  #xrange(len(tr_data[0])):
             noise_mat = np.repeat(np.random.random((32, 32))[:, :, np.newaxis], 3, axis=2)
             tr_data[0][k] = np.clip(tr_data[0][k].astype('uint16') * (1 + (noise_mat-0.5) * noise_level/100), 0, 255)\
                 .astype('uint8')
@@ -426,7 +426,7 @@ def mt_noise_test():
         for m in models:
             print('Training', m)
             model0, model_name0 = mt.train2(m, tr_data, val_data, 40, False,
-                                            'cifar_mt_0445_noise_' + str(noise_level), path=h5_path)
+                                            'cifar_mt_0445_noise2__' + str(noise_level), path=h5_path)
             acc, _, _ = dt.predict_and_acc(model0, val_data)
             print('Validation accuracy = ', acc)
             print(model_name0, 'trained')
