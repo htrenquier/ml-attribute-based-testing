@@ -358,15 +358,10 @@ def train2(model_type, tr_data, val_data, epochs, data_augmentation, tag='', pat
 
     model.load_weights(path + new_weights_file)  # Loading best state according to val_acc
 
-    (x_val, y_val) = dt.format_data(val_data, 10)
-    score = model.evaluate(x_val, y_val, verbose=0)
-    print(' before 1 Test loss:', score[0])
-    print('Val accuracy:', score[1])
-
-    # model.compile(loss=m_loss,
-    #               optimizer=m_optimizer,
-    #               metrics=m_metric)         # 3: Is it necessary after loading weights?
-
+    # (x_val, y_val) = dt.format_data(val_data, 10)
+    # score = model.evaluate(x_val, y_val, verbose=0)
+    # print('Val loss:', score[0])
+    # print('Val acc:', score[1])
     # model.summary()
     return model, new_weights_file.rstrip('.h5')
 

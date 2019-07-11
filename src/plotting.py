@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from keras.preprocessing import image
+import numpy as np
 import cv2
 
 # Color-spaces
