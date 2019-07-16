@@ -18,7 +18,7 @@ os.chdir(os.path.dirname(sys.argv[0]))
 models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
-models = ['densenet121']
+# models = ['densenet121']
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -194,7 +194,8 @@ def bug_feature_detection():
         print(metrics.confusion_matrix(test_data[1], predicted_classes))
         pr = metrics.prediction_ratings(y_predicted, test_data[1])
 
-        model1 = mt.reg_from_(model0, m)
+        model2, model_name2 = mt.train2(m, tr_data, val_data, 1, False, tag='cifar10-0223', path=h5_path)
+        model1 = mt.reg_from_(model2, m)
         print('Reg model created')
         X_test, y_test = test_data
         tr_data = X_test[0:20000], pr[0:20000]
@@ -226,15 +227,15 @@ def bug_feature_detection():
         print('Max', np.max(y_predicted3))
         print('Min', np.min(y_predicted3))
 
-        fig, axs = plt.subplots(1, 1)
-        axs.hist(y_true, bins=30)
-        axs.set_title('y_true for ' + m)
-        plt.show()
-
-        fig, axs = plt.subplots(1, 1)
-        axs.hist(y_predicted2, bins=30, range=(0, 2))
-        axs.set_title(m)
-        plt.show()
+        # fig, axs = plt.subplots(1, 1)
+        # axs.hist(y_true, bins=30)
+        # axs.set_title('y_true for ' + m)
+        # plt.show()
+        #
+        # fig, axs = plt.subplots(1, 1)
+        # axs.hist(y_predicted2, bins=30, range=(0, 2))
+        # axs.set_title(m)
+        # plt.show()
 
         diff2 = []
         diff3 = []
@@ -417,27 +418,31 @@ def mt_noise_test():
     np.random.seed(0)
     tr_data = dt.get_data('cifar10', (0, 40000))
     val_data = dt.get_data('cifar10', (40000, 50000))
-    for noise_level in xrange(5, 100, 10):
-        for k in xrange(len(tr_data[0])):
-            noise_mat = np.repeat(np.random.random((32, 32))[:, :, np.newaxis], 3, axis=2)
+    for noise_level in xrange(5, 200, 10):
+        for k in [1]:  #xrange(len(tr_data[0])):
+            # noise_mat = np.repeat(np.random.random((32, 32))[:, :, np.newaxis], 3, axis=2)
+            noise_mat = np.swapaxes([np.random.random((32, 32)), np.random.random((32, 32)), np.random.random((32, 32))]
+                                    , 0, 2)
+            print(tr_data[0][k].shape)
+            print(noise_mat.shape)
             tr_data[0][k] = np.clip(tr_data[0][k].astype('uint16') * (1 + (noise_mat-0.5) * noise_level/100), 0, 255)\
                 .astype('uint8')
-            # plotting.imshow(tr_data[0][k])
+            plotting.imshow(tr_data[0][k])
         for m in models:
             print('Training', m)
-            model0, model_name0 = mt.train2(m, tr_data, val_data, 40, False,
-                                            'cifar_mt_0445_noise2__' + str(noise_level), path=h5_path)
-            acc, _, _ = dt.predict_and_acc(model0, val_data)
-            print('Validation accuracy = ', acc)
-            print(model_name0, 'trained')
+            # model0, model_name0 = mt.train2(m, tr_data, val_data, 40, False,
+            #                                 'cifar_mt_0445_noise2_' + str(noise_level), path=h5_path)
+            # acc, _, _ = dt.predict_and_acc(model0, val_data)
+            # print('Validation accuracy = ', acc)
+            # print(model_name0, 'trained')
 
 
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # imagenet_test()
 # finetune_test()
 # data_analysis()
-# bug_feature_detection()
+bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
 # color_region_finetuning()
-mt_noise_test()
+# mt_noise_test()
