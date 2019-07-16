@@ -187,7 +187,7 @@ def bug_feature_detection():
         test_data = dt.get_data('cifar10', (30000, 60000))
 
         model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, tag='cifar10-2-5', path=h5_path)
-        acc, predicted_classes, y_predicted = dt.predict_and_acc(model0, test_data[0])
+        acc, predicted_classes, y_predicted = dt.predict_and_acc(model0, test_data)
         # log_predictions(y_predicted, model_name0, path=csv_path)
         print('acc', acc)
 
