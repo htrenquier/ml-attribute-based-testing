@@ -3,7 +3,7 @@ from keras.datasets import cifar10
 import tensorflow as tf
 import os, sys, errno
 import matplotlib.pyplot as plt
-from sklearn import metrics
+from sklearn import metrics as sk_metrics
 import metrics
 import metrics_color
 import plotting
@@ -191,7 +191,7 @@ def bug_feature_detection():
         # log_predictions(y_predicted, model_name0, path=csv_path)
         print('acc', acc)
 
-        print(metrics.confusion_matrix(test_data[1], predicted_classes))
+        # print(sk_metrics.confusion_matrix(test_data[1], predicted_classes))
         pr = metrics.prediction_ratings(y_predicted, test_data[1])
 
         model2, model_name2 = mt.train2(m, tr_data, val_data, 1, False, tag='cifar10-0223', path=h5_path)
