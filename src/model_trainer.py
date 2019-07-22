@@ -329,7 +329,7 @@ def train2(model_type, tr_data, val_data, epochs, data_augmentation, tag='', pat
     :param val_data: validation data
     :param epochs: number of training epochs
     :param data_augmentation: bool for data_augmentation
-    :param tag: additionnal tag for the weight file's name
+    :param tag: additional tag for the weight file's name
     :param path: path for storing result weight file
     :param weights_file: weights of previous model's state (for additional training)
     :return: trained model instance and its weight file name without extension

@@ -437,12 +437,29 @@ def mt_noise_test():
             # print(model_name0, 'trained')
 
 
+def epochs_accuracy_test():
+    tr_data = dt.get_data('cifar10', (0, 40000))
+    val_data = dt.get_data('cifar10', (40000, 50000))
+    m = models[0]
+    epochs = [5, 10, 20, 40, 60, 80, 100, 140, 200]
+    model0, model_name0 = mt.train2(m, tr_data, val_data, 5, False,
+                                    'cifar10_0445_epochsacc-5_', path=h5_path)
+    for k in xrange(1, len(epochs)):
+        print('Training', m, epochs[k], 'epochs')
+        model0, model_name0 = mt.train2(m, tr_data, val_data, epochs[k]-epochs[k-1],
+                                        False, path=h5_path, weights_file=model_name0 + '.h5')
+        acc, _, _ = dt.predict_and_acc(model0, val_data)
+        print('Validation accuracy = ', acc)
+        print(model_name0, 'trained')
+
+
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # imagenet_test()
 # finetune_test()
 # data_analysis()
-bug_feature_detection()
+# bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
 # color_region_finetuning()
 # mt_noise_test()
+epochs_accuracy_test()
