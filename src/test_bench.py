@@ -440,17 +440,28 @@ def mt_noise_test():
 def epochs_accuracy_test():
     tr_data = dt.get_data('cifar10', (0, 40000))
     val_data = dt.get_data('cifar10', (40000, 50000))
+    test_data = dt.get_data('cifar10', (50000, 60000))
     m = models[0]
     epochs = [5, 10, 20, 40, 60, 80, 100, 140, 200]
-    model0, model_name0 = mt.train2(m, tr_data, val_data, 5, False,
-                                    'cifar10_0445_epochsacc-5_', path=h5_path)
-    for k in xrange(1, len(epochs)):
-        print('Training', m, epochs[k], 'epochs')
-        model0, model_name0 = mt.train2(m, tr_data, val_data, epochs[k]-epochs[k-1],
-                                        False, path=h5_path, weights_file=model_name0 + '.h5')
-        acc, _, _ = dt.predict_and_acc(model0, val_data)
-        print('Validation accuracy = ', acc)
-        print(model_name0, 'trained')
+    correctness = [[] for _ in xrange(len(test_data[0]))]
+    for k in xrange(len(epochs)):
+        print('###->', epochs[k], 'epochs')
+        model0, model_name0 = mt.train2(m, tr_data, val_data, epochs[k], False,
+                                        'cifar10_0445_epochsacc-5_', path=h5_path)
+        acc, predicted_classes, _ = dt.predict_and_acc(model0, test_data)
+        for c in xrange(len(correctness)):
+            if predicted_classes[c] == test_data[1][c]:
+                correctness[c].append(1)
+            else:
+                correctness[c].append(0)
+
+        print('Test accuracy = ', acc)
+
+    correctness_tot = [np.sum(img_preds) for img_preds in correctness]
+    unique, counts = np.unique(correctness_tot, return_counts=True)
+    n_correct = dict(zip(unique, counts))
+
+    print(n_correct)
 
 
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
