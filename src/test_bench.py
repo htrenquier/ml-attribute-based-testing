@@ -443,7 +443,7 @@ def epochs_accuracy_test():
     val_data = dt.get_data('cifar10', (40000, 50000))
     test_data = dt.get_data('cifar10', (50000, 60000))
     m = models[0]
-    epochs = [5, 10, 20, 40, 60, 80, 100, 140, 200]
+    epochs = [1, 2, 3, 4, 5, 6, 7, 8, 9,  10, 20, 40, 60, 80, 100, 140, 200]
     correctness = [[] for _ in xrange(len(test_data[0]))]
     for k in xrange(len(epochs)):
         print('###->', epochs[k], 'epochs')
@@ -467,7 +467,7 @@ def epochs_accuracy_test():
     correct_shapes = dict(zip(unique, counts))
     sorted_cs = sorted(correct_shapes.items(), key=operator.itemgetter(1))
     print(n_correct)
-    print(sorted_cs)
+    print(sorted_cs[:20])
 
 
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
