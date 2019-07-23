@@ -460,8 +460,9 @@ def epochs_accuracy_test():
     correctness_tot = [np.sum(img_preds) for img_preds in correctness]
     unique, counts = np.unique(correctness_tot, return_counts=True)
     n_correct = dict(zip(unique, counts))
-    
-    unique, counts = np.unique(correctness, return_counts=True)
+
+    correctness_shapes = [str(img_preds) for img_preds in correctness]
+    unique, counts = np.unique(correctness_shapes, return_counts=True)
     correct_shapes = dict(zip(unique, counts))
     print(n_correct)
     print(correct_shapes)
