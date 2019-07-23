@@ -3,6 +3,7 @@ from keras.datasets import cifar10
 import tensorflow as tf
 import os, sys, errno
 import matplotlib.pyplot as plt
+import operator
 from sklearn import metrics as sk_metrics
 import metrics
 import metrics_color
@@ -464,8 +465,9 @@ def epochs_accuracy_test():
     correctness_shapes = [str(img_preds) for img_preds in correctness]
     unique, counts = np.unique(correctness_shapes, return_counts=True)
     correct_shapes = dict(zip(unique, counts))
+    sorted_cs = sorted(correct_shapes.items(), key=operator.itemgetter(1))
     print(n_correct)
-    print(correct_shapes)
+    print(sorted_cs)
 
 
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
