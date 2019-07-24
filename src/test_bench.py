@@ -458,7 +458,15 @@ def epochs_accuracy_test():
 
         print('Test accuracy = ', acc)
 
+    easy_imgs = []
+    hard_imgs = []
     correctness_tot = [np.sum(img_preds) for img_preds in correctness]
+    for c, n in enumerate(correctness_tot):
+        if n == len(epochs):
+            easy_imgs.append(c)
+        if n == 0:
+            hard_imgs.append(c)
+
     unique, counts = np.unique(correctness_tot, return_counts=True)
     n_correct = dict(zip(unique, counts))
 
@@ -469,6 +477,8 @@ def epochs_accuracy_test():
     print(n_correct)
     print(sorted_cs[-20:])
 
+    print('Easy images ids: ', easy_imgs[max(-len(easy_imgs), -10):])
+    print('Hard images ids: ', hard_imgs[max(-len(hard_imgs), -10):])
 
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # imagenet_test()
