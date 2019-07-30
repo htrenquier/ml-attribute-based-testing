@@ -50,8 +50,10 @@ def log_predictions(y_predicted, model_name, file_path, tag=''):
         print('File ' + file_path + model_file + ' already exists. Not written.')
         return
     f = open(file_path + model_file, "w+")
-    for pred in y_predicted:
-        f.write(str(pred)[1:-1])
+    for pred in y_predicted[:10]:
+        line = ",".join([str(k) for k in pred])
+        print(line)
+        f.write(line + '\n')
     f.close()
     print(file_path + model_file + ' written.')
 
@@ -61,10 +63,9 @@ def load_predictions(model_name, file_path, tag=''):
     f = open(file_path + model_file, "r")
     y_predicted = []
     for l in f.readlines():
-        y_predicted.append([float(k) for k in l.split(' ')])
+        if l:
+            y_predicted.append([float(k) for k in l.split(',')])
     return y_predicted
-
-
 
 
 def log_predictions2(y_predicted, model_name, file_path):
