@@ -159,11 +159,11 @@ def data_analysis():
     for m in models[:0]:
         model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', h5_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
-        acc, predicted_classes, y_predicted = metrics.predict_and_acc(model0, test_data)
+        acc, predicted_classes, y_predicted = dt.predict_and_acc(model0, test_data)
         t_log.log_predictions(y_predicted, model_name0, file_path=csv_path)
-        # predicted_classes = np.argmax(y_predicted, axis=1)
-        # true_classes = np.argmax(formatted_test_data[1], axis=1)
-        # metrics.accuracy(predicted_classes, true_classes)
+
+        model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+        t_log.load_predictions(model_name0, file_path=csv_path)
 
         pr = metrics.prediction_ratings(y_predicted, test_data[1])
         scores = []
@@ -480,13 +480,26 @@ def epochs_accuracy_test():
     print('Easy images ids: ', easy_imgs[max(-len(easy_imgs), -10):])
     print('Hard images ids: ', hard_imgs[max(-len(hard_imgs), -10):])
 
+def show_ids():
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    hard = [9746, 9840, 9853, 9901, 9910, 9923, 9924, 9926, 9960, 9982]
+    easy = [9929, 9935, 9939, 9945, 9952, 9966, 9971, 9992, 9997, 9999]
+    for k in easy:
+        plotting.imshow(test_data[0][k])
+    for k in hard:
+        plotting.imshow(test_data[0][k])
+
+    print('done')
+
+
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # imagenet_test()
 # finetune_test()
-# data_analysis()
+data_analysis()
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
 # color_region_finetuning()
 # mt_noise_test()
-epochs_accuracy_test()
+# epochs_accuracy_test()
+# show_ids()

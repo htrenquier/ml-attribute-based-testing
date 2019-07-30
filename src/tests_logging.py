@@ -44,14 +44,26 @@ def read_ground_truth(gt_file):
     return filenames, true_classes
 
 
-def log_predictions(y_predicted, model_name, file_path):
-    model_file = model_name + '-predictions.csv'
+def log_predictions(y_predicted, model_name, file_path, tag=''):
+    model_file = model_name + '_' + tag + '-predictions.csv'
     if path.isfile(file_path + model_file):
-        model_file = model_file + 'new'
-    f = open(file_path + model_file+'new', "w+")
+        print('File already exists. Not written.')
+        return
+    f = open(file_path + model_file, "w+")
     for pred in y_predicted:
         f.write(str(pred)[1:-1])
     f.close()
+
+
+def load_predictions(model_name, file_path, tag=''):
+    model_file = model_name + '_' + tag + '-predictions.csv'
+    f = open(file_path + model_file, "r")
+    y_predicted = []
+    for l in f.readlines():
+        y_predicted.append([float(k) for k in l.split(',')])
+    return y_predicted
+
+
 
 
 def log_predictions2(y_predicted, model_name, file_path):
