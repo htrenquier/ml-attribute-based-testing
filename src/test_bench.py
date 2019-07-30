@@ -156,7 +156,7 @@ def data_analysis():
     val_data = dt.get_data('cifar10', (40000, 50000))
     test_data = dt.get_data('cifar10', (50000, 60000))
 
-    for m in models[:0]:
+    for m in models[:1]:
         model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', h5_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         acc, predicted_classes, y_predicted = dt.predict_and_acc(model0, test_data)
