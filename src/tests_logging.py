@@ -50,16 +50,16 @@ def log_predictions(y_predicted, model_name, file_path, tag=''):
         print('File ' + file_path + model_file + ' already exists. Not written.')
         return
     f = open(file_path + model_file, "w+")
-    for pred in y_predicted[:10]:
+    for pred in y_predicted:
         line = ",".join([str(k) for k in pred])
-        print(line)
         f.write(line + '\n')
     f.close()
-    print(file_path + model_file + ' written.')
+    print(str(len(y_predicted)) + ' lines in ' + file_path + model_file + ' written.')
 
 
 def load_predictions(model_name, file_path, tag=''):
     model_file = model_name.rstrip('.h5') + '_' + tag + '-predictions.csv'
+    print('Loading: ' + file_path + model_file)
     f = open(file_path + model_file, "r")
     y_predicted = []
     for l in f.readlines():

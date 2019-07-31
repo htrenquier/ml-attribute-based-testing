@@ -163,9 +163,10 @@ def data_analysis():
         t_log.log_predictions(y_predicted, model_name0, file_path=csv_path)
 
         model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
-        t_log.load_predictions(model_name0, file_path=csv_path)
+        y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
 
-        pr = metrics.prediction_ratings(y_predicted, test_data[1])
+        true_classes = np.argmax(test_data[1], axis=1)
+        pr = metrics.prediction_ratings(y_predicted, true_classes)
         scores = []
 
         for image in test_data[0]:
@@ -173,7 +174,6 @@ def data_analysis():
 
         max = np.max(scores)
         index = list(scores).index(max)
-        print(index)
         scores.pop(index)
         pr.pop(index)
 
@@ -193,7 +193,8 @@ def bug_feature_detection():
         print('acc', acc)
 
         # print(sk_metrics.confusion_matrix(test_data[1], predicted_classes))
-        pr = metrics.prediction_ratings(y_predicted, test_data[1])
+        true_classes = np.argmax(test_data[1], axis=1)
+        pr = metrics.prediction_ratings(y_predicted, true_classes)
 
         model2, model_name2 = mt.train2(m, tr_data, val_data, 1, False, tag='cifar10-0223', path=h5_path)
         model1 = mt.reg_from_(model2, m)
