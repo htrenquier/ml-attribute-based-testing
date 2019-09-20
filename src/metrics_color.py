@@ -1,8 +1,10 @@
+from __future__ import division
 import matplotlib.pyplot as plt
 import numpy as np
 import metrics
 import data_tools as dt
 import cv2
+from mpl_toolkits.mplot3d import Axes3D
 
 # Color-spaces
 cs_bgr = ('Blue', 'Green', 'Red')
@@ -20,7 +22,7 @@ class ColorDensityCube:
     def __init__(self, resolution=16, cube=None):
         assert resolution and not resolution & (resolution - 1)  # resolution is a power of 2
         self.res = resolution
-        if not cube:
+        if cube is None:
             self.cube = np.zeros((resolution, resolution, resolution))
         else:
             self.cube = cube
@@ -109,12 +111,13 @@ class ColorDensityCube:
     def plot_cube(self, save=False, title=None, path=''):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        axis = xrange(0, 256, self.win)
+        half_win_size = 256 // (2 * self.win)
+        axis = xrange(half_win_size, 256, self.win)
         for x in axis:
             for y in axis:
                 size = self.norm_cube[int(x / self.win)][int(y / self.win)] * 10000 / self.res
-                color = [np.repeat(x/256, self.res),
-                         np.repeat(y/256, self.res),
+                color = [np.repeat((half_win_size + x)/256, self.res),
+                         np.repeat((half_win_size + y)/256, self.res),
                          np.array(xrange(int(self.win / 2), 256, self.win)) / 256.0]
                 color = np.swapaxes(color, 0, 1)
                 ec = np.where(size >= 0.0, 'w', 'r')

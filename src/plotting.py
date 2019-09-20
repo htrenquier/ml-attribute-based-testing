@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from keras.preprocessing import image
 import numpy as np
 import cv2
+import sklearn.preprocessing
 
 # Color-spaces
 cs_bgr = ('Blue', 'Green', 'Red')
@@ -184,3 +185,18 @@ def plot_conf_box(cc, ci, title):
     ax3.boxplot(data, showfliers=False)
     plt.savefig(title + '.png')
     plt.show()
+
+
+def show_imgs(id_list, title, dataset):  # list of img list
+        n_images = min(20, len(id_list))
+        if n_images > 1:
+            fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
+                                     subplot_kw={'xticks': (), 'yticks': ()})
+            for i in xrange(n_images):
+                ax = axes[i]
+                img_id = id_list[i]
+                ax.imshow(dataset[img_id], vmin=0, vmax=1)
+                # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
+            if title:
+                fig.suptitle(title + ' - label #' + str(id_list))
+            plt.show()

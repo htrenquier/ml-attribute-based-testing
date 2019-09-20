@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 from keras.datasets import cifar10
 import tensorflow as tf
@@ -16,10 +17,10 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
+# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
-# models = ['densenet121']
+models = ['densenet121']
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -178,6 +179,51 @@ def data_analysis():
         pr.pop(index)
 
         plotting.quick_plot(pr, scores, png_path+model_name0+'contrast.png')
+
+
+def pr_on_fair_distribution():
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    res = 4
+    topn = 10  # 100 arbitrary
+
+    densities = []
+    for img in test_data[0]:
+        cc = metrics_color.ColorDensityCube(res)
+        cc.feed(img)
+        densities.append(cc.get_cube())
+        # ccf = np.array(cc.get_cube()).flatten()
+
+    densities_lists = np.swapaxes(np.swapaxes(np.swapaxes(densities, 0, 3), 0, 2), 0, 1)
+    print(densities_lists.shape)
+
+    for m in models:
+        model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+        y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+
+        true_classes = np.argmax(test_data[1], axis=1)
+        pr = metrics.prediction_ratings(y_predicted, true_classes)
+
+        score_cube = np.zeros((res, res, res))
+        args_most_dense_all = []
+        for i in xrange(res):
+            for j in xrange(res):
+                for k in xrange(res):
+                    pr_most_dense = []
+                    density_list = densities_lists[i][j][k].tolist()
+                    args_most_dense = np.argsort(density_list)[-topn:]
+                    for a in args_most_dense:
+                        pr_most_dense.append(pr[a])
+
+                    score_cube[i][j][k] = np.mean(pr_most_dense)
+                    args_most_dense_all.append(args_most_dense)
+                    ttl = 'color = (' + str(float(i/res)) + ', ' + str(float(j/res)) + ', ' + str(float(k/res)) + ')'
+                    plotting.show_imgs(args_most_dense[:10], ttl, test_data[0])
+
+        sc = metrics_color.ColorDensityCube(resolution=res, cube=score_cube)
+        sc.normalize()
+        sc.plot_cube()
+        print(args_most_dense_all)
+
 
 
 def bug_feature_detection():
@@ -481,6 +527,7 @@ def epochs_accuracy_test():
     print('Easy images ids: ', easy_imgs[max(-len(easy_imgs), -10):])
     print('Hard images ids: ', hard_imgs[max(-len(hard_imgs), -10):])
 
+
 def show_ids():
     test_data = dt.get_data('cifar10', (50000, 60000))
     hard = [9746, 9840, 9853, 9901, 9910, 9923, 9924, 9926, 9960, 9982]
@@ -493,14 +540,24 @@ def show_ids():
     print('done')
 
 
+def test():
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    cc = metrics_color.ColorDensityCube()
+    cc.feed(test_data[0][27])
+    cc.normalize()
+    cc.plot_cube()
+    plotting.imshow(test_data[0][26])
+
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # imagenet_test()
 # finetune_test()
-data_analysis()
+# data_analysis()
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
 # color_region_finetuning()
 # mt_noise_test()
 # epochs_accuracy_test()
+pr_on_fair_distribution()
 # show_ids()
+# test()
