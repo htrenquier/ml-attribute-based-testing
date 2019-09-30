@@ -4,6 +4,8 @@ import numpy as np
 import metrics
 import data_tools as dt
 import cv2
+import plotting
+
 from mpl_toolkits.mplot3d import Axes3D
 
 # Color-spaces
@@ -70,7 +72,7 @@ class ColorDensityCube:
         self.norm_cube = (self.norm_cube - vmin) / (vmax - vmin)
         self.isNormalized = True
 
-    def substract(self, cube, state='avg'):
+    def substract0(self, cube, state='avg'):
         """
         Subtracts cube to self
         :param cube: target cube to subtract to self
@@ -94,6 +96,27 @@ class ColorDensityCube:
         diff_cube.normalize()
         return diff_cube
 
+    def substract(self, cube, state='avg'):
+        """
+        Subtracts cube to self
+        :param cube: target cube to subtract to self
+        :param state:
+        :return:
+        """
+        assert isinstance(cube, ColorDensityCube)
+        assert state in {'avg', 'norm', 'value'}
+        if state == 'avg':
+            assert self.get_num() and cube.get_num()
+            diff_cube = np.subtract(self.avg(), cube.avg())
+        elif state == 'norm':
+            diff_cube = np.subtract(self.get_normalized(), cube.get_normalized())
+        else:  # state == 'value':
+            assert self.get_num() == cube.get_num()
+            diff_cube = np.subtract(self.get_cube(), cube.get_cube())
+        # diff_cube.normalize()
+        return ColorDensityCube(self.res, cube=diff_cube)
+
+
     def get_normalized(self):
         if not self.isNormalized:
             self.normalize()
@@ -108,7 +131,10 @@ class ColorDensityCube:
     def get_res(self):
         return self.res
 
-    def plot_cube(self, save=False, title=None, path=''):
+    def get_win(self):
+        return self.win
+
+    def plot_cube2(self, save=False, title=None, path=''):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         half_win_size = 256 // (2 * self.win)
@@ -129,6 +155,9 @@ class ColorDensityCube:
             fig.text(0.5, 0.975, title, ha='center')
             plt.savefig(path + title + '.png')
         plt.close()
+
+    def plot_cube(self, save=False, title=None, path='', normalize=True):
+        plotting.plot_cube(self, save=save, title=title, path=path, normalize=normalize)
 
 
 def get_best_scores(images, num, diff_cube):
@@ -182,6 +211,25 @@ def color_domains_accuracy(model, granularity=4, n=1, data_range=(50000, 60000))
     return scores_cube
 
 
+def entropy(image):
+    # for greyscale version of image
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
+    hist = np.swapaxes(hist, 0, 1)[0]
+    norm_hist = hist / np.linalg.norm(hist)
+    entropy = -np.nansum(norm_hist * np.log2(norm_hist))
+    return entropy
+
+
+def entropy_cc(image, resolution=8):
+    cc = ColorDensityCube(resolution=resolution)
+    cc.feed(image)
+    cube = cc.get_cube()
+    norm_flat_cube = cube.flatten() / np.linalg.norm(cube)
+    entropy_cc = -np.nansum(norm_flat_cube * np.log2(norm_flat_cube))
+    return entropy_cc
+
+
 def colorfulness(image):
     """
     Computes a colorfulness measure
@@ -217,6 +265,7 @@ def contrast(img):
     m = np.mean(img_ycc[0])
     vmin, vmax = np.min(img_ycc[0]), np.max(img_ycc[0])
     return m/(vmax-vmin)
+
 
 
 # ====== # Finetuning # ====== #

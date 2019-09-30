@@ -1,7 +1,10 @@
+from __future__ import division
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.axes3d import Axes3D
 from keras.preprocessing import image
 import numpy as np
 import cv2
+import metrics_color
 import sklearn.preprocessing
 
 # Color-spaces
@@ -132,7 +135,7 @@ def plot_hists(images1, label1, images2, label2, color_space, title='Untitled pl
         ax.legend(loc='upper right', shadow=True, fontsize='medium')
     # fig.subplots_adjust(top=0.85)
     # fig.suptitle(title)
-    plt.savefig(title+'.png')
+    # plt.savefig(title+'.png')
     plt.show()
     plt.close()
 
@@ -178,25 +181,98 @@ def plot_delta(images1, images2, color_space):
     plt.show()
 
 
-def plot_conf_box(cc, ci, title):
-    data = [cc, ci]
-    fig3, ax3 = plt.subplots()
-    ax3.set_title(title)
-    ax3.boxplot(data, showfliers=False)
-    plt.savefig(title + '.png')
+def box_plot(series1, series2, name_s1='series1', name_s2='series2', y_label=None, save=False, title=None):
+    data = [series1, series2]
+    fig, ax = plt.subplots()
+    if title:
+        ax.set_title(title)
+    ax.boxplot(data, showfliers=False)
+    ax.set_xticklabels([name_s1, name_s2])  # rotation=45, fontsize=8)
+    ax.set_ylabel(y_label)
     plt.show()
+    if save:
+        plt.savefig(title + '.png')
+    plt.close()
 
 
-def show_imgs(id_list, title, dataset):  # list of img list
-        n_images = min(20, len(id_list))
+def scale3d(ax, x_scale=1, y_scale=1, z_scale=1):
+    scale = np.diag([x_scale, y_scale, z_scale, 1.0])
+    scale = scale * (1.0 / scale.max())
+    scale[3, 3] = 1.0
+    short_proj = np.dot(Axes3D.get_proj(ax), scale)
+    ax.get_proj = short_proj
+
+
+def plot_cube(color_cube, fig=None, save=False, title=None, path='', normalize=True):
+    assert isinstance(color_cube, metrics_color.ColorDensityCube)
+    win = color_cube.get_win()
+    res = color_cube.get_res()
+    fig_was_none = False
+
+    if not fig:
+        fig_was_none = True
+        fig = plt.figure(dpi=200)
+        ax = fig.add_subplot(111, projection='3d')
+    else:
+        ax = fig.add_subplot(212, projection='3d')
+
+    ax.get_proj = lambda: np.dot(Axes3D.get_proj(ax), np.diag([0.7, 1.5, 0.7, 1.1]))  # burst view along y-axis
+    ax.view_init(azim=-25)
+
+    half_win_size = 256 // (2 * win)
+    print(half_win_size)
+    axis = xrange(half_win_size, 256, win)
+    for x in axis:
+        for y in axis:
+            if normalize:
+                size = color_cube.get_normalized()[int(x / win)][int(y / win)] * 5000 / res
+            else:
+                size = color_cube.get_cube()[int(x / win)][int(y / win)] * 5000 / res
+                print(size)
+            color = [np.repeat((half_win_size + x)/256, res),
+                     np.repeat((half_win_size + y)/256, res),
+                     np.array(xrange(int(win / 2), 256, win)) / 256.0]
+            color = np.swapaxes(color, 0, 1)
+            ec = np.where(size >= 0.0, 'w', 'r')
+            size = abs(size)
+            ax.scatter(x, y, axis, c=color, s=size, edgecolor=ec, alpha=1)
+
+    if fig_was_none:
+        plt.tight_layout()
+        fig.text(0.5, 0.975, title, ha='center')
+        plt.show()
+    else:
+        return
+    if save:
+        assert title is not None
+        fig.text(0.5, 0.975, title, ha='center')
+        plt.savefig(path + title + '.png')
+    plt.close()
+
+
+def show_imgs(id_list, title, dataset, showColorCube=False, resolution=16):  # list of img list
+        n_images = min(10, len(id_list))
         if n_images > 1:
-            fig, axes = plt.subplots(1, n_images, figsize=(n_images, 4),
+            fig, axes = plt.subplots(1 + showColorCube, n_images, squeeze=False, figsize=(n_images, 12),
                                      subplot_kw={'xticks': (), 'yticks': ()})
-            for i in xrange(n_images):
-                ax = axes[i]
-                img_id = id_list[i]
-                ax.imshow(dataset[img_id], vmin=0, vmax=1)
-                # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
+
+            if showColorCube:
+                cc = metrics_color.ColorDensityCube(resolution=resolution)
+                for i in xrange(n_images):
+                    ax = axes[0][i]
+                    img_id = id_list[i]
+                    cc.feed(dataset[img_id])
+                    ax.imshow(dataset[img_id], vmin=0, vmax=1)
+                    # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
+                plot_cube(cc, fig)
+            else:
+                for i in xrange(n_images):
+                    ax = axes[i]
+                    img_id = id_list[i]
+                    ax.imshow(dataset[img_id], vmin=0, vmax=1)
+                    # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
             if title:
                 fig.suptitle(title + ' - label #' + str(id_list))
+            # fig.subplots_adjust()
             plt.show()
+        plt.close()
