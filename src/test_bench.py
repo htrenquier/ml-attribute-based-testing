@@ -166,7 +166,8 @@ def data_analysis():
         model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
         y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
 
-        true_classes = np.argmax(test_data[1], axis=1)
+        # true_classes = np.argmax(test_data[1], axis=1)  # wrong
+        true_classes = [int(k) for k in test_data[1]]
         pr = metrics.prediction_ratings(y_predicted, true_classes)
         scores = []
 
@@ -184,7 +185,7 @@ def data_analysis():
 def pr_on_fair_distribution():
     test_data = dt.get_data('cifar10', (50000, 60000))
     res = 4
-    topn = 10  # 100 arbitrary
+    topn = 50  # 100 arbitrary
 
     densities = []
     for img in test_data[0]:
@@ -194,36 +195,53 @@ def pr_on_fair_distribution():
         # ccf = np.array(cc.get_cube()).flatten()
 
     densities_lists = np.swapaxes(np.swapaxes(np.swapaxes(densities, 0, 3), 0, 2), 0, 1)
-    print(densities_lists.shape)
+    # print(densities_lists.shape)
+    densities_cube = np.empty((res, res, res), dtype=object)
+
+    for i in xrange(res):
+        for j in xrange(res):
+            for k in xrange(res):
+                # pr_most_dense = []
+                density_list = densities_lists[i][j][k].tolist()
+                args_most_dense = np.argsort(density_list)[-topn:]
+                densities_cube[i][j][k] = args_most_dense
+    # print(densities_cube.shape)
 
     for m in models:
         model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
         y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
 
-        true_classes = np.argmax(test_data[1], axis=1)
+        true_classes = [int(k) for k in test_data[1]]
         pr = metrics.prediction_ratings(y_predicted, true_classes)
 
         score_cube = np.zeros((res, res, res))
+        global_cc = metrics_color.ColorDensityCube(resolution=res)
         args_most_dense_all = []
         for i in xrange(res):
             for j in xrange(res):
                 for k in xrange(res):
                     pr_most_dense = []
-                    density_list = densities_lists[i][j][k].tolist()
-                    args_most_dense = np.argsort(density_list)[-topn:]
-                    for a in args_most_dense:
+                    densities_args = densities_cube[i][j][k].tolist()
+                    # args_most_dense = np.argsort(density_list)[-topn:]
+                    ijk_cc = metrics_color.ColorDensityCube(res)
+                    for a in densities_args:
                         pr_most_dense.append(pr[a])
-
-                    score_cube[i][j][k] = np.mean(pr_most_dense)
-                    args_most_dense_all.append(args_most_dense)
+                        ijk_cc.feed(test_data[0][a])
+                        global_cc.feed(test_data[0][a])
+                    ijk_cc.normalize()
                     ttl = 'color = (' + str(float(i/res)) + ', ' + str(float(j/res)) + ', ' + str(float(k/res)) + ')'
-                    plotting.show_imgs(args_most_dense[:10], ttl, test_data[0])
+                    # ijk_cc.plot_cube()
+                    score_cube[i][j][k] = np.mean(pr_most_dense)
+                    # args_most_dense_all.append(args_most_dense)
+                    ttl = 'color = (' + str(float(i/res)) + ', ' + str(float(j/res)) + ', ' + str(float(k/res)) + ')'
+                    # plotting.show_imgs(densities_args[:10], ttl, test_data[0], showColorCube=True, resolution=4)
+
+        global_cc.normalize()
+        global_cc.plot_cube()
 
         sc = metrics_color.ColorDensityCube(resolution=res, cube=score_cube)
         sc.normalize()
-        sc.plot_cube()
-        print(args_most_dense_all)
-
+        sc.plot_cube(title='Scores per color for ' + m)
 
 
 def bug_feature_detection():
@@ -239,7 +257,8 @@ def bug_feature_detection():
         print('acc', acc)
 
         # print(sk_metrics.confusion_matrix(test_data[1], predicted_classes))
-        true_classes = np.argmax(test_data[1], axis=1)
+        # true_classes = np.argmax(test_data[1], axis=1) wrong
+        true_classes = [int(k) for k in test_data[1]]
         pr = metrics.prediction_ratings(y_predicted, true_classes)
 
         model2, model_name2 = mt.train2(m, tr_data, val_data, 1, False, tag='cifar10-0223', path=h5_path)
@@ -528,6 +547,55 @@ def epochs_accuracy_test():
     print('Hard images ids: ', hard_imgs[max(-len(hard_imgs), -10):])
 
 
+def colorcube_analysis():
+    m = 'densenet121'
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    top_n = 500
+    model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+    y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+    # true_classes = np.argmax(test_data[1], axis=1)
+    true_classes = [int(k) for k in test_data[1]]
+    scores = metrics.prediction_ratings(y_predicted, true_classes)
+    score_sorted_ids = np.argsort(scores)
+    cc_high = metrics_color.ColorDensityCube(resolution=4)
+    for img_id in score_sorted_ids[-top_n:]:
+        cc_high.feed(test_data[0][img_id])
+    cc_high.normalize()
+    cc_high.plot_cube()
+
+    cc_low = metrics_color.ColorDensityCube(resolution=4)
+    for img_id in score_sorted_ids[:top_n]:
+        cc_low.feed(test_data[0][img_id])
+    cc_low.normalize()
+
+    cc_diff = cc_high.substract(cc_low, 'norm')
+
+    cc_low.plot_cube()
+
+    # cc_diff.normalize()
+    cc_diff.plot_cube(title = 'Color cube analysis difference (' + str(top_n) + ' images/series)', normalize=False)
+
+
+def histogram_analysis():
+    m = 'densenet121'
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    top_n = 2500
+    model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+    y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+    # true_classes = np.argmax(test_data[1], axis=1)
+    true_classes = [int(k) for k in test_data[1]]
+    scores = metrics.prediction_ratings(y_predicted, true_classes)
+    score_sorted_ids = np.argsort(scores)
+    high_score_series = []
+    low_score_series = []
+    for k in xrange(0, top_n):
+        high_score_series.append(test_data[0][score_sorted_ids[-k-1]])
+        low_score_series.append(test_data[0][score_sorted_ids[k]])
+
+    plotting.plot_hists(high_score_series, 'high scores', low_score_series, 'low scores', plotting.cs_bgr,
+                        title='Histogram analysis (' + str(top_n) + ' images/series)')
+
+
 def show_ids():
     test_data = dt.get_data('cifar10', (50000, 60000))
     hard = [9746, 9840, 9853, 9901, 9910, 9923, 9924, 9926, 9960, 9982]
@@ -540,15 +608,117 @@ def show_ids():
     print('done')
 
 
-def test():
+def check_entropy():
+    for k in xrange(250, 0, -50):
+        r_img = np.random.randint(k, 255, (32, 32, 3), np.uint8)
+        print('entropy:', metrics_color.entropy(r_img))
+        print('entropy_cc:',  metrics_color.entropy_cc(r_img))
+        # plotting.imshow(r_img)
+
+    rand_img = np.random.randint(0, 255, (32, 32, 3), np.uint8)
+    print('entropy random', metrics_color.entropy(rand_img))
+    plotting.imshow(rand_img)
+
+
+def check_acc():
+    m = 'densenet121'
     test_data = dt.get_data('cifar10', (50000, 60000))
-    cc = metrics_color.ColorDensityCube()
-    cc.feed(test_data[0][27])
-    cc.normalize()
-    cc.plot_cube()
-    plotting.imshow(test_data[0][26])
+
+    model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+    y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+    predicted_classes = np.argmax(y_predicted, axis=1)
+    print(predicted_classes[:10])
+    true_classes = [int(k) for k in test_data[1]]
+    acc = metrics.accuracy(predicted_classes, true_classes)
+    print(acc)
+
+
+def check_pr():
+    m='densenet121'
+    model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+    y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    easy = [9929, 9935, 9939, 9945, 9952, 9966, 9971, 9992, 9997, 9999]
+    hard = [9746, 9840, 9853, 9901, 9910, 9923, 9924, 9926, 9960, 9982]
+    plotting.show_imgs(easy, 'easy set: ', test_data[0], showColorCube=True, resolution=4)
+    plotting.show_imgs(hard, 'hard set: ', test_data[0], showColorCube=True, resolution=4)
+    true_classes = [int(k) for k in test_data[1]]
+    print('easy')
+    for id in easy:
+        print(id, '- pr:', metrics.prediction_rating(y_predicted[id], true_classes[id]),
+              ' - correct?: ', np.argmax(y_predicted[id]) == true_classes[id])
+    print('hard')
+    for id in hard:
+        print(id, '- pr:', metrics.prediction_rating(y_predicted[id], true_classes[id]),
+              ' - correct?: ', np.argmax(y_predicted[id]) == true_classes[id])
+
+
+def entropy_cc_analysis():
+    m = 'densenet121'
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    top_n = 1000
+
+    model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+    y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+    true_classes = [int(k) for k in test_data[1]]
+    scores = metrics.prediction_ratings(y_predicted, true_classes)
+    score_sorted_ids = np.argsort(scores)
+    high_score_entropies = []
+    low_score_entropies = []
+    print(len(score_sorted_ids))
+    for k in xrange(0, top_n):
+        # id = score_sorted_ids[-k - 1]
+        # print(id)
+        # img = test_data[id]
+        high_score_entropies.append(metrics_color.entropy_cc(test_data[0][score_sorted_ids[-k-1]], 8))
+        low_score_entropies.append(metrics_color.entropy_cc(test_data[0][score_sorted_ids[k]], 8))
+
+    plotting.box_plot(high_score_entropies, low_score_entropies, name_s1='high prediction scores',
+                      name_s2='low prediction scores',y_label='Color cube entropy',
+                      title='Entropy analysis (' + str(top_n) + ' images/series)')
+
+
+def colorfulness_analysis():
+    m = 'densenet121'
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    top_n = 1000
+    model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+    y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+    true_classes = [int(k) for k in test_data[1]]
+    scores = metrics.prediction_ratings(y_predicted, true_classes)
+    score_sorted_ids = np.argsort(scores)
+    high_score_series = []
+    low_score_series = []
+    print(len(score_sorted_ids))
+    for k in xrange(0, top_n):
+        # id = score_sorted_ids[-k - 1]
+        # print(id)
+        # img = test_data[id]
+        high_score_series.append(metrics_color.colorfulness(test_data[0][score_sorted_ids[-k-1]]))
+        low_score_series.append(metrics_color.colorfulness(test_data[0][score_sorted_ids[k]]))
+
+    plotting.box_plot(high_score_series, low_score_series, name_s1='high prediction scores',
+                      name_s2='low prediction scores', y_label='Colorfulness',
+                      title='Colorfulness analysis (' + str(top_n) + ' images/series)')
+
+
+def check_rgb():
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    # plotting.imshow(test_data[0][9960])
+    # img_test = np.repeat(test_data[0][9960][:, :, 0, np.newaxis], 3, axis=2)
+    img_test = np.array(test_data[0][9960])
+    img_test[:, :, 1] = np.ones((32, 32)) #* 255
+    img_test[:, :, 2] = np.ones((32, 32)) #* 255
+    # img_test = np.swapaxes(img_test, 0, 2)
+    print(np.array(test_data[0][9960]).shape)
+    print(img_test)
+    plotting.imshow(img_test)
+    plotting.plot_hists([test_data[0][9960]], 'normal', [img_test], 'red', plotting.cs_bgr, )
 
 check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
+
+### Experiments
 # imagenet_test()
 # finetune_test()
 # data_analysis()
@@ -558,6 +728,21 @@ check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # color_region_finetuning()
 # mt_noise_test()
 # epochs_accuracy_test()
-pr_on_fair_distribution()
+# pr_on_fair_distribution()
+# cifar10_global_cc()
+
+
+### Metric checks
+# check_entropy()
+# check_pr()
+# check_acc()
+# check_rgb()
+
+### Attribute analysis
+# colorcube_analysis()
+# histogram_analysis()
+# entropy_cc_analysis()
+# colorfulness_analysis()
+
+### Debugging
 # show_ids()
-# test()
