@@ -216,10 +216,10 @@ def plot_cube(color_cube, fig=None, save=False, title=None, path='', normalize=T
     else:
         ax = fig.add_subplot(212, projection='3d')
 
-    ax.get_proj = lambda: np.dot(Axes3D.get_proj(ax), np.diag([0.7, 1.5, 0.7, 1.1]))  # burst view along y-axis
+    ax.get_proj = lambda: np.dot(Axes3D.get_proj(ax), np.diag([0.8, 1.2, 0.8, 1.1]))  # burst view along y-axis
     ax.view_init(azim=-25)
 
-    half_win_size = 256 // (2 * win)
+    half_win_size = win//2
     print(half_win_size)
     axis = xrange(half_win_size, 256, win)
     for x in axis:
@@ -229,9 +229,9 @@ def plot_cube(color_cube, fig=None, save=False, title=None, path='', normalize=T
             else:
                 size = color_cube.get_cube()[int(x / win)][int(y / win)] * 5000 / res
                 print(size)
-            color = [np.repeat((half_win_size + x)/256, res),
-                     np.repeat((half_win_size + y)/256, res),
-                     np.array(xrange(int(win / 2), 256, win)) / 256.0]
+            color = [np.repeat(x/256, res),
+                     np.repeat(y/256, res),
+                     np.array(xrange(half_win_size, 256, win)) / 256.0]
             color = np.swapaxes(color, 0, 1)
             ec = np.where(size >= 0.0, 'w', 'r')
             size = abs(size)
@@ -252,7 +252,7 @@ def plot_cube(color_cube, fig=None, save=False, title=None, path='', normalize=T
 
 def show_imgs(id_list, title, dataset, showColorCube=False, resolution=16):  # list of img list
         n_images = min(10, len(id_list))
-        if n_images > 1:
+        if n_images >= 1:
             fig, axes = plt.subplots(1 + showColorCube, n_images, squeeze=False, figsize=(n_images, 12),
                                      subplot_kw={'xticks': (), 'yticks': ()})
 
