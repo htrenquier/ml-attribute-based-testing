@@ -559,7 +559,7 @@ def colorcube_analysis():
         top_n = 2500
         # model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
         model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False, suffix='_ft20ep-exp')
-        model = mt.load_by_name(model_name0, test_data[0].shape[1:], h5_path)
+        model = mt.load_by_name(model_name0, test_data[0].shape[1:], h5_path+model_name0)
         y_predicted = model.predict(np.array(test_data[0]))
         # y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
         true_classes = [int(k) for k in test_data[1]]
