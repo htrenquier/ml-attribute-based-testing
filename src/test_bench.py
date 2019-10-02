@@ -17,10 +17,10 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
+models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
-models = ['densenet121']
+# models = ['densenet121']
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -553,32 +553,36 @@ def epochs_accuracy_test():
 
 
 def colorcube_analysis():
-    m = 'densenet121'
-    test_data = dt.get_data('cifar10', (50000, 60000))
-    top_n = 2500
-    model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
-    y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
-    # true_classes = np.argmax(test_data[1], axis=1)
-    true_classes = [int(k) for k in test_data[1]]
-    scores = metrics.prediction_ratings(y_predicted, true_classes)
-    score_sorted_ids = np.argsort(scores)
-    cc_high = metrics_color.ColorDensityCube(resolution=4)
-    for img_id in score_sorted_ids[-top_n:]:
-        cc_high.feed(test_data[0][img_id])
-    cc_high.normalize()
-    cc_high.plot_cube()
+    # m = 'densenet121'
+    for m in models:
+        test_data = dt.get_data('cifar10', (50000, 60000))
+        top_n = 2500
+        # model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+        model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False, suffix='_ft20ep-exp')
+        model = mt.load_by_name(model_name0, test_data[0].shape[1:], h5_path)
+        y_predicted = model.predict(np.array(test_data[0]))
+        # y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+        true_classes = [int(k) for k in test_data[1]]
+        scores = metrics.prediction_ratings(y_predicted, true_classes)
+        score_sorted_ids = np.argsort(scores)
+        cc_high = metrics_color.ColorDensityCube(resolution=4)
+        for img_id in score_sorted_ids[-top_n:]:
+            cc_high.feed(test_data[0][img_id])
+        cc_high.normalize()
+        cc_high.plot_cube()
 
-    cc_low = metrics_color.ColorDensityCube(resolution=4)
-    for img_id in score_sorted_ids[:top_n]:
-        cc_low.feed(test_data[0][img_id])
-    cc_low.normalize()
+        cc_low = metrics_color.ColorDensityCube(resolution=4)
+        for img_id in score_sorted_ids[:top_n]:
+            cc_low.feed(test_data[0][img_id])
+        cc_low.normalize()
 
-    cc_diff = cc_high.substract(cc_low, 'norm')
+        cc_diff = cc_high.substract(cc_low, 'norm')
 
-    cc_low.plot_cube()
+        cc_low.plot_cube()
 
-    # cc_diff.normalize()
-    cc_diff.plot_cube(title = 'Color cube analysis difference (' + str(top_n) + ' images/series)', normalize=False)
+        # cc_diff.normalize()
+        cc_diff.plot_cube(title='Color cube analysis difference (' + str(top_n) + ' images/series)', normalize=False,
+                          save=True)
 
 
 def histogram_analysis():
@@ -794,7 +798,7 @@ check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
 # bug_feature_detection()
 # color_domain()
 # cifar_color_domains_test()
-color_region_finetuning()
+# color_region_finetuning()
 # mt_noise_test()
 # epochs_accuracy_test()
 # pr_on_fair_distribution()
@@ -808,7 +812,7 @@ color_region_finetuning()
 # check_rgb()
 
 ### Attribute analysis
-# colorcube_analysis()
+colorcube_analysis()
 # histogram_analysis()
 # entropy_cc_analysis()
 # colorfulness_analysis()
