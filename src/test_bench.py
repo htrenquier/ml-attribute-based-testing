@@ -12,15 +12,21 @@ import plotting
 import model_trainer as mt
 import data_tools as dt
 import tests_logging as t_log
+import bdd100k_utils as bu
+
+# import keras_retinanet
+from keras_retinanet import models as kr_models
+from keras_retinanet.bin import train as kr_train
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # 'densenet169', 'densenet201',
-models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
+# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
 # models = ['densenet121']
+models = ['resnet50']  # ,'mobilenet128_1']
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -28,9 +34,15 @@ res_path = '../res/'
 h5_path = '../res/h5/'
 csv_path = '../res/csv/'
 png_path = '../res/png/'
+tb_path = '../res/tensorboard/logs/'
+bdd100k_labels_path = "../../bdd100k/labels/"
+bdd100k_data_path = "../../bdd100k/images/100k/"
+bdd100k_val_path = "../../bdd100k/images/100k/val/"
+bdd100k_train_path = "../../bdd100k/images/100k/train/"
 
 
 def check_dirs(*paths):
+    print(os.getcwd())
     for p in paths:
         try:
             os.mkdir(p)
@@ -439,6 +451,14 @@ def color_region_finetuning():
                         print('           ~           ')
 
 
+def retinanet_test():
+    labels_to_names = {0: 'bus', 1: 'traffic light', 2: 'traffic sign', 3: 'person', 4: 'bike', 5: 'truck', 6: 'motor',
+                       7: 'car', 8: 'train', 9: 'rider'}
+
+    model.fit_generator()
+
+
+
 def color_domain_test():
     all_data_orig = dt.get_data('cifar10', (0, 20000))
     g = 4
@@ -558,7 +578,7 @@ def colorcube_analysis():
         test_data = dt.get_data('cifar10', (50000, 60000))
         top_n = 2500
         # model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
-        model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False, suffix='_ft20ep-exp')
+        model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False, suffix='ft20ep-exp')
         model = mt.load_by_name(model_name0, test_data[0].shape[1:], h5_path+model_name0)
         y_predicted = model.predict(np.array(test_data[0]))
         # y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
@@ -660,17 +680,30 @@ def check_pr():
     hard = [9746, 9840, 9853, 9901, 9910, 9923, 9924, 9926, 9960, 9982]
     cat = [671]
     cars = [6983, 3678, 3170, 1591]
-    plotting.show_imgs(easy, 'easy set: ', test_data[0], showColorCube=True, resolution=4)
-    plotting.show_imgs(hard, 'hard set: ', test_data[0], showColorCube=True, resolution=4)
+    # plotting.show_imgs(easy, 'easy set: ', test_data[0], showColorCube=True, resolution=4)
+    # plotting.show_imgs(hard, 'hard set: ', test_data[0], showColorCube=True, resolution=4)
     true_classes = [int(k) for k in test_data[1]]
+
+    scores = metrics.prediction_ratings(y_predicted, true_classes)
+    score_sorted_ids = np.argsort(scores)
+
+    # print(scores[score_sorted_ids[0]], y_predicted[score_sorted_ids[0]])
+    # print(scores[score_sorted_ids[1]], y_predicted[score_sorted_ids[1]])
+    print(scores[score_sorted_ids[2500]], y_predicted[score_sorted_ids[2500]])
+    print(scores[score_sorted_ids[2501]], y_predicted[score_sorted_ids[2501]])
+    # print(scores[score_sorted_ids[9998]], y_predicted[score_sorted_ids[9998]])
+    # print(scores[score_sorted_ids[9999]], y_predicted[score_sorted_ids[9999]])
+
     print('easy')
     for id in easy:
         print(id, '- pr:', metrics.prediction_rating(y_predicted[id], true_classes[id]),
               ' - correct?: ', np.argmax(y_predicted[id]) == true_classes[id])
+        # print(y_predicted[id])
     print('hard')
     for id in hard:
         print(id, '- pr:', metrics.prediction_rating(y_predicted[id], true_classes[id]),
               ' - correct?: ', np.argmax(y_predicted[id]) == true_classes[id])
+        # print(y_predicted[id])
 
 
 def entropy_cc_analysis():
@@ -789,38 +822,96 @@ def confusion(model='densenet121'):
         print(float(np.mean(cifar_class)))
 
 
-check_dirs(res_path, ilsvrc2012_path, h5_path, csv_path, png_path)
+def retinanet_training_test():
+    val_json = 'bdd100k_labels_images_val.json'
+    train_json = 'bdd100k_labels_images_train.json'
+    val_annot = 'val_annotations.csv'
+    train_annot = 'train_annotations.csv'
+    cl_map = 'class_mapping.csv'
 
-### Experiments
-# imagenet_test()
-# finetune_test()
-# data_analysis()
-# bug_feature_detection()
-# color_domain()
-# cifar_color_domains_test()
-# color_region_finetuning()
-# mt_noise_test()
-# epochs_accuracy_test()
-# pr_on_fair_distribution()
-# cifar10_global_cc()
+    test_weight_file = 'test'
+
+    # classes = bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path,
+    #                                 make_class_mapping=True, cl_map_file=cl_map)
+    bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path)
+    bu.annotate4retinanet(train_json, train_annot, bdd100k_labels_path, bdd100k_train_path)
+    # Hyper-parameters
+    batch_size = 32
+
+    for m in models:
+        print('Generating %s backbone...' % m)
+        backbone = kr_models.backbone(m)
+        weights = backbone.download_imagenet()
+        print('Creating generators...')
+        tr_gen, val_gen = bu.create_generators(train_annotations=bdd100k_labels_path+train_annot,
+                                               val_annotations=bdd100k_labels_path+val_annot,
+                                               class_mapping=bdd100k_labels_path+cl_map,
+                                               preprocess_image=backbone.preprocess_image)
+        print('Creating models...')
+        model, training_model, prediction_model = kr_train.create_models(backbone.retinanet, tr_gen.num_classes(), weights)
+        print('Creating callbacks...')
+        callbacks = bu.create_callbacks(model, batch_size, 'test', tensorboard_dir=tb_path)
+
+        print('Training...')
+        training_model.fit_generator(
+            generator=tr_gen,
+            steps_per_epoch=None,  # 10000,
+            epochs=2,
+            verbose=2,
+            callbacks=callbacks,
+            workers=1,  # 1
+            use_multiprocessing=False,
+            max_queue_size=10,
+            validation_data=val_gen
+        )
 
 
-### Metric checks
-# check_entropy()
-# check_pr()
-# check_acc()
-# check_rgb()
 
-### Attribute analysis
-colorcube_analysis()
-# histogram_analysis()
-# entropy_cc_analysis()
-# colorfulness_analysis()
 
-### Debugging
-# show_ids()
+def main():
+    check_dirs(res_path,
+               ilsvrc2012_path,
+               h5_path,
+               csv_path,
+               png_path,
+               bdd100k_labels_path,
+               bdd100k_data_path,
+               bdd100k_val_path,
+               bdd100k_train_path)
 
-### Tests
-# test()
-# confusion()
-# show_distribution()
+    ### Experiments
+    # imagenet_test()
+    # finetune_test()
+    # data_analysis()
+    # bug_feature_detection()
+    # color_domain()
+    # cifar_color_domains_test()
+    # color_region_finetuning()
+    # mt_noise_test()
+    # epochs_accuracy_test()
+    # pr_on_fair_distribution()
+    # cifar10_global_cc()
+
+
+    ### Metric checks
+    # check_entropy()
+    # check_pr()
+    # check_acc()
+    # check_rgb()
+
+    ### Attribute analysis
+    # colorcube_analysis()
+    # histogram_analysis()
+    # entropy_cc_analysis()
+    # colorfulness_analysis()
+
+    ### Debugging
+    # show_ids()
+
+    ### Tests
+    # test()
+    # confusion()
+    # show_distribution()
+    retinanet_training_test()
+
+main()
