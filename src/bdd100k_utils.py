@@ -63,7 +63,7 @@ def annotate4retinanet(in_json, out_csv, label_path, data_path, overwrite=False,
     return object_classes
 
 
-def create_generators(train_annotations, val_annotations, class_mapping, preprocess_image, data_augmentation=False, base_dir=None):
+def create_generators(train_annotations, val_annotations, class_mapping, preprocess_image, batch_size, data_augmentation=False, base_dir=None):
     if data_augmentation:
         transform_generator = kr_train.random_transform_generator(
             min_rotation=-0.1,
@@ -86,7 +86,8 @@ def create_generators(train_annotations, val_annotations, class_mapping, preproc
         class_mapping,
         transform_generator=transform_generator,
         base_dir=base_dir,
-        preprocess_image=preprocess_image
+        preprocess_image=preprocess_image,
+        batch_size=batch_size
     )
 
     if val_annotations:
@@ -94,7 +95,8 @@ def create_generators(train_annotations, val_annotations, class_mapping, preproc
             val_annotations,
             class_mapping,
             base_dir=base_dir,
-            preprocess_image=preprocess_image
+            preprocess_image=preprocess_image,
+            batch_size=batch_size
         )
     else:
         validation_generator = None

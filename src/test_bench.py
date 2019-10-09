@@ -451,14 +451,6 @@ def color_region_finetuning():
                         print('           ~           ')
 
 
-def retinanet_test():
-    labels_to_names = {0: 'bus', 1: 'traffic light', 2: 'traffic sign', 3: 'person', 4: 'bike', 5: 'truck', 6: 'motor',
-                       7: 'car', 8: 'train', 9: 'rider'}
-
-    model.fit_generator()
-
-
-
 def color_domain_test():
     all_data_orig = dt.get_data('cifar10', (0, 20000))
     g = 4
@@ -837,6 +829,8 @@ def retinanet_training_test():
     bu.annotate4retinanet(train_json, train_annot, bdd100k_labels_path, bdd100k_train_path)
     # Hyper-parameters
     batch_size = 32
+    num_data = 100000
+    steps_per_epoch = np.ceil(num_data / batch_size)
 
     for m in models:
         print('Generating %s backbone...' % m)
@@ -846,7 +840,8 @@ def retinanet_training_test():
         tr_gen, val_gen = bu.create_generators(train_annotations=bdd100k_labels_path+train_annot,
                                                val_annotations=bdd100k_labels_path+val_annot,
                                                class_mapping=bdd100k_labels_path+cl_map,
-                                               preprocess_image=backbone.preprocess_image)
+                                               preprocess_image=backbone.preprocess_image,
+                                               batch_size=batch_size)
         print('Creating models...')
         model, training_model, prediction_model = kr_train.create_models(backbone.retinanet, tr_gen.num_classes(), weights)
         print('Creating callbacks...')
@@ -855,7 +850,7 @@ def retinanet_training_test():
         print('Training...')
         training_model.fit_generator(
             generator=tr_gen,
-            steps_per_epoch=10000,  # 10000,
+            steps_per_epoch=steps_per_epoch,  # 10000,
             epochs=2,
             verbose=2,
             callbacks=callbacks,
