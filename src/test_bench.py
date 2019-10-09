@@ -34,7 +34,7 @@ res_path = '../res/'
 h5_path = '../res/h5/'
 csv_path = '../res/csv/'
 png_path = '../res/png/'
-tb_path = '../res/tensorboard/logs/'
+tb_path = '../res/logs/'
 bdd100k_labels_path = "../../bdd100k/labels/"
 bdd100k_data_path = "../../bdd100k/images/100k/"
 bdd100k_val_path = "../../bdd100k/images/100k/val/"
@@ -831,9 +831,9 @@ def retinanet_training_test():
 
     test_weight_file = 'test'
 
-    # classes = bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path,
-    #                                 make_class_mapping=True, cl_map_file=cl_map)
-    bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path)
+    classes = bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path,
+                                    make_class_mapping=True, cl_map_file=cl_map)
+    # bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path)
     bu.annotate4retinanet(train_json, train_annot, bdd100k_labels_path, bdd100k_train_path)
     # Hyper-parameters
     batch_size = 32
@@ -855,12 +855,12 @@ def retinanet_training_test():
         print('Training...')
         training_model.fit_generator(
             generator=tr_gen,
-            steps_per_epoch=None,  # 10000,
+            steps_per_epoch=10000,  # 10000,
             epochs=2,
             verbose=2,
             callbacks=callbacks,
-            workers=1,  # 1
-            use_multiprocessing=False,
+            workers=4,  # 1
+            use_multiprocessing=True,  # False,
             max_queue_size=10,
             validation_data=val_gen
         )
