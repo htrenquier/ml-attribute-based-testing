@@ -25,8 +25,9 @@ os.chdir(os.path.dirname(sys.argv[0]))
 # models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
-# models = ['densenet121']
-models = ['resnet50']  # ,'mobilenet128_1']
+models = ['densenet121']
+# models = ['resnet50']
+# models = ['mobilenet128_0.75'] # doesn't seem to work for retinanet
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
 ilsvrc2012_val_labels = '../ilsvrc2012/val_ground_truth.txt'
 ilsvrc2012_path = '../ilsvrc2012/'
@@ -35,11 +36,15 @@ h5_path = '../res/h5/'
 csv_path = '../res/csv/'
 png_path = '../res/png/'
 tb_path = '../res/logs/'
+retinanet_h5_path = '../res/h5/retinanet/'
 bdd100k_labels_path = "../../bdd100k/labels/"
 bdd100k_data_path = "../../bdd100k/images/100k/"
 bdd100k_val_path = "../../bdd100k/images/100k/val/"
 bdd100k_train_path = "../../bdd100k/images/100k/train/"
 
+bdd10k_data_path = "../../bdd100k/images/10k/"
+bdd10k_val_path = "../../bdd100k/images/10k/val/"
+bdd10k_train_path = "../../bdd100k/images/10k/train/"
 
 def check_dirs(*paths):
     print(os.getcwd())
@@ -814,22 +819,65 @@ def confusion(model='densenet121'):
         print(float(np.mean(cifar_class)))
 
 
-def retinanet_training_test():
-    val_json = 'bdd100k_labels_images_val.json'
-    train_json = 'bdd100k_labels_images_train.json'
-    val_annot = 'val_annotations.csv'
-    train_annot = 'train_annotations.csv'
-    cl_map = 'class_mapping.csv'
+def retinanet_tiny_test():
+    labels_path = bdd100k_labels_path
+    val_json = labels_path + 'bdd100k_labels_images_val.json'
 
-    test_weight_file = 'test'
+    num_data = 7000
+    batch_size = 1
+    steps_per_epoch = np.ceil(num_data / batch_size)
 
-    classes = bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path,
-                                    make_class_mapping=True, cl_map_file=cl_map)
-    # bu.annotate4retinanet(val_json, val_annot, bdd100k_labels_path, bdd100k_val_path)
-    bu.annotate4retinanet(train_json, train_annot, bdd100k_labels_path, bdd100k_train_path)
+    train_annot, val_annot = bu.annotate_tiny(val_json, labels_path, bdd100k_val_path, overwrite=True)
+    cl_map_path = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
+    for m in models:
+        print('Generating %s backbone...' % m)
+        backbone = kr_models.backbone(m)
+        weights = backbone.download_imagenet()
+        print('Creating generators...')
+        tr_gen, val_gen = bu.create_generators(train_annotations=train_annot,
+                                               val_annotations=val_annot,
+                                               class_mapping=cl_map_path,
+                                               base_dir='',
+                                               preprocess_image=backbone.preprocess_image,
+                                               batch_size=batch_size)
+        print('Creating models...')
+        model, training_model, prediction_model = kr_train.create_models(backbone.retinanet, tr_gen.num_classes(), weights)
+        print('Creating callbacks...')
+        callbacks = bu.create_callbacks(model,
+                                        batch_size,
+                                        snapshots_path=retinanet_h5_path,
+                                        tensorboard_dir=tb_path)
+
+        print('Training...')
+        training_model.fit_generator(
+            generator=tr_gen,
+            steps_per_epoch=steps_per_epoch,  # 10000,
+            epochs=2,
+            verbose=1,
+            callbacks=callbacks,
+            workers=4,  # 1
+            use_multiprocessing=True,  # False,
+            max_queue_size=10,
+            validation_data=val_gen
+        )
+
+
+def retinanet_test(tiny=False):
+    labels_path = bdd100k_labels_path
+    val_json = labels_path + 'bdd100k_labels_images_val.json'
+    train_json = labels_path + 'bdd100k_labels_images_train.json'
+    val_annot = labels_path + 'val_annotations.csv'
+    train_annot = labels_path + 'train_annotations.csv'
+
+    num_data = 70000
+
+    classes = bu.annotate(val_json, val_annot, labels_path, bdd100k_val_path)
+    cl_map_path = bu.class_mapping(classes, output_csv=labels_path + 'class_mapping.csv')
+    bu.annotate(train_json, train_annot, bdd100k_labels_path, bdd100k_train_path)
+
     # Hyper-parameters
-    batch_size = 32
-    num_data = 100000
+    batch_size = 1
     steps_per_epoch = np.ceil(num_data / batch_size)
 
     for m in models:
@@ -837,9 +885,10 @@ def retinanet_training_test():
         backbone = kr_models.backbone(m)
         weights = backbone.download_imagenet()
         print('Creating generators...')
-        tr_gen, val_gen = bu.create_generators(train_annotations=bdd100k_labels_path+train_annot,
-                                               val_annotations=bdd100k_labels_path+val_annot,
-                                               class_mapping=bdd100k_labels_path+cl_map,
+        tr_gen, val_gen = bu.create_generators(train_annotations=train_annot,
+                                               val_annotations=val_annot,
+                                               class_mapping=cl_map_path,
+                                               base_dir='',
                                                preprocess_image=backbone.preprocess_image,
                                                batch_size=batch_size)
         print('Creating models...')
@@ -852,7 +901,7 @@ def retinanet_training_test():
             generator=tr_gen,
             steps_per_epoch=steps_per_epoch,  # 10000,
             epochs=2,
-            verbose=2,
+            verbose=1,
             callbacks=callbacks,
             workers=4,  # 1
             use_multiprocessing=True,  # False,
@@ -907,6 +956,7 @@ def main():
     # test()
     # confusion()
     # show_distribution()
-    retinanet_training_test()
+    # retinanet_test()
+    retinanet_tiny_test()
 
 main()
