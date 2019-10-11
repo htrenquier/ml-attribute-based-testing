@@ -196,7 +196,7 @@ def create_callbacks(model, batch_size, weight_file=None, tensorboard_dir=None, 
             log_dir=tensorboard_dir,
             histogram_freq=0,
             batch_size=batch_size,
-            write_graph=True,
+            write_graph=False,
             write_grads=False,
             write_images=False,
             embeddings_freq=0,
@@ -215,7 +215,7 @@ def create_callbacks(model, batch_size, weight_file=None, tensorboard_dir=None, 
                                                                     dataset_type=dataset_type)
             ),
             verbose=1,
-            # save_best_only=True,
+            save_best_only=True,
             # monitor="mAP",
             # mode='max'
         )
