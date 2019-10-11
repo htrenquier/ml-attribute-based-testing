@@ -67,12 +67,12 @@ def annotate_tiny(input_json, output_path, data_path, overwrite=False):
     if os.path.isfile(output_path + 'tiny_train_annot.csv') and not overwrite:
         print('File ' + output_path + 'tiny_train_annot.csv' + ' already exists. Not written.')
     else:
-        annotate_tiny_range(input_json, output_path+'tiny_train_annot.csv', data_path, xrange(0, 7000), overwrite)
+        annotate_tiny_range(input_json, output_path+'tiny_train_annot.csv', data_path, xrange(0, 70), overwrite)
 
     if os.path.isfile(output_path + 'tiny_val_annot.csv') and not overwrite:
         print('File ' + output_path + 'tiny_val_annot.csv' + ' already exists. Not written.')
     else:
-        annotate_tiny_range(input_json, output_path+'tiny_val_annot.csv', data_path, xrange(7000, 8000), overwrite)
+        annotate_tiny_range(input_json, output_path+'tiny_val_annot.csv', data_path, xrange(70, 80), overwrite)
 
     return output_path+'tiny_train_annot.csv', output_path+'tiny_val_annot.csv'
 
