@@ -25,7 +25,7 @@ os.chdir(os.path.dirname(sys.argv[0]))
 # models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 # models = ('densenet121', 'mobilenetv2')
 # models = ('mobilenet', 'densenet121', 'densenet169', 'densenet201')
-models = ['densenet121']
+models = ['densenet121', 'resnet50']
 # models = ['resnet50']
 # models = ['mobilenet128_0.75'] # doesn't seem to work for retinanet
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
@@ -847,17 +847,19 @@ def retinanet_tiny_test():
         callbacks = bu.create_callbacks(model,
                                         batch_size,
                                         snapshots_path=retinanet_h5_path,
-                                        tensorboard_dir=tb_path)
+                                        tensorboard_dir=tb_path,
+                                        backbone=m,
+                                        dataset_type='bdd10k')
 
         print('Training...')
         training_model.fit_generator(
             generator=tr_gen,
             steps_per_epoch=steps_per_epoch,  # 10000,
-            epochs=2,
+            epochs=50,
             verbose=1,
             callbacks=callbacks,
-            workers=4,  # 1
-            use_multiprocessing=True,  # False,
+            workers=1,  # 1
+            use_multiprocessing=False,  # False,
             max_queue_size=10,
             validation_data=val_gen
         )
