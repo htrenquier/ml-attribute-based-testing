@@ -1,0 +1,295 @@
+Epoch 1/50
+2019-10-11 17:26:34.134561: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcudnn.so.7
+2019-10-11 17:26:35.315059: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.08GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.322581: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.21GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.324117: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.34GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.325682: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.47GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.327293: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.60GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.329234: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.73GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.330893: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.86GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.332612: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.99GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.334404: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 3.12GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+2019-10-11 17:26:35.336209: W tensorflow/core/common_runtime/bfc_allocator.cc:237] Allocator (GPU_0_bfc) ran out of memory trying to allocate 3.25GiB with freed_by_count=0. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory were available.
+ - 4893s - loss: 2.3811 - regression_loss: 1.7803 - classification_loss: 0.6008 - val_loss: 4.1263 - val_regression_loss: 3.0558 - val_classification_loss: 1.0705
+
+Epoch 00001: val_loss improved from inf to 4.12632, saving model to ../res/h5/retinanet/densenet121_bdd10k_01.h5
+Epoch 2/50
+ - 4861s - loss: 1.1487 - regression_loss: 0.8226 - classification_loss: 0.3261 - val_loss: 5.0764 - val_regression_loss: 3.1914 - val_classification_loss: 1.8850
+
+Epoch 00002: val_loss did not improve from 4.12632
+Epoch 3/50
+ - 4861s - loss: 0.7388 - regression_loss: 0.5342 - classification_loss: 0.2045 - val_loss: 5.3970 - val_regression_loss: 3.2358 - val_classification_loss: 2.1612
+
+Epoch 00003: val_loss did not improve from 4.12632
+Epoch 4/50
+ - 4859s - loss: 0.5302 - regression_loss: 0.3898 - classification_loss: 0.1403 - val_loss: 5.5738 - val_regression_loss: 3.1852 - val_classification_loss: 2.3886
+
+Epoch 00004: val_loss did not improve from 4.12632
+Epoch 5/50
+ - 4859s - loss: 0.4104 - regression_loss: 0.3110 - classification_loss: 0.0994 - val_loss: 5.7670 - val_regression_loss: 3.1582 - val_classification_loss: 2.6088
+
+Epoch 00005: val_loss did not improve from 4.12632
+Epoch 6/50
+ - 4860s - loss: 0.3297 - regression_loss: 0.2567 - classification_loss: 0.0730 - val_loss: 5.9861 - val_regression_loss: 3.1487 - val_classification_loss: 2.8374
+
+Epoch 00006: val_loss did not improve from 4.12632
+Epoch 7/50
+ - 4863s - loss: 0.2751 - regression_loss: 0.2182 - classification_loss: 0.0569 - val_loss: 6.1827 - val_regression_loss: 3.1302 - val_classification_loss: 3.0525
+
+Epoch 00007: val_loss did not improve from 4.12632
+Epoch 8/50
+ - 4861s - loss: 0.2348 - regression_loss: 0.1885 - classification_loss: 0.0464 - val_loss: 6.2652 - val_regression_loss: 3.1141 - val_classification_loss: 3.1511
+
+Epoch 00008: val_loss did not improve from 4.12632
+Epoch 9/50
+ - 4862s - loss: 0.2060 - regression_loss: 0.1663 - classification_loss: 0.0397 - val_loss: 6.3217 - val_regression_loss: 3.0898 - val_classification_loss: 3.2319
+
+Epoch 00009: val_loss did not improve from 4.12632
+Epoch 10/50
+ - 4860s - loss: 0.1811 - regression_loss: 0.1465 - classification_loss: 0.0346 - val_loss: 6.4479 - val_regression_loss: 3.0874 - val_classification_loss: 3.3604
+
+Epoch 00010: val_loss did not improve from 4.12632
+Epoch 11/50
+ - 4864s - loss: 0.1641 - regression_loss: 0.1328 - classification_loss: 0.0314 - val_loss: 6.4331 - val_regression_loss: 3.0258 - val_classification_loss: 3.4074
+
+Epoch 00011: val_loss did not improve from 4.12632
+Epoch 12/50
+ - 4865s - loss: 0.1491 - regression_loss: 0.1205 - classification_loss: 0.0286 - val_loss: 6.5345 - val_regression_loss: 3.0575 - val_classification_loss: 3.4770
+
+Epoch 00012: val_loss did not improve from 4.12632
+Epoch 13/50
+ - 4861s - loss: 0.1375 - regression_loss: 0.1112 - classification_loss: 0.0263 - val_loss: 6.5921 - val_regression_loss: 3.0226 - val_classification_loss: 3.5696
+
+Epoch 00013: val_loss did not improve from 4.12632
+Epoch 14/50
+ - 4860s - loss: 0.1277 - regression_loss: 0.1028 - classification_loss: 0.0249 - val_loss: 6.6257 - val_regression_loss: 3.0051 - val_classification_loss: 3.6206
+
+Epoch 00014: val_loss did not improve from 4.12632
+Epoch 15/50
+ - 4860s - loss: 0.1187 - regression_loss: 0.0952 - classification_loss: 0.0236 - val_loss: 6.6774 - val_regression_loss: 3.0128 - val_classification_loss: 3.6646
+
+Epoch 00015: val_loss did not improve from 4.12632
+Epoch 16/50
+ - 4863s - loss: 0.1110 - regression_loss: 0.0888 - classification_loss: 0.0222 - val_loss: 6.6918 - val_regression_loss: 3.0071 - val_classification_loss: 3.6847
+
+Epoch 00016: val_loss did not improve from 4.12632
+Epoch 17/50
+ - 4861s - loss: 0.1046 - regression_loss: 0.0832 - classification_loss: 0.0214 - val_loss: 6.7293 - val_regression_loss: 3.0076 - val_classification_loss: 3.7216
+
+Epoch 00017: val_loss did not improve from 4.12632
+Epoch 18/50
+ - 4858s - loss: 0.0982 - regression_loss: 0.0774 - classification_loss: 0.0208 - val_loss: 6.7437 - val_regression_loss: 2.9923 - val_classification_loss: 3.7513
+
+Epoch 00018: val_loss did not improve from 4.12632
+Epoch 19/50
+ - 4863s - loss: 0.0933 - regression_loss: 0.0731 - classification_loss: 0.0202 - val_loss: 6.7277 - val_regression_loss: 2.9926 - val_classification_loss: 3.7351
+
+Epoch 00019: val_loss did not improve from 4.12632
+Epoch 20/50
+ - 4859s - loss: 0.0887 - regression_loss: 0.0690 - classification_loss: 0.0198 - val_loss: 6.7490 - val_regression_loss: 2.9797 - val_classification_loss: 3.7693
+
+Epoch 00020: val_loss did not improve from 4.12632
+Epoch 21/50
+ - 4863s - loss: 0.0854 - regression_loss: 0.0656 - classification_loss: 0.0199 - val_loss: 6.7846 - val_regression_loss: 2.9561 - val_classification_loss: 3.8284
+
+Epoch 00021: val_loss did not improve from 4.12632
+Epoch 22/50
+ - 4858s - loss: 0.0814 - regression_loss: 0.0622 - classification_loss: 0.0192 - val_loss: 6.8153 - val_regression_loss: 2.9791 - val_classification_loss: 3.8361
+
+Epoch 00022: val_loss did not improve from 4.12632
+Epoch 23/50
+ - 4858s - loss: 0.0780 - regression_loss: 0.0589 - classification_loss: 0.0191 - val_loss: 6.8315 - val_regression_loss: 2.9560 - val_classification_loss: 3.8755
+
+Epoch 00023: val_loss did not improve from 4.12632
+Epoch 24/50
+ - 4858s - loss: 0.0751 - regression_loss: 0.0565 - classification_loss: 0.0185 - val_loss: 6.7811 - val_regression_loss: 2.9489 - val_classification_loss: 3.8322
+
+Epoch 00024: val_loss did not improve from 4.12632
+Epoch 25/50
+ - 4860s - loss: 0.0724 - regression_loss: 0.0538 - classification_loss: 0.0186 - val_loss: 6.7827 - val_regression_loss: 2.9305 - val_classification_loss: 3.8522
+
+Epoch 00025: val_loss did not improve from 4.12632
+Epoch 26/50
+ - 4860s - loss: 0.0703 - regression_loss: 0.0519 - classification_loss: 0.0185 - val_loss: 6.7951 - val_regression_loss: 2.9452 - val_classification_loss: 3.8499
+
+Epoch 00026: val_loss did not improve from 4.12632
+Epoch 27/50
+ - 4859s - loss: 0.0678 - regression_loss: 0.0495 - classification_loss: 0.0183 - val_loss: 6.7791 - val_regression_loss: 2.9397 - val_classification_loss: 3.8394
+
+Epoch 00027: val_loss did not improve from 4.12632
+Epoch 28/50
+ - 4859s - loss: 0.0654 - regression_loss: 0.0472 - classification_loss: 0.0183 - val_loss: 6.8334 - val_regression_loss: 2.9325 - val_classification_loss: 3.9008
+
+Epoch 00028: val_loss did not improve from 4.12632
+Epoch 29/50
+ - 4862s - loss: 0.0640 - regression_loss: 0.0456 - classification_loss: 0.0184 - val_loss: 6.8057 - val_regression_loss: 2.9361 - val_classification_loss: 3.8697
+
+Epoch 00029: val_loss did not improve from 4.12632
+Epoch 30/50
+ - 4861s - loss: 0.0626 - regression_loss: 0.0443 - classification_loss: 0.0183 - val_loss: 6.7874 - val_regression_loss: 2.9179 - val_classification_loss: 3.8696
+
+Epoch 00030: val_loss did not improve from 4.12632
+Epoch 31/50
+ - 4858s - loss: 0.0608 - regression_loss: 0.0424 - classification_loss: 0.0184 - val_loss: 6.8192 - val_regression_loss: 2.9261 - val_classification_loss: 3.8931
+
+Epoch 00031: val_loss did not improve from 4.12632
+Epoch 32/50
+ - 4861s - loss: 0.0590 - regression_loss: 0.0411 - classification_loss: 0.0180 - val_loss: 6.7896 - val_regression_loss: 2.9310 - val_classification_loss: 3.8586
+
+Epoch 00032: val_loss did not improve from 4.12632
+Epoch 33/50
+ - 4863s - loss: 0.0581 - regression_loss: 0.0400 - classification_loss: 0.0182 - val_loss: 6.8076 - val_regression_loss: 2.8935 - val_classification_loss: 3.9142
+
+Epoch 00033: val_loss did not improve from 4.12632
+Epoch 34/50
+ - 4864s - loss: 0.0570 - regression_loss: 0.0391 - classification_loss: 0.0179 - val_loss: 6.8080 - val_regression_loss: 2.9204 - val_classification_loss: 3.8876
+
+Epoch 00034: val_loss did not improve from 4.12632
+Epoch 35/50
+ - 4861s - loss: 0.0555 - regression_loss: 0.0375 - classification_loss: 0.0180 - val_loss: 6.8648 - val_regression_loss: 2.9379 - val_classification_loss: 3.9269
+
+Epoch 00035: val_loss did not improve from 4.12632
+Epoch 36/50
+ - 4856s - loss: 0.0548 - regression_loss: 0.0369 - classification_loss: 0.0179 - val_loss: 6.8475 - val_regression_loss: 2.9133 - val_classification_loss: 3.9342
+
+Epoch 00036: val_loss did not improve from 4.12632
+Epoch 37/50
+ - 4862s - loss: 0.0537 - regression_loss: 0.0354 - classification_loss: 0.0183 - val_loss: 6.7568 - val_regression_loss: 2.8992 - val_classification_loss: 3.8576
+
+Epoch 00037: val_loss did not improve from 4.12632
+Epoch 38/50
+ - 4858s - loss: 0.0529 - regression_loss: 0.0350 - classification_loss: 0.0180 - val_loss: 6.8031 - val_regression_loss: 2.8849 - val_classification_loss: 3.9182
+
+Epoch 00038: val_loss did not improve from 4.12632
+Epoch 39/50
+ - 4861s - loss: 0.0519 - regression_loss: 0.0336 - classification_loss: 0.0183 - val_loss: 6.8002 - val_regression_loss: 2.8851 - val_classification_loss: 3.9151
+
+Epoch 00039: val_loss did not improve from 4.12632
+Epoch 40/50
+ - 4862s - loss: 0.0509 - regression_loss: 0.0333 - classification_loss: 0.0177 - val_loss: 6.8455 - val_regression_loss: 2.9202 - val_classification_loss: 3.9253
+
+Epoch 00040: val_loss did not improve from 4.12632
+Epoch 41/50
+ - 4859s - loss: 0.0508 - regression_loss: 0.0327 - classification_loss: 0.0181 - val_loss: 6.7680 - val_regression_loss: 2.8859 - val_classification_loss: 3.8822
+
+Epoch 00041: val_loss did not improve from 4.12632
+Epoch 42/50
+ - 4859s - loss: 0.0498 - regression_loss: 0.0318 - classification_loss: 0.0180 - val_loss: 6.8044 - val_regression_loss: 2.8940 - val_classification_loss: 3.9104
+
+Epoch 00042: val_loss did not improve from 4.12632
+Epoch 43/50
+ - 4861s - loss: 0.0488 - regression_loss: 0.0310 - classification_loss: 0.0178 - val_loss: 6.7884 - val_regression_loss: 2.9008 - val_classification_loss: 3.8876
+
+Epoch 00043: val_loss did not improve from 4.12632
+Epoch 44/50
+ - 4860s - loss: 0.0487 - regression_loss: 0.0307 - classification_loss: 0.0180 - val_loss: 6.7926 - val_regression_loss: 2.8865 - val_classification_loss: 3.9062
+
+Epoch 00044: val_loss did not improve from 4.12632
+Epoch 45/50
+ - 4860s - loss: 0.0481 - regression_loss: 0.0298 - classification_loss: 0.0182 - val_loss: 6.9103 - val_regression_loss: 2.8911 - val_classification_loss: 4.0192
+
+Epoch 00045: val_loss did not improve from 4.12632
+Epoch 46/50
+ - 4858s - loss: 0.0475 - regression_loss: 0.0297 - classification_loss: 0.0179 - val_loss: 6.8549 - val_regression_loss: 2.8990 - val_classification_loss: 3.9559
+
+Epoch 00046: val_loss did not improve from 4.12632
+Epoch 47/50
+ - 4858s - loss: 0.0465 - regression_loss: 0.0289 - classification_loss: 0.0176 - val_loss: 6.8436 - val_regression_loss: 2.8789 - val_classification_loss: 3.9647
+
+Epoch 00047: val_loss did not improve from 4.12632
+Epoch 48/50
+ - 4845s - loss: 0.0471 - regression_loss: 0.0285 - classification_loss: 0.0186 - val_loss: 6.8236 - val_regression_loss: 2.8766 - val_classification_loss: 3.9470
+
+Epoch 00048: val_loss did not improve from 4.12632
+Epoch 49/50
+ - 4848s - loss: 0.0460 - regression_loss: 0.0280 - classification_loss: 0.0180 - val_loss: 6.7907 - val_regression_loss: 2.8630 - val_classification_loss: 3.9277
+
+Epoch 00049: val_loss did not improve from 4.12632
+Epoch 50/50
+ - 4846s - loss: 0.0454 - regression_loss: 0.0275 - classification_loss: 0.0179 - val_loss: 6.7503 - val_regression_loss: 2.8726 - val_classification_loss: 3.8777
+
+Epoch 00050: val_loss did not improve from 4.12632
+Generating resnet50 backbone...
+Creating generators...
+Creating models...
+Creating callbacks...
+Training...
+Epoch 1/50
+ - 3951s - loss: 1.3191 - regression_loss: 1.0708 - classification_loss: 0.2483 - val_loss: 2.8602 - val_regression_loss: 2.1802 - val_classification_loss: 0.6801
+
+Epoch 00001: val_loss improved from inf to 2.86025, saving model to ../res/h5/retinanet/resnet50_bdd10k_01.h5
+Epoch 2/50
+ - 3932s - loss: 0.4086 - regression_loss: 0.3610 - classification_loss: 0.0477 - val_loss: 3.0233 - val_regression_loss: 2.0983 - val_classification_loss: 0.9250
+
+Epoch 00002: val_loss did not improve from 2.86025
+Epoch 3/50
+ - 3934s - loss: 0.2432 - regression_loss: 0.2249 - classification_loss: 0.0184 - val_loss: 3.2873 - val_regression_loss: 2.0809 - val_classification_loss: 1.2064
+
+Epoch 00003: val_loss did not improve from 2.86025
+Epoch 4/50
+ - 3936s - loss: 0.1711 - regression_loss: 0.1621 - classification_loss: 0.0090 - val_loss: 3.4393 - val_regression_loss: 2.0249 - val_classification_loss: 1.4144
+
+Epoch 00004: val_loss did not improve from 2.86025
+Epoch 5/50
+ - 3932s - loss: 0.1301 - regression_loss: 0.1252 - classification_loss: 0.0049 - val_loss: 3.5332 - val_regression_loss: 1.9561 - val_classification_loss: 1.5771
+
+Epoch 00005: val_loss did not improve from 2.86025
+Epoch 6/50
+ - 3932s - loss: 0.1049 - regression_loss: 0.1019 - classification_loss: 0.0029 - val_loss: 3.6485 - val_regression_loss: 1.9501 - val_classification_loss: 1.6984
+
+Epoch 00006: val_loss did not improve from 2.86025
+Epoch 7/50
+ - 3933s - loss: 0.0875 - regression_loss: 0.0857 - classification_loss: 0.0018 - val_loss: 3.8051 - val_regression_loss: 1.9403 - val_classification_loss: 1.8647
+
+Epoch 00007: val_loss did not improve from 2.86025
+Epoch 8/50
+ - 3941s - loss: 0.0743 - regression_loss: 0.0732 - classification_loss: 0.0011 - val_loss: 3.9247 - val_regression_loss: 1.9327 - val_classification_loss: 1.9921
+
+Epoch 00008: val_loss did not improve from 2.86025
+Epoch 9/50
+ - 3942s - loss: 0.0650 - regression_loss: 0.0642 - classification_loss: 7.8813e-04 - val_loss: 3.9908 - val_regression_loss: 1.9240 - val_classification_loss: 2.0667
+
+Epoch 00009: val_loss did not improve from 2.86025
+Epoch 10/50
+ - 3936s - loss: 0.0584 - regression_loss: 0.0573 - classification_loss: 0.0011 - val_loss: 3.8449 - val_regression_loss: 1.8981 - val_classification_loss: 1.9469
+
+Epoch 00010: val_loss did not improve from 2.86025
+Epoch 11/50
+ - 3942s - loss: 0.0514 - regression_loss: 0.0511 - classification_loss: 3.7382e-04 - val_loss: 3.9913 - val_regression_loss: 1.8928 - val_classification_loss: 2.0984
+
+Epoch 00011: val_loss did not improve from 2.86025
+Epoch 12/50
+ - 3937s - loss: 0.0476 - regression_loss: 0.0472 - classification_loss: 4.0323e-04 - val_loss: 4.0723 - val_regression_loss: 1.8966 - val_classification_loss: 2.1757
+
+Epoch 00012: val_loss did not improve from 2.86025
+Epoch 13/50
+ - 3941s - loss: 0.0429 - regression_loss: 0.0424 - classification_loss: 5.6920e-04 - val_loss: 3.9941 - val_regression_loss: 1.8826 - val_classification_loss: 2.1115
+
+Epoch 00013: val_loss did not improve from 2.86025
+Epoch 14/50
+ - 3935s - loss: 0.0398 - regression_loss: 0.0397 - classification_loss: 1.5256e-04 - val_loss: 4.0940 - val_regression_loss: 1.8968 - val_classification_loss: 2.1972
+
+Epoch 00014: val_loss did not improve from 2.86025
+Epoch 15/50
+ - 3936s - loss: 0.0367 - regression_loss: 0.0366 - classification_loss: 1.2872e-04 - val_loss: 4.1275 - val_regression_loss: 1.9000 - val_classification_loss: 2.2275
+
+Epoch 00015: val_loss did not improve from 2.86025
+Epoch 16/50
+ - 3934s - loss: 0.0342 - regression_loss: 0.0340 - classification_loss: 1.7627e-04 - val_loss: 4.1062 - val_regression_loss: 1.8721 - val_classification_loss: 2.2342
+
+Epoch 00016: val_loss did not improve from 2.86025
+Epoch 17/50
+ - 3935s - loss: 0.0323 - regression_loss: 0.0322 - classification_loss: 8.7060e-05 - val_loss: 4.1554 - val_regression_loss: 1.8724 - val_classification_loss: 2.2829
+
+Epoch 00017: val_loss did not improve from 2.86025
+Epoch 18/50
+ - 3934s - loss: 0.0302 - regression_loss: 0.0302 - classification_loss: 7.5960e-05 - val_loss: 4.1761 - val_regression_loss: 1.8819 - val_classification_loss: 2.2941
+
+Epoch 00018: val_loss did not improve from 2.86025
+Epoch 19/50
+ - 3932s - loss: 0.0290 - regression_loss: 0.0284 - classification_loss: 6.3930e-04 - val_loss: 4.0182 - val_regression_loss: 1.8638 - val_classification_loss: 2.1544
+
+Epoch 00019: val_loss did not improve from 2.86025
+Epoch 20/50
+
+

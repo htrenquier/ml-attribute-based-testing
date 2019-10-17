@@ -1,15 +1,39 @@
 import keras.applications as kapp
-from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
 import os
-from keras.callbacks import ModelCheckpoint
+import data_tools as dt
+
 from keras.models import Model
 from keras.layers.core import Dense
 from keras.layers import GlobalAveragePooling2D
-import metrics
-import data_tools as dt
 
-import numpy as np
+from keras_retinanet.preprocessing.csv_generator import CSVGenerator
+from keras_retinanet.bin import train as kr_train
+from keras_retinanet.callbacks import RedirectModel
+from keras.callbacks import ModelCheckpoint
+from keras.callbacks import TensorBoard
+from keras.callbacks import ReduceLROnPlateau
+
+
+class ModelConfig:
+    def __init__(self, model_type, input_shape, num_classes, weights, task='classification', backbone=None):
+        if task == 'classification':
+            self.model_struct = model_struct(model_type, input_shape, num_classes, weights)
+        elif task == 'detection':
+            if model_type == 'retinanet':
+                if backbone:
+                    self.backbone = backbone
+                else:
+                    print('No backbone given')
+                return
+
+
+class TrainingConfig:
+    def __init__(self, model_type, ):
+        return
+
+
+
 
 def model_param(model_type):
     """Returns compilation parameters for each model type"""
@@ -423,3 +447,104 @@ def train_reg(model, model_type, tr_data, val_data, tag, epochs, data_augmentati
     return model, weight_file.strip('.h5')
 
 
+
+def create_generators(train_annotations, val_annotations, class_mapping, preprocess_image, batch_size,
+                      data_augmentation=False, base_dir=None):
+    if data_augmentation:
+        transform_generator = kr_train.random_transform_generator(
+            min_rotation=-0.1,
+            max_rotation=0.1,
+            min_translation=(-0.1, -0.1),
+            max_translation=(0.1, 0.1),
+            min_shear=-0.1,
+            max_shear=0.1,
+            min_scaling=(0.9, 0.9),
+            max_scaling=(1.1, 1.1),
+            flip_x_chance=0.5,
+            flip_y_chance=0.5,
+        )
+    else:
+        transform_generator = kr_train.random_transform_generator(flip_x_chance=0.5)
+
+    # create the generators
+    train_generator = CSVGenerator(
+        train_annotations,
+        class_mapping,
+        transform_generator=transform_generator,
+        base_dir=base_dir,
+        preprocess_image=preprocess_image,
+        batch_size=batch_size
+    )
+
+    if val_annotations:
+        validation_generator = CSVGenerator(
+            val_annotations,
+            class_mapping,
+            base_dir=base_dir,
+            preprocess_image=preprocess_image,
+            batch_size=batch_size
+        )
+    else:
+        validation_generator = None
+
+    return train_generator, validation_generator
+
+
+def create_callbacks(model, batch_size, weight_file=None, tensorboard_dir=None, snapshots_path=None,
+                     backbone=None, dataset_type=None):
+    callbacks = []
+    if tensorboard_dir:
+        tensorboard_callback = TensorBoard(
+            log_dir=tensorboard_dir,
+            histogram_freq=0,
+            batch_size=batch_size,
+            write_graph=False,
+            write_grads=False,
+            write_images=False,
+            embeddings_freq=0,
+            embeddings_layer_names=None,
+            embeddings_metadata=None
+        )
+        callbacks.append(tensorboard_callback)
+
+    # save the model
+    if snapshots_path:
+        # ensure directory created first; otherwise h5py will error after epoch.
+        checkpoint = ModelCheckpoint(
+            os.path.join(
+                snapshots_path,
+                '{backbone}_{dataset_type}_{{epoch:02d}}.h5'.format(backbone=backbone,
+                                                                    dataset_type=dataset_type)
+            ),
+            verbose=1,
+            save_best_only=True,
+            monitor="mAP",
+            # mode='max'
+        )
+        checkpoint = RedirectModel(checkpoint, model)
+    else:
+        if not weight_file:
+            weight_file = 'retinanet_unnamed.h5'
+        checkpoint = ModelCheckpoint(
+            weight_file,
+            monitor='val_acc',
+            verbose=1,
+            save_best_only=True,
+            save_weights_only=True,
+            mode='auto'
+        )
+
+    callbacks.append(checkpoint)
+
+    callbacks.append(ReduceLROnPlateau(
+        monitor='loss',
+        factor=0.1,
+        patience=2,
+        verbose=1,
+        mode='auto',
+        min_delta=0.0001,
+        cooldown=0,
+        min_lr=0
+    ))
+
+    return callbacks

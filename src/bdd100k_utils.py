@@ -1,12 +1,7 @@
+from __future__ import division
 import json
 from datetime import datetime
 import os
-from keras_retinanet.preprocessing.csv_generator import CSVGenerator
-from keras_retinanet.bin import train as kr_train
-from keras_retinanet.callbacks import RedirectModel
-from keras.callbacks import ModelCheckpoint
-from keras.callbacks import TensorBoard
-from keras.callbacks import ReduceLROnPlateau
 
 
 def annotate(input_json, output_csv, data_path, overwrite=False):
@@ -147,102 +142,147 @@ def class_mapping(classes=None, input_json=None, output_csv='class_mapping.csv',
     return output_csv
 
 
-def create_generators(train_annotations, val_annotations, class_mapping, preprocess_image, batch_size, data_augmentation=False, base_dir=None):
-    if data_augmentation:
-        transform_generator = kr_train.random_transform_generator(
-            min_rotation=-0.1,
-            max_rotation=0.1,
-            min_translation=(-0.1, -0.1),
-            max_translation=(0.1, 0.1),
-            min_shear=-0.1,
-            max_shear=0.1,
-            min_scaling=(0.9, 0.9),
-            max_scaling=(1.1, 1.1),
-            flip_x_chance=0.5,
-            flip_y_chance=0.5,
-        )
+def get_label_names(class_map_file):
+    labels_to_names = {}
+    with open(class_map_file, 'r') as map_file:
+        for l in map_file.readlines():
+            labels_to_names[int(l.split(',')[1])] = l.split(',')[0]
+    print(labels_to_names)
+    return labels_to_names
+
+
+def avg_box_size(annotation_file):
+    x = 0
+    y = 0
+    n = 0
+    with open(annotation_file, 'r') as f:
+        for l in f.readlines():
+            split = l.split(',')
+            assert len(split) == 6
+            x_min, y_min, x_max, y_max = int(split[1]), int(split[2]), int(split[3]), int(split[4])
+            x += (x_max - x_min)
+            y += (y_max - y_min)
+            n += 1
+    x_avg = x / n
+    y_avg = y / n
+    return x_avg, y_avg, n
+
+
+def do_boxes_collide(box1, box2):
+    x_min1, y_min1, x_max1, y_max1 = box1
+    x_min2, y_min2, x_max2, y_max2 = box2
+    if x_max2 <= x_min1:
+        return False
+    elif x_min2 >= x_max1:
+        return False
     else:
-        transform_generator = kr_train.random_transform_generator(flip_x_chance=0.5)
-
-    # create the generators
-    train_generator = CSVGenerator(
-        train_annotations,
-        class_mapping,
-        transform_generator=transform_generator,
-        base_dir=base_dir,
-        preprocess_image=preprocess_image,
-        batch_size=batch_size
-    )
-
-    if val_annotations:
-        validation_generator = CSVGenerator(
-            val_annotations,
-            class_mapping,
-            base_dir=base_dir,
-            preprocess_image=preprocess_image,
-            batch_size=batch_size
-        )
-    else:
-        validation_generator = None
-
-    return train_generator, validation_generator
+        if y_max2 <= y_min1:
+            return False
+        elif y_min2 >= y_max1:
+            return False
+        else:
+            return True
 
 
-def create_callbacks(model, batch_size, weight_file=None, tensorboard_dir=None, snapshots_path=None,
-                     backbone=None, dataset_type=None):
-    callbacks = []
-    if tensorboard_dir:
-        tensorboard_callback = TensorBoard(
-            log_dir=tensorboard_dir,
-            histogram_freq=0,
-            batch_size=batch_size,
-            write_graph=False,
-            write_grads=False,
-            write_images=False,
-            embeddings_freq=0,
-            embeddings_layer_names=None,
-            embeddings_metadata=None
-        )
-        callbacks.append(tensorboard_callback)
+def get_box(line):
+    split = line.split(',')
+    return int(split[1]), int(split[2]), int(split[3]), int(split[4])
 
-    # save the model
-    if snapshots_path:
-        # ensure directory created first; otherwise h5py will error after epoch.
-        checkpoint = ModelCheckpoint(
-            os.path.join(
-                snapshots_path,
-                '{backbone}_{dataset_type}_{{epoch:02d}}.h5'.format(backbone=backbone,
-                                                                    dataset_type=dataset_type)
-            ),
-            verbose=1,
-            save_best_only=True,
-            # monitor="mAP",
-            # mode='max'
-        )
-        checkpoint = RedirectModel(checkpoint, model)
-    else:
-        if not weight_file:
-            weight_file = 'retinanet_unnamed.h5'
-        checkpoint = ModelCheckpoint(
-            weight_file,
-            monitor='val_acc',
-            verbose=1,
-            save_best_only=True,
-            save_weights_only=True,
-            mode='auto'
-        )
 
-    callbacks.append(checkpoint)
+def annotate_objects(annotation_file, output):
+    # Not optimizing the number of boxes
+    start_time = datetime.now()
+    with open(annotation_file, 'r') as input_annot:
+        with open(output, 'w') as out:
+            line = input_annot.readline()
+            while line:
+                curr_id = str(line.split(',')[0])
+                boxes = []
+                while line and str(line.split(',')[0]) == curr_id:
+                    box1 = get_box(line)
+                    collision = False
+                    for box2 in boxes:
+                        if do_boxes_collide(box1, box2):
+                            collision = True
+                            continue
+                    if not collision:
+                        boxes.append(box1)
+                        out.write(line)
+                    line = input_annot.readline()
+    print('File successfully written', output, 'in (s)', str(datetime.now() - start_time))
 
-    callbacks.append(ReduceLROnPlateau(
-        monitor='loss',
-        factor=0.1,
-        patience=2,
-        verbose=1,
-        mode='auto',
-        min_delta=0.0001,
-        cooldown=0,
-        min_lr=0
-    ))
 
-    return callbacks
+def adjust_ratio(box, ratio):
+    x_min, y_min, x_max, y_max = box
+    x = x_max - x_min
+    y = y_max - y_min
+    target_ratio = ratio[0] / ratio[1]
+    img_ratio = x / y
+
+    if target_ratio > img_ratio:
+        target_width = y * target_ratio
+        x_min -= (target_width - x)//2
+        x_max += (target_width - x)//2 + (target_width - x) % 2
+    elif target_ratio < img_ratio:
+        target_height = x / target_ratio
+        y_min -= (target_height - y) // 2
+        y_max += (target_height - y) // 2 + (target_height - y) % 2
+    return x_min, y_min, x_max, y_max
+
+def adjust_size(box, format):
+    # Adds margin if formatted image is too small
+    x_min, y_min, x_max, y_max = box
+    if (x_max - x_min) < format[0]:
+        x = x_max - x_min
+        y = y_max - y_min
+        x_min -= (format[0] - x) // 2
+        x_max += (format[0] - x) // 2 + (format[0] - x) % 2
+        y_min -= (format[1] - y) // 2
+        y_max += (format[1] - y) // 2 + (format[1] - y) % 2
+        assert (x_max - x_min) == format[0] and (y_max - y_min) == format[1]
+    return x_min, y_min, x_max, y_max
+
+
+def adjust_position(box, image_size):
+    x_min, y_min, x_max, y_max = box
+    x = x_max - x_min
+    y = y_max - y_min
+    if x > image_size[0] or y > image_size[1]:
+        return None
+    if x_min < 0:
+        x_max -= x_min
+        x_min -= x_min
+    elif x_max > image_size[0]:
+        x_min -= x_max - image_size[0]
+        x_max -= x_max - image_size[0]
+    elif y_min < 0:
+        y_max -= y_min
+        y_min -= y_min
+    elif y_max > image_size[1]:
+        y_min -= y_max - image_size[1]
+        y_max -= y_max - image_size[1]
+    return x_min, y_min, x_max, y_max
+
+
+
+def build_dataset(obj_annot_file, output_path):
+    min_size = 44  # set image size = 64x64, max margin = 20
+    format = (64, 64)
+    img_size = (1280, 720)
+    with open(obj_annot_file, 'r') as obj_annot:
+        line = obj_annot.readline()
+        while line:
+            x_min, y_min, x_max, y_max = get_box(line)
+            x = x_max - x_min
+            y = y_max - y_min
+            if x < min_size and y < min_size:
+                continue
+            else:
+                box = adjust_ratio((x_min, y_min, x_max, y_max), format)
+                box = adjust_size(box, format)
+                box = adjust_position(box, img_size)
+
+
+
+            line = obj_annot.readline()
+
