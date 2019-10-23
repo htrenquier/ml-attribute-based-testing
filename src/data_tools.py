@@ -5,6 +5,7 @@ import metrics
 import metrics_color
 from keras.preprocessing import image
 from keras import utils
+import cv2
 
 
 def format_data(data, num_classes):
@@ -193,3 +194,31 @@ def print_ds_color_distrib():
     cube_max2 = metrics_color.ColorDensityCube(g, max2)
     cube_max2.normalize()
     cube_max2.plot_cube(title='2nd Max color distribution')
+
+
+def crop_resize(image_path, boxes, resize_format=None, output_path=None):
+    """
+
+    :param image_path: 3 characters-extension image path
+    :param boxes:
+    :param resize_format: Tuple of desired dimensions
+    :param output_path: path of desired save
+    :return: cropped images and list of names if output_path given
+    """
+    image = cv2.imread(image_path)
+    images = []
+    names = []
+    for box in boxes:
+        # cropped = cv2.copy(image)[int(box[0]):int(box[2]), int(box[1]):int(box[3])]
+        x_min, y_min, x_max, y_max = box
+        cropped = image[int(y_min):int(y_max), int(x_min):int(x_max), :]
+        if resize_format and (cropped.shape[0] > resize_format[0] or cropped.shape[1] > resize_format[1]):
+            cropped = cv2.resize(cropped, resize_format)
+
+        images.append(cropped)
+    if output_path:
+        for i in xrange(len(images)):
+            name = output_path + image_path.split('/')[-1][:-4] + '-' + str(i) + image_path[-4:]
+            cv2.imwrite(name, images[i])
+            names.append(name)
+    return images, names

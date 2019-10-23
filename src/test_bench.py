@@ -51,7 +51,7 @@ def cifar_test():
         model0, model_name = mt.train2(m, train_data, test_data, 50, True, 'cifar10', h5_path)
         # model0, model_name = mt.train(m, 'cifar10', 50, data_augmentation=True)
         # y_predicted = predict(model0, test_data)
-        acc, _, y_predicted = metrics.predict_and_acc(model0, test_data)
+        acc, _, y_predicted = dt.predict_and_acc(model0, test_data)
         t_log.log_predictions(y_predicted, model_name, file_path=csv_path)
         # predicted_classes = np.argmax(y_predicted, axis=1)
         # true_classes = np.argmax(test_data[1], axis=1)
@@ -384,6 +384,18 @@ def check_obj_annotations(obj_annot_file=bdd100k_labels_path + 'obj_val_annotati
             plt.show()
 
 
+def classification_dataset():
+    bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
+    bdd100k_cl_train_path = '../../bdd100k/classification/images/train/'
+
+    bu.build_dataset('../../bdd100k/labels/train_annotations.csv',
+                     bdd100k_cl_train_path,
+                     '../../bdd100k/classification/labels/train_ground_truth.csv')
+
+    bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
+                     bdd100k_cl_val_path,
+                     '../../bdd100k/classification/labels/val_ground_truth.csv')
+
 
 def main():
     initialise.init()
@@ -393,12 +405,14 @@ def main():
     # retinanet_train()
     # retinanet_tiny_train()
     # retinanet_test()
-    # box_size()
-    # test_do_boxes_cross()
-    check_obj_annotations()
-    # test_extract_non_superposing_boxes()
+
     # imagenet_test()
     # cifar_color_domains_test()
     # show_ids()
+    # box_size()
+    # test_do_boxes_cross()
+    # check_obj_annotations()
+    # test_extract_non_superposing_boxes()
+    classification_dataset()
 
 main()

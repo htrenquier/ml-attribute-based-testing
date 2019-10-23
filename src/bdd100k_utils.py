@@ -2,6 +2,7 @@ from __future__ import division
 import json
 from datetime import datetime
 import os
+import data_tools as dt
 
 
 def annotate(input_json, output_csv, data_path, overwrite=False):
@@ -229,6 +230,7 @@ def adjust_ratio(box, ratio):
         y_max += (target_height - y) // 2 + (target_height - y) % 2
     return x_min, y_min, x_max, y_max
 
+
 def adjust_size(box, format):
     # Adds margin if formatted image is too small
     x_min, y_min, x_max, y_max = box
@@ -264,25 +266,52 @@ def adjust_position(box, image_size):
     return x_min, y_min, x_max, y_max
 
 
-
-def build_dataset(obj_annot_file, output_path):
+def build_dataset(obj_annot_file, output_path, labels_file):
     min_size = 44  # set image size = 64x64, max margin = 20
     format = (64, 64)
     img_size = (1280, 720)
-    with open(obj_annot_file, 'r') as obj_annot:
-        line = obj_annot.readline()
-        while line:
-            x_min, y_min, x_max, y_max = get_box(line)
-            x = x_max - x_min
-            y = y_max - y_min
-            if x < min_size and y < min_size:
-                continue
-            else:
-                box = adjust_ratio((x_min, y_min, x_max, y_max), format)
-                box = adjust_size(box, format)
-                box = adjust_position(box, img_size)
+    cnt = 0
+    print('Starting extraction...')
+    start_time = datetime.now()
+    obj_annot = open(obj_annot_file, 'r')
+    labels_fd = open(labels_file, 'w')
+    line = obj_annot.readline()
+    curr = line.split(',')[0]
+    boxes = []
+    classes = []
 
+    while line:
+        if line.split(',')[0] != curr:
+            _, file_names = dt.crop_resize(curr, boxes, resize_format=format, output_path=output_path)
+            for i in xrange(len(classes)):
+                labels_fd.write(file_names[i] + ',' + classes[i])
+            # next image
+            boxes = []
+            classes = []
+            curr = line.split(',')[0]
 
-
+        box = get_box(line)
+        if box[2] - box[1] < min_size:
             line = obj_annot.readline()
+            continue
+        else:
+            box = adjust_ratio(box, format)
+            box = adjust_size(box, format)
+            box = adjust_position(box, img_size)
+            if not box:
+                line = obj_annot.readline()
+                continue
+            boxes.append(box)
+            classes.append(line.split(',')[-1])
+            cnt += 1
+        line = obj_annot.readline()
+    _, file_names = dt.crop_resize(curr, boxes, resize_format=format, output_path=output_path)
+    assert len(classes) == len(file_names)
+    for i in xrange(len(classes)):
+        labels_fd.writelines('%s,%s' % (file_names[i], classes[i]))
 
+    obj_annot.close()
+    labels_fd.close()
+
+    print(str(cnt) + ' images successfully generated in ' + output_path + ' in '
+          + str(datetime.now() - start_time) + '(s)')
