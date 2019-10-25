@@ -402,7 +402,8 @@ def train_bdd100k_cl():
     labels_path = '../../bdd100k/classification/labels/'
     train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
     val_labels = '../../bdd100k/classification/labels/valground_truth.csv'
-    class_map_file = labels_path + 'class_mapping.csv'
+    # class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
 
     epochs = 20
 
@@ -412,6 +413,8 @@ def train_bdd100k_cl():
               'n_classes': 10,
               'n_channels': 1,
               'shuffle': True}
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
 
     # Datasets
     tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
@@ -463,6 +466,7 @@ def main():
     # test_do_boxes_cross()
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
-    classification_dataset()
+    # classification_dataset()
+    train_bdd100k_cl
 
 main()
