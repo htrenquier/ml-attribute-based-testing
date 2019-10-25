@@ -337,12 +337,12 @@ def get_ids_labels(labels_file, class_map_file):
             name_to_label[str(l.split(',')[0])] = int(l.split(',')[1])
 
     id_list = []
-    labels = []
+    labels = dict()
     with open(labels_file, 'r') as gt_fd:  # ground_truth_fd
         line = gt_fd.readline()
         while line:
             s = line.split(',')
             id_list.append(s[0])
-            labels.append(name_to_label[s[1].rstrip()])
+            labels.update({s[0]: name_to_label[s[1].rstrip()]})
             line = gt_fd.readline()
     return id_list, labels

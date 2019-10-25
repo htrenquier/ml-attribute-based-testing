@@ -14,6 +14,9 @@ from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize
 from keras_retinanet.utils.visualization import draw_box, draw_caption
 from keras.callbacks import ModelCheckpoint
 
+from keras.layers import Dense, GlobalAveragePooling2D
+from keras.models import Model
+
 import initialise
 import bdd100k_utils as bu
 import data_tools as dt
@@ -393,9 +396,9 @@ def classification_dataset():
                      bdd100k_cl_train_path,
                      '../../bdd100k/classification/labels/train_ground_truth.csv')
 
-    bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
-                     bdd100k_cl_val_path,
-                     '../../bdd100k/classification/labels/val_ground_truth.csv')
+    # bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
+    #                  bdd100k_cl_val_path,
+    #                  '../../bdd100k/classification/labels/val_ground_truth.csv')
 
 
 def train_bdd100k_cl():
@@ -408,25 +411,34 @@ def train_bdd100k_cl():
     epochs = 20
 
     # Parameters
-    params = {'dim': (32, 32, 3),
+    params = {'dim': (64, 64, 3),
               'batch_size': 32,
               'n_classes': 10,
               'shuffle': True}
 
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
     # Datasets
     val_partition, val_labels = bu.get_ids_labels(val_labels, class_map_file)
     tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
 
     # Generators
-    training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels[:500000], **params)
-    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels[:100000], **params)
+    training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
+    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
 
     for m in models:
 
-        weight_file = mt.weight_file_name(m, 'bdd100k_cl0-500k', False, epochs)
+        weight_file = mt.weight_file_name(m, 'bdd100k_cl0-500k', epochs, data_augmentation=False)
         print(weight_file)
-        model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet', include_top=False)
+        base_model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet', include_top=False)
+        x = base_model.output
+        x = GlobalAveragePooling2D()(x)
+        x = Dense(1024, activation='relu')(x)
+        predictions = Dense(10, activation='softmax')(x)
+        model = Model(inputs=base_model.input, outputs=predictions)
+        # for layer in base_model.layers:
+        #     layer.trainable = False
+
         model.compile('adam',
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
