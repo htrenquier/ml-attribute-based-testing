@@ -267,6 +267,19 @@ def adjust_position(box, image_size):
 
 
 def build_dataset(obj_annot_file, output_path, labels_file):
+    """
+    Builds classification dataset from object detection dataset.
+    For BDD100k: 1044675 training images from training folder
+                150738 val images from val folder
+    Not optimized to maximise number of images.
+    Not time-optimized
+    Minimum size of object: 44 pixels horizontally or vertically from original image
+    images
+    :param obj_annot_file: annotation file of format https://github.com/fizyr/keras-retinanet
+    :param output_path: where images will be saved
+    :param labels_file: names of files for classification ground truth
+    :return:
+    """
     min_size = 44  # set image size = 64x64, max margin = 20
     format = (64, 64)
     img_size = (1280, 720)
@@ -315,3 +328,21 @@ def build_dataset(obj_annot_file, output_path, labels_file):
 
     print(str(cnt) + ' images successfully generated in ' + output_path + ' in '
           + str(datetime.now() - start_time) + '(s)')
+
+
+def get_ids_labels(labels_file, class_map_file):
+    name_to_label = {}
+    with open(class_map_file, 'r') as map_file:
+        for l in map_file.readlines():
+            name_to_label[str(l.split(',')[0])] = int(l.split(',')[1])
+
+    id_list = []
+    labels = []
+    with open(labels_file, 'r') as gt_fd: # ground_truth_fd
+        line = gt_fd.readline()
+        while line:
+            s = line.split(',')
+            id_list.append(s[0])
+            labels.append(name_to_label[s[0].rstrip()])
+            line = gt_fd.readline()
+    return id_list, labels

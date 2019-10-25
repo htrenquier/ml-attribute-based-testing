@@ -16,18 +16,38 @@ models = ['densenet121', 'resnet50']
 def check_entropy():
     r_col_imgs = []
     r_bw_imgs = []
-    for k in xrange(250, 0, -50):
-        r_col_img = np.random.randint(k, 255, (32, 32, 3), np.uint8)
-        r_bw_img = np.array([r_col_img[:, :, 0], r_col_img[:, :, 0], r_col_img[:, :, 0]], dtype=np.uint8)
-        r_bw_img = np.swapaxes(r_bw_img, 0, 2)
+    test_data = dt.get_data('cifar10', (50000, 60000))
+    entropies = []
+    for img in test_data[0]:
+        entropies.append(metrics_color.entropy_cc(img))
 
-        r_col_imgs.append(r_col_img)
-        r_bw_imgs.append(r_bw_img)
-        print(r_bw_img.shape)
-        print('entropy:', metrics_color.entropy_cc(r_bw_img))
-        # plotting.imshow(r_bw_img)  #, title='entropy_bw_'+str(k))
-        print('entropy_cc:', metrics_color.entropy_cc(r_col_img))
-        # plotting.imshow(r_col_img)  #, title='entropy_col_'+str(k))
+    sorted_args = np.argsort(entropies)
+
+    plotting.imshow(test_data[0][sorted_args[0]])
+    print(entropies[sorted_args[0]], test_data[1][sorted_args[0]])
+    plotting.imshow(test_data[0][sorted_args[100]])
+    print(entropies[sorted_args[100]], test_data[1][sorted_args[100]])
+    plotting.imshow(test_data[0][sorted_args[1000]])
+    print(entropies[sorted_args[1000]], test_data[1][sorted_args[1000]])
+    plotting.imshow(test_data[0][sorted_args[9000]])
+    print(entropies[sorted_args[9000]], test_data[1][sorted_args[9000]])
+    plotting.imshow(test_data[0][sorted_args[9900]])
+    print(entropies[sorted_args[9900]], test_data[1][sorted_args[9900]])
+    plotting.imshow(test_data[0][sorted_args[9999]])
+    print(entropies[sorted_args[9999]], test_data[1][sorted_args[9999]])
+
+    # for k in xrange(250, 0, -50):
+    #     r_col_img = np.random.randint(k, 255, (32, 32, 3), np.uint8)
+    #     r_bw_img = np.array([r_col_img[:, :, 0], r_col_img[:, :, 0], r_col_img[:, :, 0]], dtype=np.uint8)
+    #     r_bw_img = np.swapaxes(r_bw_img, 0, 2)
+    #
+    #     r_col_imgs.append(r_col_img)
+    #     r_bw_imgs.append(r_bw_img)
+    #     print(r_bw_img.shape)
+    #     print('entropy:', metrics_color.entropy_cc(r_bw_img))
+    #     # plotting.imshow(r_bw_img)  #, title='entropy_bw_'+str(k))
+    #     print('entropy_cc:', metrics_color.entropy_cc(r_col_img))
+    #     # plotting.imshow(r_col_img)  #, title='entropy_col_'+str(k))
 
     # rand_img = np.random.randint(0, 255, (32, 32, 3), np.uint8)
     # print('entropy random', metrics_color.entropy(rand_img))
@@ -103,7 +123,7 @@ def main():
     Metric checks
     :return:
     """
-    # check_entropy()
+    check_entropy()
     # check_pr()
     # check_acc()
     # check_rgb()

@@ -12,6 +12,7 @@ from keras_retinanet.bin import train as kr_train
 from keras_retinanet.utils.colors import label_color
 from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from keras_retinanet.utils.visualization import draw_box, draw_caption
+from keras.callbacks import ModelCheckpoint
 
 import initialise
 import bdd100k_utils as bu
@@ -395,6 +396,55 @@ def classification_dataset():
     bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
                      bdd100k_cl_val_path,
                      '../../bdd100k/classification/labels/val_ground_truth.csv')
+
+
+def train_bdd100k_cl():
+    labels_path = '../../bdd100k/classification/labels/'
+    train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    val_labels = '../../bdd100k/classification/labels/valground_truth.csv'
+    class_map_file = labels_path + 'class_mapping.csv'
+
+    epochs = 20
+
+    # Parameters
+    params = {'dim': (32, 32, 3),
+              'batch_size': 32,
+              'n_classes': 10,
+              'n_channels': 1,
+              'shuffle': True}
+
+    # Datasets
+    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+    val_partition, val_labels = bu.get_ids_labels(val_labels, class_map_file)
+
+    # Generators
+    training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
+    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
+
+    for m in models:
+
+        weight_file = mt.weight_file_name(m, False, epochs, 'bdd100k')
+        print(weight_file)
+        model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet')
+        model.compile(loss='categorical_crossentropy',
+                      optimzer='adam',
+                      metrics=['accuracy'])
+
+        # Train model on dataset
+        model.fit_generator(generator=training_generator,
+                            validation_data=validation_generator,
+                            verbose=1,
+                            use_multiprocessing=True,
+                            workers=6,
+                            callbacks=[ModelCheckpoint(
+                                      weight_file,
+                                      monitor='val_acc',
+                                      verbose=0,
+                                      save_best_only=True,
+                                      save_weights_only=True,
+                                      mode='auto'
+                                        )]
+                            )
 
 
 def main():
