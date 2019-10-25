@@ -425,6 +425,7 @@ def train_bdd100k_cl():
     # Generators
     training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
     validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
+    print(len(training_generator))
 
     for m in models:
 
@@ -454,6 +455,7 @@ def train_bdd100k_cl():
         model.fit_generator(generator=training_generator,
                             validation_data=validation_generator,
                             verbose=1,
+                            epochs=epochs,
                             use_multiprocessing=True,
                             workers=6,
                             callbacks=[checkpoint]
