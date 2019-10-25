@@ -401,7 +401,7 @@ def classification_dataset():
 def train_bdd100k_cl():
     labels_path = '../../bdd100k/classification/labels/'
     train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
-    val_labels = '../../bdd100k/classification/labels/valground_truth.csv'
+    val_labels = '../../bdd100k/classification/labels/val_ground_truth.csv'
     # class_map_file = labels_path + 'class_mapping.csv'
     val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
 
@@ -411,27 +411,32 @@ def train_bdd100k_cl():
     params = {'dim': (32, 32, 3),
               'batch_size': 32,
               'n_classes': 10,
-              'n_channels': 1,
               'shuffle': True}
 
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
-
     # Datasets
-    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
     val_partition, val_labels = bu.get_ids_labels(val_labels, class_map_file)
+    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
 
     # Generators
-    training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
-    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
+    training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels[:500000], **params)
+    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels[:100000], **params)
 
     for m in models:
 
-        weight_file = mt.weight_file_name(m, False, epochs, 'bdd100k')
+        weight_file = mt.weight_file_name(m, 'bdd100k_cl0-500k', False, epochs)
         print(weight_file)
-        model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet')
-        model.compile(loss='categorical_crossentropy',
-                      optimzer='adam',
+        model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet', include_top=False)
+        model.compile('adam',
+                      loss='categorical_crossentropy',
                       metrics=['accuracy'])
+
+        checkpoint = ModelCheckpoint(weight_file,
+                                     monitor='val_acc',
+                                     verbose=0,
+                                     save_best_only=True,
+                                     save_weights_only=True,
+                                     mode='auto')
 
         # Train model on dataset
         model.fit_generator(generator=training_generator,
@@ -439,14 +444,7 @@ def train_bdd100k_cl():
                             verbose=1,
                             use_multiprocessing=True,
                             workers=6,
-                            callbacks=[ModelCheckpoint(
-                                      weight_file,
-                                      monitor='val_acc',
-                                      verbose=0,
-                                      save_best_only=True,
-                                      save_weights_only=True,
-                                      mode='auto'
-                                        )]
+                            callbacks=[checkpoint]
                             )
 
 
@@ -467,6 +465,6 @@ def main():
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
     # classification_dataset()
-    train_bdd100k_cl
+    train_bdd100k_cl()
 
 main()

@@ -80,7 +80,7 @@ def model_param(model_type):
     }[model_type]
 
 
-def model_struct(model_type, input_shape, classes, weights=None):
+def model_struct(model_type, input_shape, classes, weights=None, include_top=True):
     """
     Initializes a model instance.
     :param model_type:
@@ -90,63 +90,63 @@ def model_struct(model_type, input_shape, classes, weights=None):
     :return: instance of /model_type/
     """
     if model_type == 'densenet121':
-        return kapp.densenet.DenseNet121(include_top=True,
+        return kapp.densenet.DenseNet121(include_top=include_top,
                                          weights=weights,
                                          input_tensor=None,
                                          input_shape=input_shape,
                                          pooling=None,
                                          classes=classes)
     elif model_type == 'densenet169':
-        return kapp.densenet.DenseNet169(include_top=True,
+        return kapp.densenet.DenseNet169(include_top=include_top,
                                          weights=weights,
                                          input_tensor=None,
                                          input_shape=input_shape,
                                          pooling=None,
                                          classes=classes)
     elif model_type == 'densenet201':
-        return kapp.densenet.DenseNet201(include_top=True,
+        return kapp.densenet.DenseNet201(include_top=include_top,
                                          weights=weights,
                                          input_tensor=None,
                                          input_shape=input_shape,
                                          pooling=None,
                                          classes=classes)
     elif model_type == 'mobilenet':
-        return kapp.mobilenet.MobileNet(include_top=True,
+        return kapp.mobilenet.MobileNet(include_top=include_top,
                                         weights=weights,
                                         input_tensor=None,
                                         input_shape=input_shape,
                                         pooling=None,
                                         classes=classes)
     elif model_type == 'mobilenetv2':
-        return kapp.mobilenet_v2.MobileNetV2(include_top=True,
+        return kapp.mobilenet_v2.MobileNetV2(include_top=include_top,
                                              weights=weights,
                                              input_tensor=None,
                                              input_shape=input_shape,
                                              pooling=None,
                                              classes=classes)
     elif model_type == 'nasnet':
-        return kapp.nasnet.NASNetMobile(include_top=True,
+        return kapp.nasnet.NASNetMobile(include_top=include_top,
                                         weights=weights,
                                         input_tensor=None,
                                         input_shape=input_shape,
                                         pooling=None,
                                         classes=classes)
     elif model_type == 'resnet50':
-        return kapp.resnet50.ResNet50(include_top=True,
+        return kapp.resnet50.ResNet50(include_top=include_top,
                                       weights=weights,
                                       input_tensor=None,
                                       input_shape=input_shape,
                                       pooling=None,
                                       classes=classes)
     elif model_type == 'vgg16':
-        return kapp.vgg16.VGG16(include_top=True,
+        return kapp.vgg16.VGG16(include_top=include_top,
                                 weights=weights,
                                 input_tensor=None,
                                 input_shape=input_shape,
                                 pooling=None,
                                 classes=classes)
     elif model_type == 'vgg19':
-        return kapp.vgg19.VGG19(include_top=True,
+        return kapp.vgg19.VGG19(include_top=include_top,
                                 weights=weights,
                                 input_tensor=None,
                                 input_shape=input_shape,
