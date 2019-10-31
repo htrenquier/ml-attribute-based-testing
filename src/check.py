@@ -6,6 +6,7 @@ import plotting
 import model_trainer as mt
 import data_tools as dt
 import tests_logging as t_log
+import cv2
 import initialise
 
 csv_path = '../res/csv/'
@@ -117,16 +118,41 @@ def check_rgb():
     plotting.plot_hists([test_data[0][9960]], 'normal', [img_test], 'red', plotting.cs_bgr, )
 
 
+def check_bdd_extracted_dataset(labels):
+    none_types = []
+    wrong_sizes = []
+    with open(labels, 'r') as fd:
+        line = fd.readline()
+        while line:
+            id = line.split(',')[0]
+            im = cv2.imread(id)
+            if type(im) is np.ndarray:
+                if im.shape != (64, 64, 3):
+                    wrong_sizes.append(id)
+            else:
+                none_types.append(id)
+            line = fd.readline()
+    print(len(none_types))
+    print(none_types[:10])
+    print(len(wrong_sizes))
+    print(wrong_sizes[:10])
 
 def main():
     """
     Metric checks
     :return:
     """
-    check_entropy()
+    # check_entropy()
     # check_pr()
     # check_acc()
     # check_rgb()
+    train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    val_labels = '../../bdd100k/classification/labels/val_ground_truth.csv'
+
+    print("train data check")
+    check_bdd_extracted_dataset(train_labels)
+    print("val data check")
+    check_bdd_extracted_dataset(val_labels)
 
 
 main()
