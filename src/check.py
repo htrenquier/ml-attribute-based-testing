@@ -118,9 +118,11 @@ def check_rgb():
     plotting.plot_hists([test_data[0][9960]], 'normal', [img_test], 'red', plotting.cs_bgr, )
 
 
-def check_bdd_extracted_dataset(labels):
+def check_bdd_extracted_dataset(labels, output):
     none_types = []
     wrong_sizes = []
+    cnt = 0
+    out = open(output, 'w')
     with open(labels, 'r') as fd:
         line = fd.readline()
         while line:
@@ -129,13 +131,21 @@ def check_bdd_extracted_dataset(labels):
             if type(im) is np.ndarray:
                 if im.shape != (64, 64, 3):
                     wrong_sizes.append(id)
+                else:
+                    out.write(line)
+                    cnt += 1
             else:
                 none_types.append(id)
             line = fd.readline()
+    print('None types')
     print(len(none_types))
-    print(none_types[:10])
+    print(none_types[:3])
+    print('Wrong sizes')
     print(len(wrong_sizes))
-    print(wrong_sizes[:10])
+    print(wrong_sizes[:3])
+    out.close()
+    print(str(cnt) + ' correct images')
+
 
 def main():
     """
@@ -147,12 +157,18 @@ def main():
     # check_acc()
     # check_rgb()
     train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    train_labels_verif = '../../bdd100k/classification/labels/train_ground_truth_verified.csv'
     val_labels = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    val_labels_verif = '../../bdd100k/classification/labels/val_ground_truth_verified.csv'
 
     print("train data check")
-    check_bdd_extracted_dataset(train_labels)
+    check_bdd_extracted_dataset(train_labels, train_labels_verif)
     print("val data check")
-    check_bdd_extracted_dataset(val_labels)
+    check_bdd_extracted_dataset(val_labels, val_labels_verif)
+    print("train data check")
+    check_bdd_extracted_dataset(train_labels_verif, train_labels)
+    print("val data check")
+    check_bdd_extracted_dataset(val_labels_verif, val_labels)
 
 
 main()
