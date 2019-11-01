@@ -27,9 +27,9 @@ import model_trainer as mt
 import plotting
 import tests_logging as t_log
 
-# models = ('densenet121', 'resnet50', 'mobilenet', 'mobilenetv2', 'vgg16', 'vgg19', 'nasnet')
+models = ('densenet121', 'resnet50', 'mobilenet', 'mobilenetv2', 'vgg16', 'vgg19', 'nasnet')
 # models = ['densenet121', 'resnet50']
-models = ['nasnet']
+# models = ['mobilenet']
 # models = ['mobilenet128_0.75'] # doesn't seem to work for retinanet
 
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
@@ -436,14 +436,12 @@ def train_bdd100k_cl():
         print("Building: " + weight_file)
         if m in ('mobilenet', 'mobilenetv2', 'nasnet'):
             ###
-            model = mt.model_struct(m, (128, 128, 3), params['n_classes'], weights='imagenet', include_top=False)
+            model = mt.model_struct(m, (224, 224, 3), params['n_classes'], weights='imagenet', include_top=False)
             new_model = mt.model_struct(m, params['dim'], params['n_classes'], weights=None, include_top=False)
             print("Loading weights...")
-            i = 0
+
             for new_layer, layer in zip(new_model.layers[1:], model.layers[1:]):
-                print('hello' + str(i))
                 new_layer.set_weights(layer.get_weights())
-                i += 1
             base_model = new_model
             ###
         else:
