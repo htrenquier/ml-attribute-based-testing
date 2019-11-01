@@ -16,6 +16,7 @@ from keras.callbacks import ModelCheckpoint
 
 from keras.layers import Dense, GlobalAveragePooling2D
 from keras.models import Model
+from keras.models import load_model
 
 import initialise
 import bdd100k_utils as bu
@@ -26,8 +27,9 @@ import model_trainer as mt
 import plotting
 import tests_logging as t_log
 
-# models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
-models = ['densenet121', 'resnet50']
+# models = ('densenet121', 'resnet50', 'mobilenet', 'mobilenetv2', 'vgg16', 'vgg19', 'nasnet')
+# models = ['densenet121', 'resnet50']
+models = ['nasnet']
 # models = ['mobilenet128_0.75'] # doesn't seem to work for retinanet
 
 ilsvrc2012_val_path = '/home/henri/Downloads/imagenet-val/'
@@ -423,21 +425,37 @@ def train_bdd100k_cl():
     tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
 
     # Generators
-    training_generator = mt.DataGenerator(tr_partition[:500], tr_labels, **params)
-    validation_generator = mt.DataGenerator(val_partition[:100], val_labels, **params)
+    training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
+    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
     print(len(training_generator))
 
     for m in models:
 
         weight_file = mt.weight_file_name(m, 'bdd100k_cl0-500k', epochs, data_augmentation=False)
         weight_file = h5_path + weight_file
-        print(weight_file)
-        base_model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet', include_top=False)
+        print("Building: " + weight_file)
+        if m in ('mobilenet', 'mobilenetv2', 'nasnet'):
+            ###
+            model = mt.model_struct(m, (128, 128, 3), params['n_classes'], weights='imagenet', include_top=False)
+            new_model = mt.model_struct(m, params['dim'], params['n_classes'], weights=None, include_top=False)
+            print("Loading weights...")
+            i = 0
+            for new_layer, layer in zip(new_model.layers[1:], model.layers[1:]):
+                print('hello' + str(i))
+                new_layer.set_weights(layer.get_weights())
+                i += 1
+            base_model = new_model
+            ###
+        else:
+            base_model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet', include_top=False)
+
+        print("Configuring top layers")
         x = base_model.output
         x = GlobalAveragePooling2D()(x)
         x = Dense(1024, activation='relu')(x)
         predictions = Dense(10, activation='softmax')(x)
         model = Model(inputs=base_model.input, outputs=predictions)
+        model.summary()
         # for layer in base_model.layers:
         #     layer.trainable = False
 
@@ -445,11 +463,11 @@ def train_bdd100k_cl():
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
 
-        checkpoint = ModelCheckpoint(weight_file.rstrip('.h5')+'.{epoch:02d}-{val_loss:.2f}.h5',
+        checkpoint = ModelCheckpoint(weight_file.rstrip('.h5')+'_ep{epoch:02d}_vl{val_loss:.2f}.hdf5',
                                      monitor='val_acc',
                                      verbose=0,
                                      save_best_only=True,
-                                     save_weights_only=True,
+                                     save_weights_only=False,
                                      mode='auto')
 
         # Train model on dataset
@@ -461,6 +479,11 @@ def train_bdd100k_cl():
                             workers=6,
                             callbacks=[checkpoint]
                             )
+
+
+def load_model_test():
+    m = load_model(h5_path + 'densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5')
+    m.summary()
 
 
 def main():
@@ -481,5 +504,7 @@ def main():
     # test_extract_non_superposing_boxes()
     # classification_dataset()
     train_bdd100k_cl()
+    # load_model_test()
+
 
 main()
