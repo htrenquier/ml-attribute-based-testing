@@ -423,13 +423,14 @@ def train_bdd100k_cl():
     tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
 
     # Generators
-    training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
-    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
+    training_generator = mt.DataGenerator(tr_partition[:500], tr_labels, **params)
+    validation_generator = mt.DataGenerator(val_partition[:100], val_labels, **params)
     print(len(training_generator))
 
     for m in models:
 
         weight_file = mt.weight_file_name(m, 'bdd100k_cl0-500k', epochs, data_augmentation=False)
+        weight_file = h5_path + weight_file
         print(weight_file)
         base_model = mt.model_struct(m, params['dim'], params['n_classes'], weights='imagenet', include_top=False)
         x = base_model.output
@@ -444,7 +445,7 @@ def train_bdd100k_cl():
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
 
-        checkpoint = ModelCheckpoint(weight_file,
+        checkpoint = ModelCheckpoint(weight_file.rstrip('.h5')+'.{epoch:02d}-{val_loss:.2f}.h5',
                                      monitor='val_acc',
                                      verbose=0,
                                      save_best_only=True,
