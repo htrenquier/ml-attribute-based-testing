@@ -219,6 +219,6 @@ def crop_resize(image_path, boxes, resize_format=None, output_path=None):
     if output_path:
         for i in xrange(len(images)):
             name = output_path + image_path.split('/')[-1][:-4] + '-' + str(i) + image_path[-4:]
-            cv2.imwrite(name, images[i])
+            # cv2.imwrite(name, images[i])
             names.append(name)
     return images, names

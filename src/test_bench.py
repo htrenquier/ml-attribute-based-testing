@@ -27,6 +27,8 @@ import model_trainer as mt
 import plotting
 import tests_logging as t_log
 
+from datetime import datetime
+
 models = ('densenet121', 'resnet50', 'mobilenet', 'mobilenetv2', 'vgg16', 'vgg19', 'nasnet')
 # models = ['densenet121', 'resnet50']
 # models = ['mobilenet']
@@ -394,13 +396,21 @@ def classification_dataset():
     bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
     bdd100k_cl_train_path = '../../bdd100k/classification/images/train/'
 
-    bu.build_dataset('../../bdd100k/labels/train_annotations.csv',
-                     bdd100k_cl_train_path,
-                     '../../bdd100k/classification/labels/train_ground_truth.csv')
+    # bu.build_dataset('../../bdd100k/labels/train_annotations.csv',
+    #                  bdd100k_cl_train_path,
+    #                  '../../bdd100k/classification/labels/train_ground_truth.csv')
 
-    # bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
-    #                  bdd100k_cl_val_path,
-    #                  '../../bdd100k/classification/labels/val_ground_truth.csv')
+    # bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
+    # labels_path = '../../bdd100k/labels/'
+    #
+    # bu.annotate_attributes(labels_path + 'bdd100k_labels_images_val.json',
+    #                        labels_path + 'bdd100k_labels_images_val_attributes.csv',
+    #                        bdd100k_cl_val_path, overwrite=False)
+
+    bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
+                     bdd100k_cl_val_path,
+                     '../../bdd100k/classification/labels/val_ground_truth.csv',
+                     make_attributes_file=True)
 
 
 def train_bdd100k_cl():
@@ -480,8 +490,51 @@ def train_bdd100k_cl():
 
 
 def load_model_test():
-    m = load_model(h5_path + 'densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5')
-    m.summary()
+    labels_path = '../../bdd100k/classification/labels/'
+    # train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    val_labels = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    # class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+
+    # Parameters
+    params = {'dim': (64, 64, 3),
+              'batch_size': 32,
+              'n_classes': 10,
+              'shuffle': False}
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
+    # Datasets
+    # tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+    val_partition, val_labels = bu.get_ids_labels(val_labels, class_map_file)
+
+    # Generators
+    # training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
+    validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
+
+    model_file = 'densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5'
+
+    start_time = datetime.now()
+    m = load_model(h5_path + model_file)
+    print('File successfully loaded', model_file, 'in (s)', str(datetime.now() - start_time))
+
+    print("Validation ")
+    start_time = datetime.now()
+    print(m.metrics_names)
+    print(m.evaluate_generator(validation_generator))
+    print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
+
+    print('Writing predictions')
+    predictions_file = '.'.join(model_file.split('.')[:-1])+'.csv'
+    start_time = datetime.now()
+    out_pr = open(predictions_file, 'w')
+    for k in xrange(len(validation_generator)):
+        batch_predictions = dt.predict_batch(m, validation_generator[k])
+        for i in xrange(len(batch_predictions)):
+            out_pr.write(val_partition[k*params['batch_size']+i] + str(batch_predictions[i]))
+    out_pr.close()
+    print('Predictions successfully written', model_file, 'in (s)', str(datetime.now() - start_time))
+    # m.summary()
 
 
 def main():
@@ -501,8 +554,9 @@ def main():
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
     # classification_dataset()
-    train_bdd100k_cl()
-    # load_model_test()
+    # train_bdd100k_cl()
+    load_model_test()
+
 
 
 main()

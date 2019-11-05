@@ -266,7 +266,7 @@ def adjust_position(box, image_size):
     return x_min, y_min, x_max, y_max
 
 
-def build_dataset(obj_annot_file, output_path, labels_file):
+def build_dataset(obj_annot_file, output_path, labels_file, make_attributes_file=True):
     """
     Builds classification dataset from object detection dataset.
     For BDD100k: 1044675 training images from training folder
@@ -288,6 +288,11 @@ def build_dataset(obj_annot_file, output_path, labels_file):
     start_time = datetime.now()
     obj_annot = open(obj_annot_file, 'r')
     labels_fd = open(labels_file, 'w')
+
+    if make_attributes_file:
+        attributes_fd = open(labels_file[:-4] + '_attributes.csv', 'w')
+    orig_boxes = []
+
     line = obj_annot.readline()
     curr = line.split(',')[0]
     boxes = []
@@ -298,8 +303,12 @@ def build_dataset(obj_annot_file, output_path, labels_file):
             _, file_names = dt.crop_resize(curr, boxes, resize_format=format, output_path=output_path)
             for i in xrange(len(classes)):
                 labels_fd.write(file_names[i] + ',' + classes[i])
+                if make_attributes_file:
+                    attributes_fd.write(file_names[i] + ',' + str(orig_boxes[i]) + ',' + classes[i])
+
             # next image
             boxes = []
+            orig_boxes = []
             classes = []
             curr = line.split(',')[0]
 
@@ -308,6 +317,7 @@ def build_dataset(obj_annot_file, output_path, labels_file):
             line = obj_annot.readline()
             continue
         else:
+            orig_boxes.append(box)
             box = adjust_ratio(box, format)
             box = adjust_size(box, format)
             box = adjust_position(box, img_size)
@@ -325,6 +335,8 @@ def build_dataset(obj_annot_file, output_path, labels_file):
 
     obj_annot.close()
     labels_fd.close()
+    if make_attributes_file:
+        attributes_fd.close()
 
     print(str(cnt) + ' images successfully generated in ' + output_path + ' in '
           + str(datetime.now() - start_time) + '(s)')
@@ -346,3 +358,57 @@ def get_ids_labels(labels_file, class_map_file):
             labels.update({s[0]: name_to_label[s[1].rstrip()]})
             line = gt_fd.readline()
     return id_list, labels
+
+
+def annotate_attributes(input_json, output_csv, data_path, overwrite=False):
+    """
+    Annotate attributes
+    Only annotates the object classes (not areas for segmentation)
+    :param input_json: json input file path
+    :param output_csv: csv annotation file path
+    :param data_path: path of data
+    :param overwrite:
+    :return:
+    """
+    fd_json = open(input_json, 'r')
+    y = json.load(fd_json)
+    fd_json.close()
+    start_time = datetime.now()
+    if os.path.isfile(output_csv) and not overwrite:
+        print('File ' + output_csv + ' already exists. Not written.')
+        return
+    fd_out = open(output_csv, 'w')
+    for img_id in xrange(len(y)):
+        name = y[img_id][u'name']
+        weather_att = y[img_id][u'attributes'][u'weather']
+        scene_att = y[img_id][u'attributes'][u'scene']
+        timeofday_att = y[img_id][u'attributes'][u'timeofday']
+        row = ('%s,%s,%s,%s\n' % (data_path + name, weather_att, scene_att, timeofday_att))
+        fd_out.write(row)
+    fd_out.close()
+    print('File successfully written', output_csv, 'in (s)', str(datetime.now() - start_time))
+
+
+def annotate_obj_attributes(input_json, input_csv, output_csv, data_path, overwrite=False):
+    if os.path.isfile(output_csv) and not overwrite:
+        print('File ' + output_csv + ' already exists. Not written.')
+        return
+    fd_json = open(input_json, 'r')
+    y = json.load(fd_json)
+    fd_json.close()
+    start_time = datetime.now()
+    fd_csv = open(input_csv,'r')
+    line = fd_csv.readline()
+    while line:
+
+        fd_csv.readline()
+    fd_out = open(output_csv, 'w')
+    for img_id in xrange(len(y)):
+        name = y[img_id][u'name']
+        weather_att = y[img_id][u'attributes'][u'weather']
+        scene_att = y[img_id][u'attributes'][u'scene']
+        timeofday_att = y[img_id][u'attributes'][u'timeofday']
+        row = ('%s,%s,%s,%s\n' % (data_path + name, weather_att, scene_att, timeofday_att))
+        fd_out.write(row)
+    fd_out.close()
+    print('File successfully written', output_csv, 'in (s)', str(datetime.now() - start_time))
