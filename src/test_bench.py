@@ -5,6 +5,7 @@ import time
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn import metrics as sk_metrics
 from keras.datasets import cifar10
 # import keras_retinanet
 from keras_retinanet import models as kr_models
@@ -514,9 +515,8 @@ def load_model_test():
     # training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
     validation_generator = mt.DataGenerator(val_partition[:n_test_data], val_labels, **params)
 
-    label_distrib = [val_labels.values()[:n_test_data].count(k) for k in xrange(9)]
+    label_distrib = [val_labels.values()[:n_test_data].count(k)/n_test_data for k in xrange(params['n_classes'])]
     print(label_distrib)
-    print(sum(label_distrib))
 
     # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5']
     model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
@@ -527,35 +527,94 @@ def load_model_test():
     for model_file in model_files:
         start_time = datetime.now()
         m = load_model(h5_path + model_file)
-        print('File successfully loaded', model_file, 'in (s)', str(datetime.now() - start_time))
+        print('File successfully loaded', model_file, 'in', str(datetime.now() - start_time))
 
         print("Validation ")
         start_time = datetime.now()
-        print(m.metrics_names)
-        print(m.evaluate_generator(validation_generator))
-        print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
+        # print(m.metrics_names)
+        # print(m.evaluate_generator(validation_generator))
+        # print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
 
         print('Writing predictions')
-        predictions_file = '.'.join(model_file.split('.')[:-1])+'.csv'
-        # y_predicted = np.array([]).reshape((0, 10))
+        predictions_file = '.'.join(model_file.split('.')[:-1])+'_predictions.csv'
         out_pr = open(csv_path + predictions_file, 'w')
 
         start_time = datetime.now()
         y_predicted = m.predict_generator(validation_generator)
-        # for k in xrange(len(validation_generator)):
-        #     batch = np.array([im.astype('float32')/255 for im in validation_generator[k][0]])
-        #     y_predicted = np.vstack((y_predicted, m.predict(batch)))
-        print(len(y_predicted))
 
+        # prediction
         for i in xrange(len(y_predicted)):
             out_pr.write(val_partition[i] + ',' + str(y_predicted[i].tolist())+'\n')
+        out_pr.close()
+
         predicted_classes = np.argmax(y_predicted, axis=1)
 
-        out_pr.close()
-        print('Predictions successfully written', model_file, 'in (s)', str(datetime.now() - start_time))
-        acc = metrics.accuracy(predicted_classes, [val_labels[id] for id in val_partition[:len(y_predicted)]])
+        print('Predictions successfully written', model_file, 'in', str(datetime.now() - start_time))
+        true_classes = [val_labels[id] for id in val_partition[:len(y_predicted)]]
+        acc = metrics.accuracy(predicted_classes, true_classes)
         print('acc=', acc)
+        print(sk_metrics.confusion_matrix(true_classes, predicted_classes))
     # m.summary()
+
+
+def analyse_bdd100k_model_test():
+    labels_path = '../../bdd100k/classification/labels/'
+    # train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    # class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+
+    # Parameters
+    params = {'dim': (64, 64, 3),
+              'batch_size': 32,
+              'n_classes': 10,
+              'shuffle': False}
+
+    n_test_data = 100000
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
+    # Datasets
+    # tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
+
+    # prediction_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.csv']
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+
+    for model_file in model_files:
+        pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
+        y_predicted = []
+        scores = dict()  # prediction scores
+        predicted_classes = dict()
+        start_time = datetime.now()
+        with open(pr_file, 'r') as pr_fd:
+            line = pr_fd.readline()
+            while line:
+                prediction = [float(x) for x in line.split('[')[-1].rstrip(']').split(',')]
+                img_id = line.split(',')[0]
+                scores.update({img_id: metrics.prediction_rating(prediction, val_labels[img_id])})
+                predicted_classes.update({img_id: np.argmax(prediction)})
+                line = pr_fd.readline()
+        print('Predictions successfully read', pr_file, 'in', str(datetime.now() - start_time))
+
+        acc_per_cat = scores_per_cat = [[] for _ in xrange(params['n_classes'])]
+
+        for key in scores.keys():
+            scores_per_cat[val_labels[key]].append(scores[key])
+            acc_per_cat[val_labels[key]].append(predicted_classes[key])
+
+        label_distrib = [val_labels.values()[:n_test_data].count(k) / n_test_data for k in xrange(params['n_classes'])]
+        print(label_distrib)
+
+        for k in xrange(params['n_classes']):
+            print('Score:', k, np.mean(scores_per_cat[k]))
+            print('Accuracy:', k, np.mean(acc_per_cat[k]))
+
+
 
 
 def main():
