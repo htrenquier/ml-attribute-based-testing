@@ -591,10 +591,10 @@ def analyse_bdd100k_model_test():
         scores = dict()  # prediction scores
         predicted_classes = dict()
         start_time = datetime.now()
-        with open(pr_file, 'r') as pr_fd:
+        with open(csv_path + pr_file, 'r') as pr_fd:
             line = pr_fd.readline()
             while line:
-                prediction = [float(x) for x in line.split('[')[-1].rstrip(']').split(',')]
+                prediction = [float(x) for x in line.split('[')[-1].rstrip().rstrip(']').split(',')]
                 img_id = line.split(',')[0]
                 scores.update({img_id: metrics.prediction_rating(prediction, val_labels[img_id])})
                 predicted_classes.update({img_id: np.argmax(prediction)})
@@ -605,7 +605,7 @@ def analyse_bdd100k_model_test():
 
         for key in scores.keys():
             scores_per_cat[val_labels[key]].append(scores[key])
-            acc_per_cat[val_labels[key]].append(predicted_classes[key])
+            acc_per_cat[val_labels[key]].append(int(predicted_classes[key] == val_labels[key]))
 
         label_distrib = [val_labels.values()[:n_test_data].count(k) / n_test_data for k in xrange(params['n_classes'])]
         print(label_distrib)
@@ -635,8 +635,8 @@ def main():
     # test_extract_non_superposing_boxes()
     # classification_dataset()
     # train_bdd100k_cl()
-    load_model_test()
-
+    # load_model_test()
+    analyse_bdd100k_model_test
 
 
 main()
