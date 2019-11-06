@@ -44,7 +44,7 @@ def predict_batch(model, images):
     :param images:
     :return: List[int] of predicted classes
     """
-    if images:
+    if images is not None:
         y_predicted = model.predict(images)
         predicted_classes = np.argmax(y_predicted, axis=1)
         return predicted_classes.tolist()
