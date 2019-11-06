@@ -512,28 +512,37 @@ def load_model_test():
     # training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
     validation_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
 
-    model_file = 'densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5'
+    #  'densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5'
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+    for model_file in model_files:
+        start_time = datetime.now()
+        m = load_model(h5_path + model_file)
+        print('File successfully loaded', model_file, 'in (s)', str(datetime.now() - start_time))
 
-    start_time = datetime.now()
-    m = load_model(h5_path + model_file)
-    print('File successfully loaded', model_file, 'in (s)', str(datetime.now() - start_time))
+        print("Validation ")
+        start_time = datetime.now()
+        print(m.metrics_names)
+        print(m.evaluate_generator(validation_generator))
+        print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
 
-    print("Validation ")
-    start_time = datetime.now()
-    print(m.metrics_names)
-    print(m.evaluate_generator(validation_generator))
-    print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
-
-    print('Writing predictions')
-    predictions_file = '.'.join(model_file.split('.')[:-1])+'.csv'
-    start_time = datetime.now()
-    out_pr = open(predictions_file, 'w')
-    for k in xrange(len(validation_generator)):
-        batch_predictions = dt.predict_batch(m, validation_generator[k])
-        for i in xrange(len(batch_predictions)):
-            out_pr.write(val_partition[k*params['batch_size']+i] + str(batch_predictions[i]))
-    out_pr.close()
-    print('Predictions successfully written', model_file, 'in (s)', str(datetime.now() - start_time))
+        print('Writing predictions')
+        predictions_file = '.'.join(model_file.split('.')[:-1])+'.csv'
+        y_predicted = []
+        start_time = datetime.now()
+        out_pr = open(predictions_file, 'w')
+        for k in xrange(len(validation_generator)):
+            y_predicted += dt.predict_batch(m, validation_generator[k])
+        for i in xrange(len(y_predicted)):
+            out_pr.write(val_partition[i] + ',' + str(y_predicted[i]))
+        predicted_classes = np.argmax(y_predicted, axis=1)
+        out_pr.close()
+        print('Predictions successfully written', model_file, 'in (s)', str(datetime.now() - start_time))
+        acc = metrics.accuracy(predicted_classes, val_labels[:100000])
+        print('acc=', acc)
     # m.summary()
 
 
