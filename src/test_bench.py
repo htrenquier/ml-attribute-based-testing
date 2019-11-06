@@ -502,6 +502,8 @@ def load_model_test():
               'n_classes': 10,
               'shuffle': False}
 
+    n_test_data = 100000
+
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
 
     # Datasets
@@ -510,7 +512,11 @@ def load_model_test():
 
     # Generators
     # training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
-    validation_generator = mt.DataGenerator(val_partition[:100], val_labels, **params)
+    validation_generator = mt.DataGenerator(val_partition[:n_test_data], val_labels, **params)
+
+    label_distrib = [val_labels.values()[:n_test_data].count(k) for k in xrange(9)]
+    print(label_distrib)
+    print(sum(label_distrib))
 
     # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5']
     model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
@@ -524,24 +530,25 @@ def load_model_test():
         print('File successfully loaded', model_file, 'in (s)', str(datetime.now() - start_time))
 
         print("Validation ")
-        # start_time = datetime.now()
-        # print(m.metrics_names)
-        # print(m.evaluate_generator(validation_generator))
-        # print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
+        start_time = datetime.now()
+        print(m.metrics_names)
+        print(m.evaluate_generator(validation_generator))
+        print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
 
         print('Writing predictions')
         predictions_file = '.'.join(model_file.split('.')[:-1])+'.csv'
-        y_predicted = np.array([]).reshape((0, 10))
-        start_time = datetime.now()
+        # y_predicted = np.array([]).reshape((0, 10))
         out_pr = open(csv_path + predictions_file, 'w')
 
-        for k in xrange(len(validation_generator)):
-            batch = np.array([im.astype('float32')/255 for im in validation_generator[k][0]])
-            y_predicted = np.vstack((y_predicted, m.predict(batch)))
+        start_time = datetime.now()
+        y_predicted = m.predict_generator(validation_generator)
+        # for k in xrange(len(validation_generator)):
+        #     batch = np.array([im.astype('float32')/255 for im in validation_generator[k][0]])
+        #     y_predicted = np.vstack((y_predicted, m.predict(batch)))
         print(len(y_predicted))
 
         for i in xrange(len(y_predicted)):
-            out_pr.write(val_partition[i] + ',' + str(y_predicted[i].tolist()))
+            out_pr.write(val_partition[i] + ',' + str(y_predicted[i].tolist())+'\n')
         predicted_classes = np.argmax(y_predicted, axis=1)
 
         out_pr.close()
