@@ -585,11 +585,12 @@ def analyse_bdd100k_model_test():
     with open(attr_file, 'r') as attr_fd:
         line = attr_fd.readline()
         while line:
-            s = line.split(',')
+            s = line.strip().split(',')
             pic_id = s[0].split('/')[-1].split('.')[0]
             weather.update({pic_id: s[1]})
             scene.update({pic_id: s[2]})
             timeofday.update({pic_id: s[3]})
+            line = attr_fd.readline()
 
 
     # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5']
@@ -621,20 +622,26 @@ def analyse_bdd100k_model_test():
 
         acc_per_cat = scores_per_cat = [[] for _ in xrange(params['n_classes'])]
 
-        weather_uniques = np.asarray(np.unique(weather.values()))
+        weather_uniques = np.asarray(np.unique(weather.values(), return_counts=True))
         weather_scores = [[] for _ in xrange(len(weather_uniques[0]))]
-        scene_uniques = np.asarray(np.unique(scene.values()))
+        print('Weather meta:', len(weather.values()))
+        print(weather_uniques)
+        scene_uniques = np.asarray(np.unique(scene.values(), return_counts=True))
         scene_scores = [[] for _ in xrange(len(scene_uniques[0]))]
-        timeofday_uniques = np.asarray(np.unique(timeofday.values()))
+        print('Scene meta:', len(scene.values()))
+        print(scene_uniques)
+        timeofday_uniques = np.asarray(np.unique(timeofday.values(), return_counts=True))
         timeofday_scores = [[] for _ in xrange(len(timeofday_uniques[0]))]
+        print('Timeofday meta:', len(timeofday.values()))
+        print(timeofday_uniques)
 
         for key in scores.keys():
             scores_per_cat[val_labels[key]].append(scores[key])
             acc_per_cat[val_labels[key]].append(int(predicted_classes[key] == val_labels[key]))
             pic_key = key.split('/')[-1][:17]
-            weather_scores[weather_uniques[0].indexof(weather[pic_key])].append(scores[key])
-            scene_scores[scene_uniques[0].indexof(scene[pic_key])].append(scores[key])
-            timeofday_scores[timeofday_uniques[0].indexof(timeofday[pic_key])].append(scores[key])
+            weather_scores[int(np.where(weather_uniques[0] == weather[pic_key])[0])].append(scores[key])
+            scene_scores[int(np.where(scene_uniques[0] == scene[pic_key])[0])].append(scores[key])
+            timeofday_scores[int(np.where(timeofday_uniques[0] == timeofday[pic_key])[0])].append(scores[key])
 
         for k in xrange(params['n_classes']):
             print('-> Score, Accuracy:', k, np.mean(scores_per_cat[k]), np.mean(acc_per_cat[k]))
@@ -671,7 +678,7 @@ def main():
     # test_do_boxes_cross()
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
-    classification_dataset()
+    # classification_dataset()
     # train_bdd100k_cl()
     # load_model_test()
     analyse_bdd100k_model_test()
