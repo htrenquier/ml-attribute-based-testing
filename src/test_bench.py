@@ -404,14 +404,14 @@ def classification_dataset():
     # bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
     # labels_path = '../../bdd100k/labels/'
     #
-    # bu.annotate_attributes(labels_path + 'bdd100k_labels_images_val.json',
-    #                        labels_path + 'bdd100k_labels_images_val_attributes.csv',
-    #                        bdd100k_cl_val_path, overwrite=False)
-
-    bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
-                     bdd100k_cl_val_path,
-                     '../../bdd100k/classification/labels/val_ground_truth.csv',
-                     make_attributes_file=True)
+    bu.annotate_attributes(bdd100k_labels_path + 'bdd100k_labels_images_val.json',
+                           bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv',
+                           bdd100k_cl_val_path, overwrite=False)
+    #
+    # bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
+    #                  bdd100k_cl_val_path,
+    #                  '../../bdd100k/classification/labels/val_ground_truth.csv',
+    #                  make_attributes_file=True)
 
 
 def train_bdd100k_cl():
@@ -563,6 +563,7 @@ def analyse_bdd100k_model_test():
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
     # class_map_file = labels_path + 'class_mapping.csv'
     val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+    attr_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
 
     # Parameters
     params = {'dim': (64, 64, 3),
@@ -578,14 +579,31 @@ def analyse_bdd100k_model_test():
     # tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
 
-    # prediction_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.csv']
+    weather = dict()
+    scene = dict()
+    timeofday = dict()
+    with open(attr_file, 'r') as attr_fd:
+        line = attr_fd.readline()
+        while line:
+            s = line.split(',')
+            pic_id = s[0].split('/')[-1].split('.')[0]
+            weather.update({pic_id: s[1]})
+            scene.update({pic_id: s[2]})
+            timeofday.update({pic_id: s[3]})
+
+
+    # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5']
     model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
                    'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
                    'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
                    'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
                    'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
 
+    label_distrib = [val_labels.values()[:n_test_data].count(k) / n_test_data for k in xrange(params['n_classes'])]
+    print(label_distrib)
+
     for model_file in model_files:
+        print(" =#= " + model_file.split('_')[0] + " =#= ")
         pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
         y_predicted = []
         scores = dict()  # prediction scores
@@ -603,16 +621,36 @@ def analyse_bdd100k_model_test():
 
         acc_per_cat = scores_per_cat = [[] for _ in xrange(params['n_classes'])]
 
+        weather_uniques = np.asarray(np.unique(weather.values()))
+        weather_scores = [[] for _ in xrange(len(weather_uniques[0]))]
+        scene_uniques = np.asarray(np.unique(scene.values()))
+        scene_scores = [[] for _ in xrange(len(scene_uniques[0]))]
+        timeofday_uniques = np.asarray(np.unique(timeofday.values()))
+        timeofday_scores = [[] for _ in xrange(len(timeofday_uniques[0]))]
+
         for key in scores.keys():
             scores_per_cat[val_labels[key]].append(scores[key])
             acc_per_cat[val_labels[key]].append(int(predicted_classes[key] == val_labels[key]))
-
-        label_distrib = [val_labels.values()[:n_test_data].count(k) / n_test_data for k in xrange(params['n_classes'])]
-        print(label_distrib)
+            pic_key = key.split('/')[-1][:17]
+            weather_scores[weather_uniques[0].indexof(weather[pic_key])].append(scores[key])
+            scene_scores[scene_uniques[0].indexof(scene[pic_key])].append(scores[key])
+            timeofday_scores[timeofday_uniques[0].indexof(timeofday[pic_key])].append(scores[key])
 
         for k in xrange(params['n_classes']):
-            print('Score:', k, np.mean(scores_per_cat[k]))
-            print('Accuracy:', k, np.mean(acc_per_cat[k]))
+            print('-> Score, Accuracy:', k, np.mean(scores_per_cat[k]), np.mean(acc_per_cat[k]))
+
+        print('-> Weather:')
+        print(weather_uniques)
+        for k in xrange(len(weather_uniques[0])):
+            print(weather_uniques[0][k], np.mean(weather_scores[k]))
+        print('-> Scene:')
+        print(scene_uniques)
+        for k in xrange(len(scene_uniques[0])):
+            print(scene_uniques[0][k], np.mean(scene_scores[k]))
+        print('-> Time of day:')
+        print(timeofday_uniques)
+        for k in xrange(len(timeofday_uniques[0])):
+            print(timeofday_uniques[0][k], np.mean(timeofday_scores[k]))
 
 
 
@@ -633,10 +671,10 @@ def main():
     # test_do_boxes_cross()
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
-    # classification_dataset()
+    classification_dataset()
     # train_bdd100k_cl()
     # load_model_test()
-    analyse_bdd100k_model_test
+    analyse_bdd100k_model_test()
 
 
 main()
