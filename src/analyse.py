@@ -18,6 +18,58 @@ h5_path = '../res/h5/'
 models = ['densenet121', 'resnet50']
 
 
+class MetricStructure:
+    def __init__(self, entries_lists):
+        self.entries_lists = entries_lists
+        self.entry_list_to_id = []
+        self.struct = []
+        for entries_list in entries_lists:
+            if not isinstance(entries_list[0], int):
+                d = dict()
+                for id, entry in enumerate(entries_list):
+                    d.update({entry: id})
+                self.entry_list_to_id.append(d)
+            else:
+                self.entry_list_to_id.append(xrange(len(entries_list)))
+
+            self.struct = [self.struct for _ in xrange(len(entries_list))]
+        self.shape = np.array(self.struct).shape
+
+    def set_value(self, entries_ids, value):
+        assert(len(entries_ids) == len(self.shape) - 1)
+        self.struct[self.tocoord(entries_ids)].append(value)
+
+    def get_value(self, entries_ids):
+        return np.mean(self.struct[self.tocoord(entries_ids)])
+
+    def tocoord(self, entries_ids):
+        # entries_ids_to_tuple
+        return tuple([self.entry_list_to_id[k][e_id] for k, e_id in enumerate(entries_ids)])
+
+
+class DiscreteAttribute:
+    def __init__(self, id_to_value):
+        self.valueof = id_to_value
+        self.uniques = np.asarray(np.unique(id_to_value.values(), return_counts=True))
+        self.indexof = {self.uniques[0][k]: k for k in xrange(len(self.uniques[0]))}
+        self.metrics = dict()
+
+    def __getitem__(self, id):
+        return self.valueof[id]
+
+    def get_distribution(self):
+        return self.uniques
+
+    def set_value(self, metric_name, data_id, entries_ids, value):
+        entries_ids.insert(0, self.indexof[self.valueof[data_id]])
+        self.metrics[metric_name].set_value(entries_ids, value)
+
+    def add_metric(self, name, entries_lists):
+        # List of attributes excluding current attribute
+        entries_lists = entries_lists.insert(0, self.uniques[0])
+        self.metrics.update({name: MetricStructure(entries_lists)})
+
+
 def colorcube_analysis():
     # m = 'densenet121'
     for m in models:
