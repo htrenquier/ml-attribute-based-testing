@@ -575,7 +575,7 @@ def analyse_bdd100k_model_test():
     n_test_data = 100000
 
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
-
+    
     # Datasets
     # tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
@@ -603,34 +603,23 @@ def analyse_bdd100k_model_test():
     timeofday_attr.add_metric('score', [[k for k in xrange(params['n_classes'])]])
     timeofday_attr.add_metric('acc', [[k for k in xrange(params['n_classes'])]])
 
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   # ]
+                   'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
 
-
-
-    # Attribute label to id dictionnary
-    # weather_indexof = {weather_uniques[0][k]: k for k in xrange(len(weather_uniques[0]))}
-    # scene_indexof = {scene_uniques[0][k]: k for k in xrange(len(scene_uniques[0]))}
-    # timeofday_indexof = {timeofday_uniques[0][k]: k for k in xrange(len(timeofday_uniques[0]))}
-
-
-    # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep16_vl0.95.hdf5']
-    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',]
-                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
-                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
-                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
-                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
-
-    label_distrib = [val_labels.values()[:n_test_data].count(k) / n_test_data for k in xrange(params['n_classes'])]
-    print(label_distrib)
+    # label_distrib = [val_labels.values()[:n_test_data].count(k) / n_test_data for k in xrange(params['n_classes'])]
+    # print(label_distrib)
 
     for model_file in model_files:
         print("")
         print(" =#= " + model_file.split('_')[0] + " =#= ")
         print("")
         pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
-        # y_predicted = []
         y_scores = []
         img_ids = []
-        # scores = dict()  # prediction scores
         predictions = dict()
         start_time = datetime.now()
 
@@ -653,45 +642,18 @@ def analyse_bdd100k_model_test():
         n_worst = len(y_scores) // 5
         args_sorted_scores = np.argsort(y_scores)
 
-        # short_img_ids = [img_ids[args_sorted_scores[k]] for k in xrange(n_worst)]
-        # short_scores = [y_scores[args_sorted_scores[k]] for k in xrange(n_worst)]
-        # short_y_predicted = [y_predicted[args_sorted_scores[k]] for k in xrange(n_worst)]
-        # short_val_labels = [val_labels[img_ids[args_sorted_scores[k]]] for k in xrange(n_worst)]
-
-        # scores_per_cat = [[] for _ in xrange(params['n_classes'])]
-        # acc_per_cat = [[] for _ in xrange(params['n_classes'])]
-
-        # Init attribute accuracy and prediction tables
-        # weather_scores = [[] for _ in xrange(len(weather_uniques[0]))]
-        # weather_accs = [[] for _ in xrange(len(weather_uniques[0]))]
-        # scene_scores = [[] for _ in xrange(len(scene_uniques[0]))]
-        # scene_accs = [[] for _ in xrange(len(scene_uniques[0]))]
-        # timeofday_scores = [[] for _ in xrange(len(timeofday_uniques[0]))]
-        # timeofday_accs = [[] for _ in xrange(len(timeofday_uniques[0]))]
-
-        # Init attribute accuracy and prediction tables
-        # weather_scores_pc = [[[] for _ in xrange(len(weather_uniques[0]))] for _ in xrange(params['n_classes'])]
-        # weather_accs_pc = [[[] for _ in xrange(len(weather_uniques[0]))] for _ in xrange(params['n_classes'])]
-        # scene_scores_pc = [[[] for _ in xrange(len(scene_uniques[0]))] for _ in xrange(params['n_classes'])]
-        # scene_accs_pc = [[[] for _ in xrange(len(scene_uniques[0]))] for _ in xrange(params['n_classes'])]
-        # timeofday_scores_pc = [[[] for _ in xrange(len(timeofday_uniques[0]))] for _ in xrange(params['n_classes'])]
-        # timeofday_accs_pc = [[[] for _ in xrange(len(timeofday_uniques[0]))] for _ in xrange(params['n_classes'])]
-
-
-        #
         # Attribute labels and amount
         weather_uniques = np.asarray(np.unique(weather.values(), return_counts=True))
         scene_uniques = np.asarray(np.unique(scene.values(), return_counts=True))
         timeofday_uniques = np.asarray(np.unique(timeofday.values(), return_counts=True))
-        print('Weather meta:', len(weather.values()))
-        print(weather_uniques)
-        print('Scene meta:', len(scene.values()))
-        print(scene_uniques)
-        print('Timeofday meta:', len(timeofday.values()))
-        print(timeofday_uniques)
+        # print('Weather meta:', len(weather.values()))
+        # print(weather_uniques)
+        # print('Scene meta:', len(scene.values()))
+        # print(scene_uniques)
+        # print('Timeofday meta:', len(timeofday.values()))
+        # print(timeofday_uniques)
 
         max_ps = 0
-        # for key in short_scores.keys():
         for arg in args_sorted_scores[:n_worst]:
             # key is extracted dataset image path
             key = img_ids[arg]
@@ -701,73 +663,45 @@ def analyse_bdd100k_model_test():
             ps = y_scores[arg]  # Prediction Score
             if ps > max_ps:
                 max_ps = ps
-            # Predictions and accuracy per category
-            # scores_per_cat[val_labels[key]].append(ps)
-            # acc_per_cat[val_labels[key]].append(correct)
-            # Prediction score per attribute
-            # weather_scores[weather_indexof[weather[pic_key]]].append(ps)
-            # scene_scores[scene_indexof[scene[pic_key]]].append(ps)
-            # timeofday_scores[timeofday_indexof[timeofday[pic_key]]].append(ps)
-            # Accuracy per attribute
-            # weather_accs[weather_indexof[weather[pic_key]]].append(correct)
-            # scene_accs[scene_indexof[scene[pic_key]]].append(correct)
-            # timeofday_accs[timeofday_indexof[timeofday[pic_key]]].append(correct)
-            # attribute X category tables
-            # weather_scores_pc[val_labels[key]][weather_indexof[weather[pic_key]]].append(ps)
-            # scene_scores_pc[val_labels[key]][scene_indexof[scene[pic_key]]].append(ps)
-            # timeofday_scores_pc[val_labels[key]][timeofday_indexof[timeofday[pic_key]]].append(ps)
-            # weather_accs_pc[val_labels[key]][weather_indexof[weather[pic_key]]].append(correct)
-            # scene_accs_pc[val_labels[key]][scene_indexof[scene[pic_key]]].append(correct)
-            # timeofday_accs_pc[val_labels[key]][timeofday_indexof[timeofday[pic_key]]].append(correct)
-            weather_attr.set_value('score', pic_key, [val_labels[key]], ps)
-            weather_attr.set_value('acc', pic_key, [val_labels[key]], ps)
-            scene_attr.set_value('score', pic_key, [val_labels[key]], ps)
-            scene_attr.set_value('acc', pic_key, [val_labels[key]], ps)
-            timeofday_attr.set_value('score', pic_key, [val_labels[key]], ps)
-            timeofday_attr.set_value('acc', pic_key, [val_labels[key]], ps)
 
-        print("attr X cat shape:", np.array(weather_scores_pc).shape)
+            weather_attr.set_value('score', pic_key, [val_labels[key]], ps)
+            weather_attr.set_value('acc', pic_key, [val_labels[key]], correct)
+            scene_attr.set_value('score', pic_key, [val_labels[key]], ps)
+            scene_attr.set_value('acc', pic_key, [val_labels[key]], correct)
+            timeofday_attr.set_value('score', pic_key, [val_labels[key]], ps)
+            timeofday_attr.set_value('acc', pic_key, [val_labels[key]], correct)
+
         print('Max prediction score:', max_ps)
 
-        # print(weather_uniques[0])
-        # for i in xrange(len(weather_scores_pc)):
-        #     row = str(i) + ', '
-        #     for j in xrange(len(weather_scores_pc[i])):
-        #         row += str(np.mean(weather_scores_pc[i][j])) + ', '
-        #     print(row.rstrip(', '))
-
-        print('ATTRIBUTE:')
-        with open(csv_path + model_file.split('_')[0] + 'res_metrics.csv', 'w') as res_fd:
+        print('Writing Attribute metrics:')
+        with open(csv_path + model_file.split('_')[0] + '_res_metrics.csv', 'w') as res_fd:
             res_fd.write('Weather score\n')
+            res_fd.write(",".join(weather_uniques[0])+'\n')
+            res_fd.write(",".join([str(k) for k in weather_uniques[1]]) + '\n')
             res_fd.writelines(weather_attr.get_metric_means('score'))
             res_fd.write('Weather accuracy\n')
+            res_fd.write(",".join(weather_uniques[0]) + '\n')
+            res_fd.write(",".join([str(k) for k in weather_uniques[1]]) + '\n')
             res_fd.writelines(weather_attr.get_metric_means('acc'))
             res_fd.write('Scene score\n')
+            res_fd.write(",".join(scene_uniques[0]) + '\n')
+            res_fd.write(",".join([str(k) for k in scene_uniques[1]]) + '\n')
             res_fd.writelines(scene_attr.get_metric_means('score'))
             res_fd.write('Scene accuracy\n')
+            res_fd.write(",".join(scene_uniques[0]) + '\n')
+            res_fd.write(",".join([str(k) for k in scene_uniques[1]]) + '\n')
             res_fd.writelines(scene_attr.get_metric_means('acc'))
             res_fd.write('Timeofday score\n')
+            res_fd.write(",".join(timeofday_uniques[0]) + '\n')
+            res_fd.write(",".join([str(k) for k in timeofday_uniques[1]]) + '\n')
             res_fd.writelines(timeofday_attr.get_metric_means('score'))
             res_fd.write('Timeofday accuracy\n')
+            res_fd.write(",".join(timeofday_uniques[0]) + '\n')
+            res_fd.write(",".join([str(k) for k in timeofday_uniques[1]]) + '\n')
             res_fd.writelines(timeofday_attr.get_metric_means('acc'))
 
-        return
-
-        # print('-> Categories:')
-        # for k in xrange(params['n_classes']):
-        #     print('-> Score, Accuracy:', k, np.mean(scores_per_cat[k]), np.mean(acc_per_cat[k]))
-        # print('-> Weather:')
-        # print(weather_uniques)
-        # for k in xrange(len(weather_uniques[0])):
-        #     print(weather_uniques[0][k], np.mean(weather_scores[k]), np.mean(weather_accs[k]))
-        # print('-> Scene:')
-        # print(scene_uniques)
-        # for k in xrange(len(scene_uniques[0])):
-        #     print(scene_uniques[0][k], np.mean(scene_scores[k]), np.mean(scene_accs[k]))
-        # print('-> Time of day:')
-        # print(timeofday_uniques)
-        # for k in xrange(len(timeofday_uniques[0])):
-        #     print(timeofday_uniques[0][k], np.mean(timeofday_scores[k]), np.mean(timeofday_accs[k]))
+        print("Finished")
+    return
 
 
 def main():
