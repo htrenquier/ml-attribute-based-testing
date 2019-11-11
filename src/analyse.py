@@ -8,6 +8,7 @@ import model_trainer as mt
 import data_tools as dt
 import tests_logging as t_log
 import initialise
+from itertools import product
 
 # Paths
 csv_path = '../res/csv/'
@@ -20,37 +21,38 @@ models = ['densenet121', 'resnet50']
 
 class MetricStructure:
     def __init__(self, entries_lists):
-        self.entries_lists = entries_lists
-        self.entry_list_to_id = []
-        self.struct = []
-        for entries_list in entries_lists:
-            if not isinstance(entries_list[0], int):
-                d = dict()
-                for id, entry in enumerate(entries_list):
-                    d.update({entry: id})
-                self.entry_list_to_id.append(d)
-            else:
-                self.entry_list_to_id.append(xrange(len(entries_list)))
-
-            self.struct = [self.struct for _ in xrange(len(entries_list))]
-        self.shape = np.array(self.struct).shape
+        self.entries_lists = list(entries_lists)
+        self.struct = {tuple(key): [] for key in product(*entries_lists)}
+        self.dims = [len(el) for el in entries_lists]
+        print(self.struct)
 
     def set_value(self, entries_ids, value):
-        assert(len(entries_ids) == len(self.shape) - 1)
-        self.struct[self.tocoord(entries_ids)].append(value)
+        self.struct[tuple(entries_ids)].append(value)
 
     def get_value(self, entries_ids):
-        return np.mean(self.struct[self.tocoord(entries_ids)])
+        return np.mean(self.struct[entries_ids])
 
-    def tocoord(self, entries_ids):
-        # entries_ids_to_tuple
-        return tuple([self.entry_list_to_id[k][e_id] for k, e_id in enumerate(entries_ids)])
+    def get_means(self):
+        means = np.zeros(self.dims)
+        for index in product(*[xrange(k) for k in self.dims]):
+            key = [self.entries_lists[c][entry] for c, entry in enumerate(list(index))]
+            means[index] = np.mean(self.struct[tuple(key)])
+        return means
+
+    def get_table_rec(self, entries_lists, arr):
+        if not entries_lists:
+            return []
+        else:
+            return [self.get_table_rec(entries_lists[:-1], arr[k]) for k in xrange(len(entries_lists))]
+
+    def get_entries_lists(self):
+        return self.entries_lists
 
 
 class DiscreteAttribute:
-    def __init__(self, id_to_value):
-        self.valueof = id_to_value
-        self.uniques = np.asarray(np.unique(id_to_value.values(), return_counts=True))
+    def __init__(self, key_to_value):
+        self.valueof = key_to_value
+        self.uniques = np.asarray(np.unique(key_to_value.values(), return_counts=True))
         self.indexof = {self.uniques[0][k]: k for k in xrange(len(self.uniques[0]))}
         self.metrics = dict()
 
@@ -60,14 +62,24 @@ class DiscreteAttribute:
     def get_distribution(self):
         return self.uniques
 
-    def set_value(self, metric_name, data_id, entries_ids, value):
-        entries_ids.insert(0, self.indexof[self.valueof[data_id]])
+    def set_value(self, metric_name, data_metric_key, entries_ids, value):
+        entries_ids.append(self.valueof[data_metric_key])
         self.metrics[metric_name].set_value(entries_ids, value)
 
     def add_metric(self, name, entries_lists):
         # List of attributes excluding current attribute
-        entries_lists = entries_lists.insert(0, self.uniques[0])
-        self.metrics.update({name: MetricStructure(entries_lists)})
+        entries_lists.append(self.uniques[0].tolist())
+        metric = MetricStructure(entries_lists)
+        self.metrics.update({name: metric})
+
+    def get_metric_value(self, metric_name, data_metric_key, entries_ids):
+        entries_ids.append(self.valueof[data_metric_key])
+        return self.metrics[metric_name].get_value(entries_ids)
+
+    def get_metric_means(self, name):
+        # 2D metrics printing
+        return [",".join([str(f) for f in row]) + '\n' for row in self.metrics[name].get_means()]
+
 
 
 def colorcube_analysis():
