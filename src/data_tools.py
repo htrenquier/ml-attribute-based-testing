@@ -6,7 +6,7 @@ import metrics_color
 from keras.preprocessing import image
 from keras import utils
 import cv2
-
+from datetime import datetime
 
 def format_data(data, num_classes):
     """
@@ -222,3 +222,37 @@ def crop_resize(image_path, boxes, resize_format=None, output_path=None):
             # cv2.imwrite(name, images[i])
             names.append(name)
     return images, names
+
+
+def get_scores_from_file(filepath, gt_labels):
+    y_scores = []
+    img_ids = []
+    predictions = dict()
+    start_time = datetime.now()
+
+    with open(filepath, 'r') as pr_fd:
+        line = pr_fd.readline()
+        while line:
+            prediction = [float(x) for x in line.split('[')[-1].rstrip().rstrip(']').split(',')]
+            img_id = line.split(',')[0]
+
+            img_ids.append(img_id)
+            y_scores.append(metrics.prediction_rating(prediction, gt_labels[img_id]))
+            predictions.update({img_id: prediction})
+
+            line = pr_fd.readline()
+
+    assert len(img_ids) == len(y_scores)
+    print('Predictions successfully read', filepath, 'in', str(datetime.now() - start_time))
+    return predictions, y_scores, img_ids
+
+
+def get_topbot_n_args(n, y_scores):
+    args_sorted_scores = np.argsort(y_scores)
+    top_n = [arg for arg in args_sorted_scores[-n:]]
+    bot_n = [arg for arg in args_sorted_scores[:n]]
+    return top_n, bot_n
+
+
+
+

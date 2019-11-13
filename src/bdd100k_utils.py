@@ -278,6 +278,7 @@ def build_dataset(obj_annot_file, output_path, labels_file, make_attributes_file
     :param obj_annot_file: annotation file of format https://github.com/fizyr/keras-retinanet
     :param output_path: where images will be saved
     :param labels_file: names of files for classification ground truth
+    :param make_attributes_file:
     :return:
     """
     min_size = 44  # set image size = 64x64, max margin = 20
@@ -336,6 +337,7 @@ def build_dataset(obj_annot_file, output_path, labels_file, make_attributes_file
     obj_annot.close()
     labels_fd.close()
     if make_attributes_file:
+        print('Written ' + labels_file[:-4] + '_attributes.csv')
         attributes_fd.close()
 
     print(str(cnt) + ' images successfully generated in ' + output_path + ' in '

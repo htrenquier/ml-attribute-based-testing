@@ -1,14 +1,13 @@
 from __future__ import division
 
 import time
-import analyse
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import metrics as sk_metrics
 from keras.datasets import cifar10
-# import keras_retinanet
+
 from keras_retinanet import models as kr_models
 from keras_retinanet.bin import train as kr_train
 from keras_retinanet.utils.colors import label_color
@@ -405,14 +404,14 @@ def classification_dataset():
     # bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
     # labels_path = '../../bdd100k/labels/'
     #
-    bu.annotate_attributes(bdd100k_labels_path + 'bdd100k_labels_images_val.json',
-                           bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv',
-                           bdd100k_cl_val_path, overwrite=False)
-    #
-    # bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
-    #                  bdd100k_cl_val_path,
-    #                  '../../bdd100k/classification/labels/val_ground_truth.csv',
-    #                  make_attributes_file=True)
+    # bu.annotate_attributes(bdd100k_labels_path + 'bdd100k_labels_images_val.json',
+    #                        bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv',
+    #                        bdd100k_cl_val_path, overwrite=False)
+
+    bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
+                     bdd100k_cl_val_path,
+                     '../../bdd100k/classification/labels/val_ground_truth.csv',
+                     make_attributes_file=True)
 
 
 def train_bdd100k_cl():
@@ -558,150 +557,7 @@ def load_model_test():
     # m.summary()
 
 
-def analyse_bdd100k_model_test():
-    labels_path = '../../bdd100k/classification/labels/'
-    # train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
-    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
-    # class_map_file = labels_path + 'class_mapping.csv'
-    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
-    attr_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
 
-    # Parameters
-    params = {'dim': (64, 64, 3),
-              'batch_size': 32,
-              'n_classes': 10,
-              'shuffle': False}
-
-    n_test_data = 100000
-
-    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
-    
-    # Datasets
-    # tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
-    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
-
-    weather = dict()
-    scene = dict()
-    timeofday = dict()
-    with open(attr_file, 'r') as attr_fd:
-        line = attr_fd.readline()
-        while line:
-            s = line.strip().split(',')
-            pic_id = s[0].split('/')[-1].split('.')[0]
-            weather.update({pic_id: s[1]})
-            scene.update({pic_id: s[2]})
-            timeofday.update({pic_id: s[3]})
-            line = attr_fd.readline()
-
-    weather_attr = analyse.DiscreteAttribute(weather)
-    weather_attr.add_metric('score', [[k for k in xrange(params['n_classes'])]])
-    weather_attr.add_metric('acc', [[k for k in xrange(params['n_classes'])]])
-    scene_attr = analyse.DiscreteAttribute(scene)
-    scene_attr.add_metric('score', [[k for k in xrange(params['n_classes'])]])
-    scene_attr.add_metric('acc', [[k for k in xrange(params['n_classes'])]])
-    timeofday_attr = analyse.DiscreteAttribute(timeofday)
-    timeofday_attr.add_metric('score', [[k for k in xrange(params['n_classes'])]])
-    timeofday_attr.add_metric('acc', [[k for k in xrange(params['n_classes'])]])
-
-    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
-                   # ]
-                   'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
-                   'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
-                   'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
-                   'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
-
-    # label_distrib = [val_labels.values()[:n_test_data].count(k) / n_test_data for k in xrange(params['n_classes'])]
-    # print(label_distrib)
-
-    for model_file in model_files:
-        print("")
-        print(" =#= " + model_file.split('_')[0] + " =#= ")
-        print("")
-        pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
-        y_scores = []
-        img_ids = []
-        predictions = dict()
-        start_time = datetime.now()
-
-        with open(csv_path + pr_file, 'r') as pr_fd:
-            line = pr_fd.readline()
-            while line:
-                prediction = [float(x) for x in line.split('[')[-1].rstrip().rstrip(']').split(',')]
-                img_id = line.split(',')[0]
-
-                img_ids.append(img_id)
-                y_scores.append(metrics.prediction_rating(prediction, val_labels[img_id]))
-                predictions.update({img_id: prediction})
-
-                line = pr_fd.readline()
-
-        assert len(img_ids) == len(y_scores)
-        print('Predictions successfully read', pr_file, 'in', str(datetime.now() - start_time))
-
-        # Shorten for better analysis of low score predictions
-        n_worst = len(y_scores) // 5
-        args_sorted_scores = np.argsort(y_scores)
-
-        # Attribute labels and amount
-        weather_uniques = np.asarray(np.unique(weather.values(), return_counts=True))
-        scene_uniques = np.asarray(np.unique(scene.values(), return_counts=True))
-        timeofday_uniques = np.asarray(np.unique(timeofday.values(), return_counts=True))
-        # print('Weather meta:', len(weather.values()))
-        # print(weather_uniques)
-        # print('Scene meta:', len(scene.values()))
-        # print(scene_uniques)
-        # print('Timeofday meta:', len(timeofday.values()))
-        # print(timeofday_uniques)
-
-        max_ps = 0
-        for arg in args_sorted_scores[:n_worst]:
-            # key is extracted dataset image path
-            key = img_ids[arg]
-            # pic_key is the name of image file in the bdd100k dataset
-            pic_key = key.split('/')[-1][:17]
-            correct = int(np.argmax(predictions[key]) == val_labels[key])
-            ps = y_scores[arg]  # Prediction Score
-            if ps > max_ps:
-                max_ps = ps
-
-            weather_attr.set_value('score', pic_key, [val_labels[key]], ps)
-            weather_attr.set_value('acc', pic_key, [val_labels[key]], correct)
-            scene_attr.set_value('score', pic_key, [val_labels[key]], ps)
-            scene_attr.set_value('acc', pic_key, [val_labels[key]], correct)
-            timeofday_attr.set_value('score', pic_key, [val_labels[key]], ps)
-            timeofday_attr.set_value('acc', pic_key, [val_labels[key]], correct)
-
-        print('Max prediction score:', max_ps)
-
-        print('Writing Attribute metrics:')
-        with open(csv_path + model_file.split('_')[0] + '_res_metrics.csv', 'w') as res_fd:
-            res_fd.write('Weather score\n')
-            res_fd.write(",".join(weather_uniques[0])+'\n')
-            res_fd.write(",".join([str(k) for k in weather_uniques[1]]) + '\n')
-            res_fd.writelines(weather_attr.get_metric_means('score'))
-            res_fd.write('Weather accuracy\n')
-            res_fd.write(",".join(weather_uniques[0]) + '\n')
-            res_fd.write(",".join([str(k) for k in weather_uniques[1]]) + '\n')
-            res_fd.writelines(weather_attr.get_metric_means('acc'))
-            res_fd.write('Scene score\n')
-            res_fd.write(",".join(scene_uniques[0]) + '\n')
-            res_fd.write(",".join([str(k) for k in scene_uniques[1]]) + '\n')
-            res_fd.writelines(scene_attr.get_metric_means('score'))
-            res_fd.write('Scene accuracy\n')
-            res_fd.write(",".join(scene_uniques[0]) + '\n')
-            res_fd.write(",".join([str(k) for k in scene_uniques[1]]) + '\n')
-            res_fd.writelines(scene_attr.get_metric_means('acc'))
-            res_fd.write('Timeofday score\n')
-            res_fd.write(",".join(timeofday_uniques[0]) + '\n')
-            res_fd.write(",".join([str(k) for k in timeofday_uniques[1]]) + '\n')
-            res_fd.writelines(timeofday_attr.get_metric_means('score'))
-            res_fd.write('Timeofday accuracy\n')
-            res_fd.write(",".join(timeofday_uniques[0]) + '\n')
-            res_fd.write(",".join([str(k) for k in timeofday_uniques[1]]) + '\n')
-            res_fd.writelines(timeofday_attr.get_metric_means('acc'))
-
-        print("Finished")
-    return
 
 
 def main():
@@ -720,10 +576,10 @@ def main():
     # test_do_boxes_cross()
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
-    # classification_dataset()
+    classification_dataset()
     # train_bdd100k_cl()
     # load_model_test()
-    analyse_bdd100k_model_test()
+
 
 
 main()

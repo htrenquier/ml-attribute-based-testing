@@ -8,6 +8,10 @@ import model_trainer as mt
 import data_tools as dt
 import tests_logging as t_log
 import initialise
+import bdd100k_utils as bu
+import cv2
+import os.path
+import pickle
 from itertools import product
 
 # Paths
@@ -19,18 +23,29 @@ h5_path = '../res/h5/'
 models = ['densenet121', 'resnet50']
 
 
-class MetricStructure:
+class MultidimMetricStructure:
     def __init__(self, entries_lists):
         self.entries_lists = list(entries_lists)
         self.struct = {tuple(key): [] for key in product(*entries_lists)}
         self.dims = [len(el) for el in entries_lists]
-        print(self.struct)
+
+    def flush(self):
+        self.struct = {tuple(key): [] for key in product(*self.entries_lists)}
 
     def set_value(self, entries_ids, value):
         self.struct[tuple(entries_ids)].append(value)
 
-    def get_value(self, entries_ids):
-        return np.mean(self.struct[entries_ids])
+    def get_value_list(self, entries_ids):
+        return self.struct[tuple(entries_ids)]
+
+    def get_value_mean(self, entries_ids):
+        return np.mean(self.struct[tuple(entries_ids)])
+
+    def global_mean(self):
+        global_arr = []
+        for key in self.struct.keys():
+            global_arr += self.struct[key]
+        return np.mean(global_arr)
 
     def get_means(self):
         means = np.zeros(self.dims)
@@ -47,39 +62,370 @@ class MetricStructure:
 
     def get_entries_lists(self):
         return self.entries_lists
+#
+#
+# class DiscreteAttribute:
+#     """
+#     Stores metric's ID to attribute dictionary and stores values in Metric Structure
+#     TODO: redefine init and metric, each metric should have its own key_to_value dict
+#     """
+#     def __init__(self, key_to_value):
+#         self.valueof = key_to_value
+#         self.uniques = np.asarray(np.unique(key_to_value.values(), return_counts=True))
+#         self.indexof = {self.uniques[0][k]: k for k in xrange(len(self.uniques[0]))}
+#         self.metrics = dict()
+#
+#     def __getitem__(self, id):
+#         return self.valueof[id]
+#
+#     def flush(self):
+#         if metrics:
+#             for m in metrics.values():
+#                 m.flush()
+#
+#     def get_labels(self):
+#         return [str(l) for l in self.uniques[0]]
+#
+#     def get_distribution(self):
+#         return [str(c) for c in self.uniques[1]]
+#
+#     def set_value(self, metric_name, value, data_metric_key, entries_ids=None):
+#         if not entries_ids:
+#             entries_ids = [self.valueof[data_metric_key]]
+#         else:
+#             entries_ids.append(self.valueof[data_metric_key])
+#
+#         self.metrics[metric_name].set_value(entries_ids, value)
+#
+#     def add_metric(self, name, entries_lists=None):
+#
+#         # List of attributes excluding current attribute
+#         if not entries_lists:
+#             entries_lists = [self.uniques[0].tolist()]
+#         else:
+#             entries_lists.append(self.uniques[0].tolist())
+#         metric = MetricStructure(entries_lists)
+#         self.metrics.update({name: metric})
+#
+#     def get_metric_value_list(self, metric_name, data_metric_key, entries_ids=None):
+#         if not entries_ids:
+#             entries_ids = [data_metric_key]
+#         else:
+#             entries_ids.append(data_metric_key)
+#         return self.metrics[metric_name].get_value_list(entries_ids)
+#
+#     def get_metric_value_mean(self, metric_name, data_metric_key, entries_ids=None):
+#         if not entries_ids:
+#             entries_ids = [data_metric_key]
+#         else:
+#             entries_ids.append(data_metric_key)
+#         return self.metrics[metric_name].get_value_mean(entries_ids)
+#
+#     def get_metric_means(self, name):
+#         # 2D metrics printing
+#         # return [",".join([str(f) for f in row]) + '\n' for row in self.metrics[name].get_means()]
+#         return [m for m in self.metrics[name].get_means()]
+#
+#     def log_headers(self, fd):
+#         fd.write(",".join(self.get_labels()) + '\n')
+#         fd.write(",".join(self.get_distribution()) + '\n')
+#
+#     def log_metric_means(self, name, fd):
+#         fd.writelines(",".join([str(m) for m in self.get_metric_means(name)])+'\n')
+#
+#     def get_metric_global_mean(self, name):
+#         return self.metrics[name].global_mean()
+
+
+class MetricStructure:
+    def __init__(self, entries):
+        self.entries = list(entries)
+        self.struct = {entry: [] for entry in self.entries}
+
+    def flush(self):
+        self.struct = {entry: [] for entry in self.entries}
+
+    def add_value(self, entry, value):
+        self.struct[entry].append(value)
+
+    def get_value_list(self, entries_ids):
+        return self.struct[tuple(entries_ids)]
+
+    def get_value_mean(self, entry):
+        return np.mean(self.struct[entry])
+
+    def global_mean(self):
+        global_arr = []
+        for key in self.struct.keys():
+            global_arr += self.struct[key]
+        return np.mean(global_arr)
+
+    def get_means(self):
+        means = np.zeros(len(self.entries))
+        for i, entry in enumerate(self.entries):
+            means[i] = np.mean(self.struct[entry])
+        return means
 
 
 class DiscreteAttribute:
-    def __init__(self, key_to_value):
-        self.valueof = key_to_value
-        self.uniques = np.asarray(np.unique(key_to_value.values(), return_counts=True))
-        self.indexof = {self.uniques[0][k]: k for k in xrange(len(self.uniques[0]))}
+    """
+    Stores data ID to attribute's labels dictionary and later stores values in MetricStructure for different metrics
+    """
+
+    def __init__(self, key_to_label, metric_name='score'):
         self.metrics = dict()
+        self.key_to_label = key_to_label
+        self.uniques = np.asarray(np.unique(key_to_label.values(), return_counts=True))
+        self.metrics.update({metric_name: MetricStructure(self.uniques[0])})
+        self.indexof = {self.uniques[0][k]: k for k in xrange(len(self.uniques[0]))}
 
     def __getitem__(self, id):
-        return self.valueof[id]
+        return self.uniques[0][id]
+
+    def flush(self):
+        for m in metrics.values():
+            m.flush()
+
+    def get_labels(self):
+        return [str(l) for l in self.uniques[0]]
 
     def get_distribution(self):
-        return self.uniques
+        return [str(c) for c in self.uniques[1]]
 
-    def set_value(self, metric_name, data_metric_key, entries_ids, value):
-        entries_ids.append(self.valueof[data_metric_key])
-        self.metrics[metric_name].set_value(entries_ids, value)
+    def add_value(self, metric_name, value, data_key):
+        self.metrics[metric_name].add_value(self.key_to_label[data_key], value)
 
-    def add_metric(self, name, entries_lists):
-        # List of attributes excluding current attribute
-        entries_lists.append(self.uniques[0].tolist())
-        metric = MetricStructure(entries_lists)
+    def add_metric(self, name):
+        metric = MetricStructure(self.uniques[0])
         self.metrics.update({name: metric})
 
-    def get_metric_value(self, metric_name, data_metric_key, entries_ids):
-        entries_ids.append(self.valueof[data_metric_key])
-        return self.metrics[metric_name].get_value(entries_ids)
+    def get_metric_value_list(self, metric_name, label):
+        """
 
-    def get_metric_means(self, name):
-        # 2D metrics printing
-        return [",".join([str(f) for f in row]) + '\n' for row in self.metrics[name].get_means()]
+        :param metric_name:
+        :param label: Attribute's label
+        :return:
+        """
+        return self.metrics[metric_name].get_value_list(label)
 
+    def get_metric_mean(self, metric_name, label):
+        return self.metrics[metric_name].get_value_mean(label)
+
+    def get_metric_means(self, metric_name):
+        return [m for m in self.metrics[metric_name].get_means()]
+
+    def log_headers(self, fd):
+        fd.write(",".join(self.get_labels()) + '\n')
+        fd.write(",".join(self.get_distribution()) + '\n')
+
+    def log_metric_means(self, name, fd):
+        fd.writelines(",".join([str(m) for m in self.get_metric_means(name)]) + '\n')
+
+    def get_metric_global_mean(self, name):
+        return self.metrics[name].global_mean()
+
+
+def bdd100k_discrete_attribute_analyse(model_file, attribute, data_ids, y_scores, img_ids):
+    res_file = csv_path + model_file.split('_')[0] + '_' + attribute['name'] + '_res_metrics.csv'
+
+    for i in data_ids:
+        attribute['d_attribute'].add_value('score', y_scores[i], attribute['dk_to_ak'](img_ids[i]))
+
+    # print(attribute['d_attribute'].get_metric_global_mean('score'))
+    # Prints results in result file
+    fd = open(res_file, 'w')
+    for metric in attribute['metrics']:
+        attribute['d_attribute'].log_headers(fd)
+        attribute['d_attribute'].log_metric_means(metric, fd)
+        fd.write(str(attribute['d_attribute'].get_metric_global_mean(metric)))
+    fd.close()
+
+    return attribute['d_attribute'].get_metric_means('score'), attribute['d_attribute'].get_metric_global_mean('score')
+
+
+def bdd100k_model_analysis(model_file, attributes, val_labels):
+    print("")
+    print(" =#= Analysing " + model_file.split('_')[0] + " =#= ")
+    print("")
+
+    threshold = 0.003
+    pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
+    predictions, y_scores, img_ids = dt.get_scores_from_file(csv_path + pr_file, val_labels)
+
+    # 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000,
+    for n_data in [100000]:
+        # test_subset creation
+        top_n_args, bot_n_args = dt.get_topbot_n_args(n_data, y_scores)
+        for attribute in attributes.values():
+            # Attribute init + analysis
+            attribute['d_attribute'] = DiscreteAttribute(attribute['map'])
+            for metric in attribute['metrics']:
+                attribute['d_attribute'].add_metric(metric)
+            # weather_attr.add_metric('score', [[k for k in xrange(params['n_classes'])]])
+            # multi dimensional metrics not working in this implementation
+            labels_means, attr_mean = bdd100k_discrete_attribute_analyse(
+                model_file, attribute, bot_n_args, y_scores, img_ids)
+
+            for c, label_mean in enumerate(labels_means):
+                print(c, label_mean, attr_mean - threshold)
+                if label_mean < attr_mean - threshold:
+                    attribute['weaks'].append(attribute['d_attribute'].get_labels()[c])
+
+            print(attribute['weaks'])
+
+
+
+def bdd100k_analysis():
+    labels_path = '../../bdd100k/classification/labels/'
+    bdd100k_labels_path = "../../bdd100k/labels/"
+    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+    attr_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
+    box_file = '../../bdd100k/classification/labels/val_ground_truth_attributes.csv'
+    box_pkl = labels_path + 'box_size.pkl'
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=class_map_file)
+
+    # Dataset for analysis
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
+
+    # Attribute mapping
+    weather = dict()
+    scene = dict()
+    timeofday = dict()
+
+    with open(attr_file, 'r') as attr_fd:
+        line = attr_fd.readline()
+        while line:
+            s = line.strip().split(',')
+            pic_id = s[0].split('/')[-1].split('.')[0]
+            weather.update({pic_id: s[1]})
+            scene.update({pic_id: s[2]})
+            timeofday.update({pic_id: s[3]})
+
+            line = attr_fd.readline()
+
+    if os.path.isfile(box_pkl):
+        with open (box_pkl, 'rb') as fd:
+            return pickle.load(fd)
+    else:
+        box_size = dict()
+        with open(box_file, 'r') as box_fd:
+            line = box_fd.readline()
+            while line:
+                id = line.split(',')[0]
+                s = line.split('(')[-1].split(')')[0]
+                x_min, y_min, x_max, y_max = tuple([int(z) for z in s.split(',')])
+                area = abs(x_max - x_min) * abs(y_max - y_min)
+
+                if area < 2916:  # 54*54
+                    label = 'very small'
+                elif area < 4096:  # 64*64
+                    label = 'small'
+                elif area < 9216:  # 96*96
+                    label = 'medium'
+                elif area < 16384:
+                    label = 'large'
+                else:
+                    label = 'very large'
+
+                box_size.update({id: label})
+
+        print(len(box_size))
+        with open(box_pkl, 'wb') as fd:
+            pickle.dump(box_size, fd, pickle.HIGHEST_PROTOCOL)
+
+    return
+
+    def identity(data_key):
+        return data_key
+
+    def data_key_to_attr_key(data_key):
+        _pic_id = data_key.split('/')[-1][:17]
+        return _pic_id
+
+    attributes = {'weather': {'name': 'weather',
+                              'map': weather,
+                              'dk_to_ak': data_key_to_attr_key,
+                              'd_attribute': None,
+                              'metrics': ['score'],
+                              'weaks': [[]]},
+                  'scene': {'name': 'scene',
+                            'map': scene,
+                            'dk_to_ak': data_key_to_attr_key,
+                            'd_attribute': None,
+                            'metrics': ['score'],
+                            'weaks': [[]]},
+                  'timeofday': {'name': 'timeofday',
+                                'map': timeofday,
+                                'dk_to_ak': data_key_to_attr_key,
+                                'd_attribute': None,
+                                'metrics': ['score'],
+                                'weaks': [[]]},
+                  'box_size': {'name': 'box_size',
+                                'map': box_size,
+                                'dk_to_ak': identity,
+                                'd_attribute': None,
+                                'metrics': ['score'],
+                                'weaks': [[]]},
+                  }
+
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   ]
+                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+
+    for m in model_files:
+        bdd100k_model_analysis(m, attributes, val_labels)
+
+
+def bdd100k_cc_analysis():
+    labels_path = '../../bdd100k/classification/labels/'
+    bdd100k_labels_path = "../../bdd100k/labels/"
+    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   ]
+                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=class_map_file)
+
+    # Dataset for analysis
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
+
+    for m in model_files:
+
+        # test_subset creation
+        pr_file = '.'.join(m.split('.')[:-1]) + '_predictions.csv'
+        predictions, y_scores, img_ids = dt.get_scores_from_file(csv_path + pr_file, val_labels)
+        top_n_args, bot_n_args = dt.get_topbot_n_args(20000, y_scores)
+
+        cc_high = metrics_color.ColorDensityCube(resolution=4)
+        for arg in top_n_args:
+            cc_high.feed(cv2.imread(img_ids[arg]))
+        cc_high.normalize()
+        cc_high.plot_cube()
+
+        cc_low = metrics_color.ColorDensityCube(resolution=4)
+        for arg in bot_n_args:
+            cc_low.feed(cv2.imread(img_ids[arg]))
+        cc_low.normalize()
+
+        cc_diff = cc_high.substract(cc_low, 'norm')
+
+        cc_low.plot_cube()
+
+        # cc_diff.normalize()
+        cc_diff.plot_cube(title='Color cube analysis difference (' + str(20000) + ' images/series)', normalize=False,
+                          save=True)
 
 
 def colorcube_analysis():
@@ -323,5 +669,7 @@ def main():
     # r_on_fair_distribution()
     # data_analysis()
     # confusion()
+    bdd100k_analysis()
+    # bdd100k_cc_analysis()
 
 main()
