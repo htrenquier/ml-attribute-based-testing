@@ -27,6 +27,8 @@ import metrics_color
 import model_trainer as mt
 import plotting
 import tests_logging as t_log
+import analyse
+import json
 
 from datetime import datetime
 
@@ -396,22 +398,27 @@ def check_obj_annotations(obj_annot_file=bdd100k_labels_path + 'obj_val_annotati
 def classification_dataset():
     bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
     bdd100k_cl_train_path = '../../bdd100k/classification/images/train/'
+    bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
 
     # bu.build_dataset('../../bdd100k/labels/train_annotations.csv',
     #                  bdd100k_cl_train_path,
-    #                  '../../bdd100k/classification/labels/train_ground_truth.csv')
+    #                  '../../bdd100k/classification/labels/train_ground_truth.csv',
+    #                      make_attributes_file=True)
 
-    # bdd100k_cl_val_path = '../../bdd100k/classification/images/val/'
     # labels_path = '../../bdd100k/labels/'
     #
     # bu.annotate_attributes(bdd100k_labels_path + 'bdd100k_labels_images_val.json',
     #                        bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv',
     #                        bdd100k_cl_val_path, overwrite=False)
 
-    bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
-                     bdd100k_cl_val_path,
-                     '../../bdd100k/classification/labels/val_ground_truth.csv',
-                     make_attributes_file=True)
+    # bu.annotate_attributes(bdd100k_labels_path + 'bdd100k_labels_images_train.json',
+    #                        bdd100k_labels_path + 'bdd100k_labels_images_train_attributes.csv',
+    #                        bdd100k_cl_train_path, overwrite=False)
+
+    # bu.build_dataset('../../bdd100k/labels/val_annotations.csv',
+    #                  bdd100k_cl_val_path,
+    #                  '../../bdd100k/classification/labels/val_ground_truth.csv',
+    #                  make_attributes_file=True)
 
 
 def train_bdd100k_cl():
@@ -508,11 +515,9 @@ def load_model_test():
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
 
     # Datasets
-    # tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
 
     # Generators
-    # training_generator = mt.DataGenerator(tr_partition[:500000], tr_labels, **params)
     validation_generator = mt.DataGenerator(val_partition[:n_test_data], val_labels, **params)
 
     label_distrib = [val_labels.values()[:n_test_data].count(k)/n_test_data for k in xrange(params['n_classes'])]
@@ -524,6 +529,7 @@ def load_model_test():
                    'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
                    'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
                    'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+
     for model_file in model_files:
         start_time = datetime.now()
         m = load_model(h5_path + model_file)
@@ -557,6 +563,115 @@ def load_model_test():
     # m.summary()
 
 
+def bdd100k_sel_partition_test():
+    labels_path = '../../bdd100k/classification/labels/'
+    train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
+    # Datasets
+    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+    ft_partition = tr_partition[500000:1000000]
+    sel_partition = analyse.bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', ft_partition, 300000)
+
+    print('selection res=', len(sel_partition))
+
+
+
+def bdd100k_finetune_test():
+    labels_path = '../../bdd100k/classification/labels/'
+    train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    # class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+
+    # Parameters
+    params = {'dim': (64, 64, 3),
+              'batch_size': 32,
+              'n_classes': 10,
+              'shuffle': False}
+
+    n_test_data = 100000
+    epochs = 50
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
+    # Datasets
+    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
+
+    # label_distrib = [val_labels.values()[:n_test_data].count(k)/n_test_data for k in xrange(params['n_classes'])]
+    # print(label_distrib)
+
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   # ]
+                   'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+
+    for model_file in model_files:
+        ft_partition = tr_partition[500000:1000000]
+        n_sel_data = 300000
+        sel_partition = analyse.bdd100k_analysis(model_file, ft_partition, n_sel_data)  # Selected data partition
+
+        # Generators
+        finetune_generator = mt.DataGenerator(sel_partition[:n_sel_data], tr_labels, **params)
+        reference_generator = mt.DataGenerator(tr_partition[500000:500000+len(ft_partition)], tr_labels, **params)
+        validation_generator = mt.DataGenerator(val_partition[:n_test_data], val_labels, **params)
+
+        # finetune
+        model = load_model(h5_path + model_file)
+        model.compile('adam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        checkpoint = ModelCheckpoint(model_file.rstrip('.hdf5') + '_ftep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+                                     monitor='val_acc',
+                                     verbose=0,
+                                     save_best_only=True,
+                                     save_weights_only=False,
+                                     mode='auto')
+
+        # Train model on selected dataset
+        ft_history = model.fit_generator(generator=finetune_generator,
+                            validation_data=validation_generator,
+                            verbose=0,
+                            epochs=epochs,
+                            use_multiprocessing=True,
+                            workers=6,
+                            callbacks=[checkpoint]
+                            )
+
+        with open(model_file.rstrip('.hdf5') + '_ft_hist.json', 'w') as fd:
+            json.dump(ft_history, fd)
+
+        # reference
+        model = load_model(h5_path + model_file)
+        model.compile('adam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        checkpoint = ModelCheckpoint(model_file.rstrip('.h5') + '_refep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+                                     monitor='val_acc',
+                                     verbose=0,
+                                     save_best_only=True,
+                                     save_weights_only=False,
+                                     mode='auto')
+
+        # Train model on ref dataset
+        ref_history = model.fit_generator(generator=reference_generator,
+                            validation_data=validation_generator,
+                            verbose=1,
+                            epochs=epochs,
+                            use_multiprocessing=True,
+                            workers=6,
+                            callbacks=[checkpoint]
+                            )
+
+        with open(model_file.rstrip('.hdf5') + '_ref_hist.json', 'w') as fd:
+            json.dump(ref_history, fd)
 
 
 
@@ -576,7 +691,12 @@ def main():
     # test_do_boxes_cross()
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
-    classification_dataset()
+    # classification_dataset()
+
+    # bdd100k_sel_partition_test()
+
+    bdd100k_finetune_test()
+
     # train_bdd100k_cl()
     # load_model_test()
 

@@ -11,7 +11,7 @@ import initialise
 import bdd100k_utils as bu
 import cv2
 import os.path
-import pickle
+import json
 from itertools import product
 
 # Paths
@@ -116,6 +116,9 @@ class DiscreteAttribute:
     def get_labels(self):
         return [str(l) for l in self.uniques[0]]
 
+    def labelof(self, key):
+        return self.key_to_label[key]
+
     def get_distribution(self):
         return [str(c) for c in self.uniques[1]]
 
@@ -154,11 +157,14 @@ class DiscreteAttribute:
 
 def bdd100k_discrete_attribute_analyse(model_file, attribute, data_ids, y_scores, img_ids):
     res_file = csv_path + model_file.split('_')[0] + '_' + attribute['name'] + '_res_metrics.csv'
+    check_ids = []
 
-    for i in data_ids:
-        attribute['d_attribute'].add_value('score', y_scores[i], attribute['dk_to_ak'](img_ids[i]))
+    for metric in attribute['metrics']:
+        for i in data_ids:
+            attribute['d_attribute'].add_value(metric, y_scores[i], attribute['dk2ak'](img_ids[i]))
 
     # print(attribute['d_attribute'].get_metric_global_mean('score'))
+    # Prints results in result file
     # Prints results in result file
     fd = open(res_file, 'w')
     for metric in attribute['metrics']:
@@ -175,10 +181,9 @@ def bdd100k_model_analysis(model_file, attributes, val_labels):
     print(" =#= Analysing " + model_file.split('_')[0] + " =#= ")
     print("")
 
-    threshold = 0.003
+    threshold = 0
     pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
     predictions, y_scores, img_ids = dt.get_scores_from_file(csv_path + pr_file, val_labels)
-
     # 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000,
     for n_data in [100000]:
         # test_subset creation
@@ -188,125 +193,91 @@ def bdd100k_model_analysis(model_file, attributes, val_labels):
             attribute['d_attribute'] = DiscreteAttribute(attribute['map'])
             for metric in attribute['metrics']:
                 attribute['d_attribute'].add_metric(metric)
-            # weather_attr.add_metric('score', [[k for k in xrange(params['n_classes'])]])
-            # multi dimensional metrics not working in this implementation
-            labels_means, attr_mean = bdd100k_discrete_attribute_analyse(
-                model_file, attribute, bot_n_args, y_scores, img_ids)
-
-            for c, label_mean in enumerate(labels_means):
-                print(c, label_mean, attr_mean - threshold)
-                if label_mean < attr_mean - threshold:
-                    attribute['weaks'].append(attribute['d_attribute'].get_labels()[c])
+            bdd100k_discrete_attribute_analyse(model_file, attribute, bot_n_args, y_scores, img_ids)
+            for mc, metric in enumerate(attribute['metrics']):
+                for lc, label_mean in enumerate(attribute['d_attribute'].get_metric_means(metric)):
+                    # print(c, label_mean, attr_mean - threshold)
+                    metric_mean = attribute['d_attribute'].get_metric_global_mean(metric)
+                    if label_mean < metric_mean - threshold:
+                        attribute['weaks'][mc].append(attribute['d_attribute'].get_labels()[lc])
 
             print(attribute['weaks'])
 
 
-
-def bdd100k_analysis():
+def bdd100k_analysis(model_file, ft_partition, n_sel_data):
     labels_path = '../../bdd100k/classification/labels/'
     bdd100k_labels_path = "../../bdd100k/labels/"
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
     class_map_file = labels_path + 'class_mapping.csv'
     val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
-    attr_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
-    box_file = '../../bdd100k/classification/labels/val_ground_truth_attributes.csv'
-    box_pkl = labels_path + 'box_size.pkl'
+    attr_val_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
+    attr_tr_file = bdd100k_labels_path + 'bdd100k_labels_images_train_attributes.csv'
+    box_val_file = '../../bdd100k/classification/labels/val_ground_truth_attributes.csv'
+    box_tr_file = '../../bdd100k/classification/labels/train_ground_truth_attributes.csv'
+    box_val_json = labels_path + 'box_size_val_attribute.json'
+    box_tr_json = labels_path + 'box_size_train_attribute.json'
 
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=class_map_file)
 
     # Dataset for analysis
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
 
-    # Attribute mapping
-    weather = dict()
-    scene = dict()
-    timeofday = dict()
-
-    with open(attr_file, 'r') as attr_fd:
-        line = attr_fd.readline()
-        while line:
-            s = line.strip().split(',')
-            pic_id = s[0].split('/')[-1].split('.')[0]
-            weather.update({pic_id: s[1]})
-            scene.update({pic_id: s[2]})
-            timeofday.update({pic_id: s[3]})
-
-            line = attr_fd.readline()
-
-    if os.path.isfile(box_pkl):
-        with open (box_pkl, 'rb') as fd:
-            return pickle.load(fd)
-    else:
-        box_size = dict()
-        with open(box_file, 'r') as box_fd:
-            line = box_fd.readline()
-            while line:
-                id = line.split(',')[0]
-                s = line.split('(')[-1].split(')')[0]
-                x_min, y_min, x_max, y_max = tuple([int(z) for z in s.split(',')])
-                area = abs(x_max - x_min) * abs(y_max - y_min)
-
-                if area < 2916:  # 54*54
-                    label = 'very small'
-                elif area < 4096:  # 64*64
-                    label = 'small'
-                elif area < 9216:  # 96*96
-                    label = 'medium'
-                elif area < 16384:
-                    label = 'large'
-                else:
-                    label = 'very large'
-
-                box_size.update({id: label})
-
-        print(len(box_size))
-        with open(box_pkl, 'wb') as fd:
-            pickle.dump(box_size, fd, pickle.HIGHEST_PROTOCOL)
-
-    return
-
-    def identity(data_key):
-        return data_key
-
-    def data_key_to_attr_key(data_key):
-        _pic_id = data_key.split('/')[-1][:17]
-        return _pic_id
+    # Attribute mapping and data_key to attr_key function (dk2ak)
+    weather, scene, timeofday, wst_dk2ak = bu.wst_attribute_mapping(attr_val_file)
+    box_size, box_size_dk2ak = bu.box_size_attribute_mapping(box_val_file, box_val_json)
 
     attributes = {'weather': {'name': 'weather',
                               'map': weather,
-                              'dk_to_ak': data_key_to_attr_key,
+                              'dk2ak': wst_dk2ak,
                               'd_attribute': None,
                               'metrics': ['score'],
                               'weaks': [[]]},
                   'scene': {'name': 'scene',
                             'map': scene,
-                            'dk_to_ak': data_key_to_attr_key,
+                            'dk2ak': wst_dk2ak,
                             'd_attribute': None,
                             'metrics': ['score'],
                             'weaks': [[]]},
                   'timeofday': {'name': 'timeofday',
                                 'map': timeofday,
-                                'dk_to_ak': data_key_to_attr_key,
+                                'dk2ak': wst_dk2ak,
                                 'd_attribute': None,
                                 'metrics': ['score'],
                                 'weaks': [[]]},
                   'box_size': {'name': 'box_size',
-                                'map': box_size,
-                                'dk_to_ak': identity,
-                                'd_attribute': None,
-                                'metrics': ['score'],
-                                'weaks': [[]]},
+                               'map': box_size,
+                               'dk2ak': box_size_dk2ak,
+                               'd_attribute': None,
+                               'metrics': ['score'],
+                               'weaks': [[]]},
                   }
 
-    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
-                   ]
-                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
-                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
-                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
-                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+    bdd100k_model_analysis(model_file, attributes, val_labels)
 
-    for m in model_files:
-        bdd100k_model_analysis(m, attributes, val_labels)
+    attributes['weather']['map'],\
+    attributes['scene']['map'],\
+    attributes['timeofday']['map'], wst_dk2ak = bu.wst_attribute_mapping(attr_tr_file)
+    attributes['box_size']['map'], box_size_dk2ak = bu.box_size_attribute_mapping(box_tr_file, box_tr_json)
+
+    sel_partition_occurences = [[] for _ in xrange(len(attributes)+1)]
+
+    for data_key in ft_partition:
+        count = 0
+        for attribute in attributes.values():
+            if attribute['map'][attribute['dk2ak'](data_key)] in attribute['weaks'][0]:
+                count += 1
+        sel_partition_occurences[count].append(data_key)
+
+    for k in xrange(len(sel_partition_occurences)):
+        print(k, len(sel_partition_occurences[k]))
+
+    sel_partition = []
+    k = len(sel_partition_occurences) - 1
+    while len(sel_partition) < n_sel_data and k > -1:
+        sel_partition = sel_partition + sel_partition_occurences[k]
+        print(len(sel_partition))
+        k -= 1
+    return sel_partition
 
 
 def bdd100k_cc_analysis():
@@ -589,6 +560,7 @@ def main():
     Attribute analysis
     :return:
     """
+    # initialise.init()
     # colorcube_analysis()
     # histogram_analysis()
     # entropy_cc_analysis()
@@ -596,7 +568,7 @@ def main():
     # r_on_fair_distribution()
     # data_analysis()
     # confusion()
-    bdd100k_analysis()
+    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5')
     # bdd100k_cc_analysis()
 
 main()

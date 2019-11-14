@@ -414,3 +414,64 @@ def annotate_obj_attributes(input_json, input_csv, output_csv, data_path, overwr
         fd_out.write(row)
     fd_out.close()
     print('File successfully written', output_csv, 'in (s)', str(datetime.now() - start_time))
+
+
+def wst_attribute_mapping(attribute_csv):
+    weather = dict()
+    scene = dict()
+    timeofday = dict()
+
+    with open(attribute_csv, 'r') as attr_fd:
+        line = attr_fd.readline()
+        while line:
+            s = line.strip().split(',')
+            pic_id = s[0].split('/')[-1].split('.')[0]
+            weather.update({pic_id: s[1]})
+            scene.update({pic_id: s[2]})
+            timeofday.update({pic_id: s[3]})
+
+            line = attr_fd.readline()
+
+    def data_key_to_attr_key(data_key):
+        _pic_id = data_key.split('/')[-1][:17]
+        return _pic_id
+
+    return weather, scene, timeofday, data_key_to_attr_key
+
+
+def box_size_attribute_mapping(box_file, box_json):
+    if os.path.isfile(box_json):
+        with open(box_json, 'rb') as fd:
+            box_size = json.load(fd)
+    else:
+        box_size = dict()
+        with open(box_file, 'r') as box_fd:
+            line = box_fd.readline()
+            while line:
+                id = line.split(',')[0]
+                s = line.split('(')[-1].split(')')[0]
+                x_min, y_min, x_max, y_max = tuple([int(z) for z in s.split(',')])
+                area = abs(x_max - x_min) * abs(y_max - y_min)
+
+                if area < 2916:  # 54*54
+                    label = 'very small'
+                elif area < 4096:  # 64*64
+                    label = 'small'
+                elif area < 9216:  # 96*96
+                    label = 'medium'
+                elif area < 16384:
+                    label = 'large'
+                else:
+                    label = 'very large'
+
+                box_size.update({id: label})
+                line = box_fd.readline()
+
+        print(len(box_size))
+        with open(box_json, 'wb') as fd:
+            json.dump(box_size, fd)
+
+    def identity(data_key):
+        return data_key
+
+    return box_size, identity
