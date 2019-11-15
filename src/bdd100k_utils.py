@@ -282,7 +282,7 @@ def build_dataset(obj_annot_file, output_path, labels_file, make_attributes_file
     :return:
     """
     min_size = 44  # set image size = 64x64, max margin = 20
-    format = (64, 64)
+    format = (64, 64,3)
     img_size = (1280, 720)
     cnt = 0
     print('Starting extraction...')
@@ -319,8 +319,8 @@ def build_dataset(obj_annot_file, output_path, labels_file, make_attributes_file
             continue
         else:
             orig_boxes.append(box)
-            box = adjust_ratio(box, format)
-            box = adjust_size(box, format)
+            box = adjust_ratio(box, format[:2])
+            box = adjust_size(box, format[:2])
             box = adjust_position(box, img_size)
             if not box:
                 line = obj_annot.readline()

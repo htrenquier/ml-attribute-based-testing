@@ -196,13 +196,14 @@ def print_ds_color_distrib():
     cube_max2.plot_cube(title='2nd Max color distribution')
 
 
-def crop_resize(image_path, boxes, resize_format=None, output_path=None):
+def crop_resize(image_path, boxes, resize_format=None, output_path=None, check_only=False):
     """
 
     :param image_path: 3 characters-extension image path
     :param boxes:
     :param resize_format: Tuple of desired dimensions
     :param output_path: path of desired save
+    :param check_only: function will not write images and check images' size
     :return: cropped images and list of names if output_path given
     """
     image = cv2.imread(image_path)
@@ -213,14 +214,18 @@ def crop_resize(image_path, boxes, resize_format=None, output_path=None):
         x_min, y_min, x_max, y_max = box
         cropped = image[int(y_min):int(y_max), int(x_min):int(x_max), :]
         if resize_format and (cropped.shape[0] > resize_format[0] or cropped.shape[1] > resize_format[1]):
-            cropped = cv2.resize(cropped, resize_format)
+            cropped = cv2.resize(cropped, resize_format[:2])
 
         images.append(cropped)
     if output_path:
         for i in xrange(len(images)):
             name = output_path + image_path.split('/')[-1][:-4] + '-' + str(i) + image_path[-4:]
-            # cv2.imwrite(name, images[i])
-            names.append(name)
+            if check_only:
+                if cv2.imread(name).shape == resize_format:
+                    names.append(name)
+            else:
+                if cv2.imwrite(name, images[i]):
+                    names.append(name)
     return images, names
 
 
