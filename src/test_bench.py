@@ -639,7 +639,7 @@ def bdd100k_finetune_test():
         # Train model on selected dataset
         ft_history = model.fit_generator(generator=finetune_generator,
                             validation_data=validation_generator,
-                            verbose=0,
+                            verbose=1,
                             epochs=epochs,
                             use_multiprocessing=True,
                             workers=6,
