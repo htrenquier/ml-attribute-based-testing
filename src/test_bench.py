@@ -29,8 +29,11 @@ import plotting
 import tests_logging as t_log
 import analyse
 import json
+import pickle
 
 from datetime import datetime
+from nltk.corpus import wordnet as wn
+from gensim.models import KeyedVectors
 
 models = ('densenet121', 'resnet50', 'mobilenet', 'mobilenetv2', 'vgg16', 'vgg19', 'nasnet')
 # models = ['densenet121', 'resnet50']
@@ -578,7 +581,6 @@ def bdd100k_sel_partition_test():
     print('selection res=', len(sel_partition))
 
 
-
 def bdd100k_finetune_test():
     labels_path = '../../bdd100k/classification/labels/'
     train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
@@ -593,7 +595,7 @@ def bdd100k_finetune_test():
               'shuffle': False}
 
     n_test_data = 100000
-    epochs = 50
+    epochs = 30
 
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
 
@@ -644,8 +646,8 @@ def bdd100k_finetune_test():
                             callbacks=[checkpoint]
                             )
 
-        with open(model_file.rstrip('.hdf5') + '_ft_hist.json', 'w') as fd:
-            json.dump(ft_history, fd)
+        with open(model_file.rstrip('.hdf5') + '_ft_hist.pkl', 'w') as fd:
+            pickle.dump(ft_history, fd)
 
         # reference
         model = load_model(h5_path + model_file)
@@ -671,8 +673,29 @@ def bdd100k_finetune_test():
                             )
 
         with open(model_file.rstrip('.hdf5') + '_ref_hist.json', 'w') as fd:
-            json.dump(ref_history, fd)
+            pickle.dump(ref_history, fd)
 
+
+def adjectives_finding_test():
+    words = ['traffic','sign', 'light', 'car', 'rider', 'motor', 'person', 'bus', 'truck', 'bike', 'train']
+    print("loading w2vec")
+    modelName = '../../GoogleNews-vectors-negative300.bin'
+    w2v_model = KeyedVectors.load_word2vec_format(modelName, binary=True)
+    print("w2vec loaded")
+    similar_words = w2v_model.most_similar(words, topn=20)
+    print(similar_words)
+    # words = ['amazing', 'interesting', 'love', 'great', 'nice']
+    # pos_all = dict()
+    # for w in similar_words:
+    #     pos_l = set()
+    #     for tmp in wn.synsets(w):
+    #         if tmp.name().split('.')[0] == w:
+    #             pos_l.add(tmp.pos())
+    #     pos_all[w] = pos_l
+    # print pos_all
+    for w in words:
+        tmp = wn.synsets(w)[0].pos()
+        print w, ":", tmp
 
 
 def main():
@@ -696,7 +719,7 @@ def main():
     # bdd100k_sel_partition_test()
 
     bdd100k_finetune_test()
-
+    # adjectives_finding_test()
     # train_bdd100k_cl()
     # load_model_test()
 
