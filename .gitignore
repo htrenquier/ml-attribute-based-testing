@@ -3,3 +3,4 @@
 *.pyc
 ./res/*
 .DS_Store
+*.pkl

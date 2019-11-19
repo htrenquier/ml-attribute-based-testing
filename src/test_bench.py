@@ -581,7 +581,7 @@ def bdd100k_sel_partition_test():
     print('selection res=', len(sel_partition))
 
 
-def bdd100k_finetune_test():
+def bdd100k_global_finetune_test():
     labels_path = '../../bdd100k/classification/labels/'
     train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
@@ -638,13 +638,13 @@ def bdd100k_finetune_test():
 
         # Train model on selected dataset
         ft_history = model.fit_generator(generator=finetune_generator,
-                            validation_data=validation_generator,
-                            verbose=1,
-                            epochs=epochs,
-                            use_multiprocessing=True,
-                            workers=6,
-                            callbacks=[checkpoint]
-                            )
+                                         validation_data=validation_generator,
+                                         verbose=1,
+                                         epochs=epochs,
+                                         use_multiprocessing=True,
+                                         workers=6,
+                                         callbacks=[checkpoint]
+                                         )
 
         with open(model_file.rstrip('.hdf5') + '_ft_hist.pkl', 'w') as fd:
             pickle.dump(ft_history, fd)
@@ -664,20 +664,124 @@ def bdd100k_finetune_test():
 
         # Train model on ref dataset
         ref_history = model.fit_generator(generator=reference_generator,
-                            validation_data=validation_generator,
-                            verbose=1,
-                            epochs=epochs,
-                            use_multiprocessing=True,
-                            workers=6,
-                            callbacks=[checkpoint]
-                            )
+                                          validation_data=validation_generator,
+                                          verbose=1,
+                                          epochs=epochs,
+                                          use_multiprocessing=True,
+                                          workers=6,
+                                          callbacks=[checkpoint]
+                                          )
 
-        with open(model_file.rstrip('.hdf5') + '_ref_hist.json', 'w') as fd:
+        with open(model_file.rstrip('.hdf5') + '_ref_hist.pkl', 'w') as fd:
             pickle.dump(ref_history, fd)
 
 
+def bdd100k_local_finetune_test():
+    labels_path = '../../bdd100k/classification/labels/'
+    train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    # class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+
+    # Parameters
+    params = {'dim': (64, 64, 3),
+              'batch_size': 32,
+              'n_classes': 10,
+              'shuffle': False}
+
+    # n_test_data = 100000
+    epochs = 30
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
+    # Datasets
+    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
+
+    # label_distrib = [val_labels.values()[:n_test_data].count(k)/n_test_data for k in xrange(params['n_classes'])]
+    # print(label_distrib)
+
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   ]
+                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+
+    for model_file in model_files:
+        ft_partition = tr_partition[500000:1000000]
+        n_sel_data = 400000
+        # Selected data partition
+        day_sel_partition = analyse.bdd100k_analysis(model_file, ft_partition, n_sel_data, 'timeofday', 'day')
+        night_sel_partition = analyse.bdd100k_analysis(model_file, ft_partition, n_sel_data, 'timeofday', 'night')
+
+        # Generators
+        day_ft_generator = mt.DataGenerator(day_sel_partition[:300000], tr_labels, **params)
+        night_ft_generator = mt.DataGenerator(night_sel_partition[:300000], tr_labels, **params)
+        day_val_generator = mt.DataGenerator(day_sel_partition[300000:], val_labels, **params)
+        night_val_generator = mt.DataGenerator(night_sel_partition[300000:], val_labels, **params)
+
+        # finetune
+        model = load_model(h5_path + model_file)
+        model.compile('adam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        checkpoint = ModelCheckpoint(model_file.rstrip('.hdf5') + '_ft_day_ep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+                                     monitor='val_acc',
+                                     verbose=0,
+                                     save_best_only=True,
+                                     save_weights_only=False,
+                                     mode='auto')
+
+        # Train model on selected dataset
+        day_history = model.fit_generator(generator=day_ft_generator,
+                                         validation_data=day_val_generator,
+                                         verbose=1,
+                                         epochs=epochs,
+                                         use_multiprocessing=True,
+                                         workers=6,
+                                         callbacks=[checkpoint]
+                                         )
+
+        with open(model_file.rstrip('.hdf5') + '_ft_day_hist.pkl', 'w') as fd:
+            pickle.dump(day_history, fd)
+
+        # reference
+        model = load_model(h5_path + model_file)
+        model.compile('adam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        checkpoint = ModelCheckpoint(model_file.rstrip('.h5') + '_ft_night_ep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+                                     monitor='val_acc',
+                                     verbose=0,
+                                     save_best_only=True,
+                                     save_weights_only=False,
+                                     mode='auto')
+
+        # Train model on ref dataset
+        night_history = model.fit_generator(generator=night_ft_generator,
+                                          validation_data=night_val_generator,
+                                          verbose=1,
+                                          epochs=epochs,
+                                          use_multiprocessing=True,
+                                          workers=6,
+                                          callbacks=[checkpoint]
+                                          )
+
+        with open(model_file.rstrip('.hdf5') + '_ft_night_hist.pkl', 'w') as fd:
+            pickle.dump(night_history, fd)
+
+
+def show_history_test(filename):
+    with open(filename, 'r') as pkl_fd:
+        history = pickle.load(pkl_fd)
+    plotting.plot_history(history, 'acc', 'Densenet121 accuracy during training')
+
+
 def adjectives_finding_test():
-    words = ['traffic','sign', 'light', 'car', 'rider', 'motor', 'person', 'bus', 'truck', 'bike', 'train']
+    words = ['traffic', 'sign', 'light', 'car', 'rider', 'motor', 'person', 'bus', 'truck', 'bike', 'train']
     print("loading w2vec")
     modelName = '../../GoogleNews-vectors-negative300.bin'
     w2v_model = KeyedVectors.load_word2vec_format(modelName, binary=True)
@@ -696,6 +800,40 @@ def adjectives_finding_test():
     for w in words:
         tmp = wn.synsets(w)[0].pos()
         print w, ":", tmp
+
+
+def subset_selection_test():
+    labels_path = '../../bdd100k/classification/labels/'
+    bdd100k_labels_path = "../../bdd100k/labels/"
+    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
+    class_map_file = labels_path + 'class_mapping.csv'
+    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+    attr_val_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
+    attr_tr_file = bdd100k_labels_path + 'bdd100k_labels_images_train_attributes.csv'
+    train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=class_map_file)
+
+    # Dataset for analysis
+    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+
+    w, s, tod, wst_dk2ak = bu.wst_attribute_mapping(attr_tr_file)
+
+    d_tod = analyse.DiscreteAttribute(tod)
+    d_s = analyse.DiscreteAttribute(s)
+
+    scene_tod_distrib = np.zeros((len(d_tod.get_labels()), len(d_s.get_labels())))
+    print(scene_tod_distrib)
+    for data_key in tr_partition:
+        attr_key = wst_dk2ak(data_key)
+        x = d_tod.index_of(d_tod.labelof(attr_key))
+        y = d_s.index_of(d_s.labelof(attr_key))
+        scene_tod_distrib[x][y] += 1
+
+    print("        " + " / ".join(d_s.get_labels()))
+    for k in xrange(len(scene_tod_distrib)):
+        print(k)
+        print(d_tod.get_labels()[k] + "\t" + " ".join([str(val) for val in scene_tod_distrib[k]]))
 
 
 def main():
@@ -718,7 +856,12 @@ def main():
 
     # bdd100k_sel_partition_test()
 
-    bdd100k_finetune_test()
+    # bdd100k_global_finetune_test()
+    bdd100k_local_finetune_test()
+    # show_history_test(tb_path+'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_hist.pkl')
+    # show_history_test(tb_path + 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ref_hist.pkl')
+    # subset_selection_test()
+
     # adjectives_finding_test()
     # train_bdd100k_cl()
     # load_model_test()

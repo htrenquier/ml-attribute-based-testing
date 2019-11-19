@@ -75,8 +75,8 @@ class MetricStructure:
     def add_value(self, entry, value):
         self.struct[entry].append(value)
 
-    def get_value_list(self, entries_ids):
-        return self.struct[tuple(entries_ids)]
+    def get_value_list(self, entry):
+        return self.struct[entry]
 
     def get_value_mean(self, entry):
         return np.mean(self.struct[entry])
@@ -118,6 +118,9 @@ class DiscreteAttribute:
 
     def labelof(self, key):
         return self.key_to_label[key]
+
+    def index_of(self, label):
+        return self.indexof[label]
 
     def get_distribution(self):
         return [str(c) for c in self.uniques[1]]
@@ -204,7 +207,7 @@ def bdd100k_model_analysis(model_file, attributes, val_labels):
             print(attribute['weaks'])
 
 
-def bdd100k_analysis(model_file, ft_partition, n_sel_data):
+def bdd100k_analysis(model_file, ft_partition, n_sel_data, ft_attribute=None, ft_label=None, do_plot_boxes=False):
     labels_path = '../../bdd100k/classification/labels/'
     bdd100k_labels_path = "../../bdd100k/labels/"
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
@@ -216,6 +219,8 @@ def bdd100k_analysis(model_file, ft_partition, n_sel_data):
     box_tr_file = '../../bdd100k/classification/labels/train_ground_truth_attributes.csv'
     box_val_json = labels_path + 'box_size_val_attribute.json'
     box_tr_json = labels_path + 'box_size_train_attribute.json'
+
+    assert (bool(ft_attribute) == bool(ft_label))
 
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=class_map_file)
 
@@ -254,12 +259,41 @@ def bdd100k_analysis(model_file, ft_partition, n_sel_data):
 
     bdd100k_model_analysis(model_file, attributes, val_labels)
 
+    if do_plot_boxes:
+        for attribute in attributes.values():
+            for metric in attribute['metrics']:
+                labels = attribute['d_attribute'].get_labels()
+                distrib = [int(v) for v in attribute['d_attribute'].get_distribution()]
+                series = [attribute['d_attribute'].get_metric_value_list(metric, label) for label in labels]
+                series_names = ["%s (%1.2f)" % (labels[k], distrib[k]/sum(distrib)) for k in xrange(len(labels))]
+                plotting.n_box_plot(series, series_names, metric, title=model_file.split('_')[0] + " " + attribute['name'])
+
     attributes['weather']['map'],\
     attributes['scene']['map'],\
     attributes['timeofday']['map'], wst_dk2ak = bu.wst_attribute_mapping(attr_tr_file)
     attributes['box_size']['map'], box_size_dk2ak = bu.box_size_attribute_mapping(box_tr_file, box_tr_json)
 
-    sel_partition_occurences = [[] for _ in xrange(len(attributes)+1)]
+    if ft_label and ft_attribute:
+        sel_partition = local_ft_selection(attributes[ft_attribute], ft_label, ft_partition, n_sel_data)
+    else:
+        sel_partition = global_ft_selection(attributes, ft_partition, n_sel_data)
+
+    return sel_partition
+
+
+def local_ft_selection(attribute, label, ft_partition, n_sel_data):
+    sel_partition = []
+    for data_key in ft_partition:
+        count = 0
+        if attribute['map'][attribute['dk2ak'](data_key)] == label:
+            count += 1
+        sel_partition.append(data_key)
+
+    return sel_partition[:n_sel_data]
+
+
+def global_ft_selection(attributes, ft_partition, n_sel_data):
+    sel_partition_occurences = [[] for _ in xrange(len(attributes) + 1)]
 
     for data_key in ft_partition:
         count = 0
@@ -277,7 +311,8 @@ def bdd100k_analysis(model_file, ft_partition, n_sel_data):
         sel_partition = sel_partition + sel_partition_occurences[k]
         print(len(sel_partition))
         k -= 1
-    return sel_partition
+    return sel_partition[:n_sel_data]
+
 
 
 def bdd100k_cc_analysis():
@@ -309,20 +344,25 @@ def bdd100k_cc_analysis():
         cc_high = metrics_color.ColorDensityCube(resolution=4)
         for arg in top_n_args:
             cc_high.feed(cv2.imread(img_ids[arg]))
+        print('high sum', np.sum(cc_high.get_cube().flatten()))
         cc_high.normalize()
         cc_high.plot_cube()
 
         cc_low = metrics_color.ColorDensityCube(resolution=4)
         for arg in bot_n_args:
             cc_low.feed(cv2.imread(img_ids[arg]))
+        print('low sum', np.sum(cc_low.get_cube().flatten()))
         cc_low.normalize()
-
-        cc_diff = cc_high.substract(cc_low, 'norm')
-
         cc_low.plot_cube()
 
+        cc_diff = cc_high.substract(cc_low, 'value')
+        print('diff mean', np.sum(cc_diff.get_cube().flatten()))
+        print('diff mean', np.mean(cc_diff.get_cube().flatten()))
+        cc_diff.normalize()
+        # cc_diff.plot_cube()
+
         # cc_diff.normalize()
-        cc_diff.plot_cube(title='Color cube analysis difference (' + str(20000) + ' images/series)', normalize=False,
+        cc_diff.plot_cube(title='Color cube analysis difference (' + str(20000) + ' images/series)', normalize=True,
                           save=True)
 
 
@@ -568,7 +608,7 @@ def main():
     # r_on_fair_distribution()
     # data_analysis()
     # confusion()
-    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5')
+    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', [], 0, do_plot_boxes=True)
     # bdd100k_cc_analysis()
 
 main()

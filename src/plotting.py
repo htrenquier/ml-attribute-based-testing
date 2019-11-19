@@ -195,6 +195,19 @@ def box_plot(series1, series2, name_s1='series1', name_s2='series2', y_label=Non
     plt.close()
 
 
+def n_box_plot(series, series_names, y_label=None, save=False, title=None):
+    fig, ax = plt.subplots()
+    if title:
+        ax.set_title(title)
+    ax.boxplot(series, showfliers=False)
+    ax.set_xticklabels(series_names, rotation=45, fontsize=8)
+    ax.set_ylabel(y_label)
+    plt.show()
+    if save:
+        plt.savefig(title + '.png')
+    plt.close()
+
+
 def scale3d(ax, x_scale=1, y_scale=1, z_scale=1):
     scale = np.diag([x_scale, y_scale, z_scale, 1.0])
     scale = scale * (1.0 / scale.max())
@@ -276,3 +289,14 @@ def show_imgs(id_list, title, dataset, showColorCube=False, resolution=16):  # l
             # fig.subplots_adjust()
             plt.show()
         plt.close()
+
+
+def plot_history(history, metric_name='acc', title='model'):
+    # Plot training & validation accuracy values
+    plt.plot(history.history[metric_name])
+    plt.plot(history.history['val_'+metric_name])
+    plt.title(title)
+    plt.ylabel(metric_name)
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'val'], loc='upper left')
+    plt.show()
