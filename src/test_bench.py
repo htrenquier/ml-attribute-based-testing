@@ -696,6 +696,7 @@ def bdd100k_local_finetune_test(model_files):
         ft_partition = tr_partition[500000:1000000]
         n_sel_data = 400000
 
+        # daytime timeofday finetuning
         # Selected data partition
         day_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'timeofday', 'daytime',
                                                    do_plot_boxes=True)
@@ -705,6 +706,7 @@ def bdd100k_local_finetune_test(model_files):
 
         mt.ft(h5_path + model_file, day_ft_generator, day_val_generator, epochs, save_history=True, tag='daytime')
 
+        # Highway scene finetuning
         highway_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'scene', 'highway')
         highway_ft_generator = mt.DataGenerator(highway_sel_partition[:150000], tr_labels, **params)
         highway_val_generator = mt.DataGenerator(highway_sel_partition[150000:],  tr_labels, **params)
@@ -712,6 +714,7 @@ def bdd100k_local_finetune_test(model_files):
         mt.ft(h5_path + model_file, highway_ft_generator, highway_val_generator, epochs,
               save_history=True, tag='highway')
 
+        # City street scene finetuning
         city_street_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'scene', 'city street')
         city_street_ft_generator = mt.DataGenerator(city_street_sel_partition[:300000], tr_labels, **params)
         city_street_val_generator = mt.DataGenerator(city_street_sel_partition[300000:], tr_labels, **params)

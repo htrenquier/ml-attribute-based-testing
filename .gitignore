@@ -1,6 +1,7 @@
 *.h5
 *.hdf5
 *.pyc
+*.pkl
+*.csv
 ./res/*
 .DS_Store
-*.pkl
