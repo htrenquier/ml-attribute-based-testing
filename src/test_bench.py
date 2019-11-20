@@ -28,7 +28,6 @@ import model_trainer as mt
 import plotting
 import tests_logging as t_log
 import analyse
-import json
 import pickle
 
 from datetime import datetime
@@ -532,6 +531,8 @@ def load_model_test():
                    'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
                    'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
                    'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5']
+                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5']
 
     for model_file in model_files:
         start_time = datetime.now()
@@ -576,12 +577,12 @@ def bdd100k_sel_partition_test():
     # Datasets
     tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
     ft_partition = tr_partition[500000:1000000]
-    sel_partition = analyse.bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', ft_partition, 300000)
+    sel_partition = analyse.select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', ft_partition, 300000)
 
     print('selection res=', len(sel_partition))
 
 
-def bdd100k_global_finetune_test():
+def bdd100k_global_finetune_test(model_files):
     labels_path = '../../bdd100k/classification/labels/'
     train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
@@ -603,20 +604,10 @@ def bdd100k_global_finetune_test():
     tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
 
-    # label_distrib = [val_labels.values()[:n_test_data].count(k)/n_test_data for k in xrange(params['n_classes'])]
-    # print(label_distrib)
-
-    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
-                   # ]
-                   'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
-                   'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
-                   'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
-                   'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
-
     for model_file in model_files:
         ft_partition = tr_partition[500000:1000000]
         n_sel_data = 300000
-        sel_partition = analyse.bdd100k_analysis(model_file, ft_partition, n_sel_data)  # Selected data partition
+        sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data)  # Selected data partition
 
         # Generators
         finetune_generator = mt.DataGenerator(sel_partition[:n_sel_data], tr_labels, **params)
@@ -676,7 +667,7 @@ def bdd100k_global_finetune_test():
             pickle.dump(ref_history, fd)
 
 
-def bdd100k_local_finetune_test():
+def bdd100k_local_finetune_test(model_files):
     labels_path = '../../bdd100k/classification/labels/'
     train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
@@ -701,77 +692,84 @@ def bdd100k_local_finetune_test():
     # label_distrib = [val_labels.values()[:n_test_data].count(k)/n_test_data for k in xrange(params['n_classes'])]
     # print(label_distrib)
 
-    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
-                   ]
-                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
-                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
-                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
-                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
-
     for model_file in model_files:
         ft_partition = tr_partition[500000:1000000]
         n_sel_data = 400000
-        # Selected data partition
-        day_sel_partition = analyse.bdd100k_analysis(model_file, ft_partition, n_sel_data, 'timeofday', 'day')
-        night_sel_partition = analyse.bdd100k_analysis(model_file, ft_partition, n_sel_data, 'timeofday', 'night')
 
+        # Selected data partition
+        day_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'timeofday', 'daytime',
+                                                   do_plot_boxes=True)
         # Generators
         day_ft_generator = mt.DataGenerator(day_sel_partition[:300000], tr_labels, **params)
-        night_ft_generator = mt.DataGenerator(night_sel_partition[:300000], tr_labels, **params)
-        day_val_generator = mt.DataGenerator(day_sel_partition[300000:], val_labels, **params)
-        night_val_generator = mt.DataGenerator(night_sel_partition[300000:], val_labels, **params)
+        day_val_generator = mt.DataGenerator(day_sel_partition[300000:],  tr_labels, **params)
+
+        mt.ft(h5_path + model_file, day_ft_generator, day_val_generator, epochs, save_history=True, tag='daytime')
+
+        highway_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'scene', 'highway')
+        highway_ft_generator = mt.DataGenerator(highway_sel_partition[:150000], tr_labels, **params)
+        highway_val_generator = mt.DataGenerator(highway_sel_partition[150000:],  tr_labels, **params)
+
+        mt.ft(h5_path + model_file, highway_ft_generator, highway_val_generator, epochs,
+              save_history=True, tag='highway')
+
+        city_street_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'scene', 'city street')
+        city_street_ft_generator = mt.DataGenerator(city_street_sel_partition[:300000], tr_labels, **params)
+        city_street_val_generator = mt.DataGenerator(city_street_sel_partition[300000:], tr_labels, **params)
+
+        mt.ft(h5_path + model_file, city_street_ft_generator, city_street_val_generator, epochs,
+              save_history=True, tag='city_street')
 
         # finetune
-        model = load_model(h5_path + model_file)
-        model.compile('adam',
-                      loss='categorical_crossentropy',
-                      metrics=['accuracy'])
-
-        checkpoint = ModelCheckpoint(model_file.rstrip('.hdf5') + '_ft_day_ep{epoch:02d}_vl{val_loss:.2f}.hdf5',
-                                     monitor='val_acc',
-                                     verbose=0,
-                                     save_best_only=True,
-                                     save_weights_only=False,
-                                     mode='auto')
-
-        # Train model on selected dataset
-        day_history = model.fit_generator(generator=day_ft_generator,
-                                         validation_data=day_val_generator,
-                                         verbose=1,
-                                         epochs=epochs,
-                                         use_multiprocessing=True,
-                                         workers=6,
-                                         callbacks=[checkpoint]
-                                         )
-
-        with open(model_file.rstrip('.hdf5') + '_ft_day_hist.pkl', 'w') as fd:
-            pickle.dump(day_history, fd)
-
-        # reference
-        model = load_model(h5_path + model_file)
-        model.compile('adam',
-                      loss='categorical_crossentropy',
-                      metrics=['accuracy'])
-
-        checkpoint = ModelCheckpoint(model_file.rstrip('.h5') + '_ft_night_ep{epoch:02d}_vl{val_loss:.2f}.hdf5',
-                                     monitor='val_acc',
-                                     verbose=0,
-                                     save_best_only=True,
-                                     save_weights_only=False,
-                                     mode='auto')
-
-        # Train model on ref dataset
-        night_history = model.fit_generator(generator=night_ft_generator,
-                                          validation_data=night_val_generator,
-                                          verbose=1,
-                                          epochs=epochs,
-                                          use_multiprocessing=True,
-                                          workers=6,
-                                          callbacks=[checkpoint]
-                                          )
-
-        with open(model_file.rstrip('.hdf5') + '_ft_night_hist.pkl', 'w') as fd:
-            pickle.dump(night_history, fd)
+        # model = load_model(h5_path + model_file)
+        # model.compile('adam',
+        #               loss='categorical_crossentropy',
+        #               metrics=['accuracy'])
+        #
+        # checkpoint = ModelCheckpoint(model_file.rstrip('.hdf5') + '_ft_day_ep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+        #                              monitor='val_acc',
+        #                              verbose=0,
+        #                              save_best_only=True,
+        #                              save_weights_only=False,
+        #                              mode='auto')
+        #
+        # # Train model on selected dataset
+        # day_history = model.fit_generator(generator=day_ft_generator,
+        #                                  validation_data=day_val_generator,
+        #                                  verbose=1,
+        #                                  epochs=epochs,
+        #                                  use_multiprocessing=True,
+        #                                  workers=6,
+        #                                  callbacks=[checkpoint]
+        #                                  )
+        #
+        # with open(model_file.rstrip('.hdf5') + '_ft_day_hist.pkl', 'w') as fd:
+        #     pickle.dump(day_history, fd)
+        #
+        # # reference
+        # model = load_model(h5_path + model_file)
+        # model.compile('adam',
+        #               loss='categorical_crossentropy',
+        #               metrics=['accuracy'])
+        #
+        # checkpoint = ModelCheckpoint(model_file.rstrip('.hdf5') + '_ft_night_ep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+        #                              monitor='val_acc',
+        #                              verbose=0,
+        #                              save_best_only=True,
+        #                              save_weights_only=False,
+        #                              mode='auto')
+        #
+        # # Train model on ref dataset
+        # night_history = model.fit_generator(generator=night_ft_generator,
+        #                                   validation_data=night_val_generator,
+        #                                   verbose=1,
+        #                                   epochs=epochs,
+        #                                   use_multiprocessing=True,
+        #                                   workers=6,
+        #                                   callbacks=[checkpoint]
+        #                                   )
+        #
+        # with open(model_file.rstrip('.hdf5') + '_ft_night_hist.pkl', 'w') as fd:
+        #     pickle.dump(night_history, fd)
 
 
 def show_history_test(filename):
@@ -854,17 +852,30 @@ def main():
     # test_extract_non_superposing_boxes()
     # classification_dataset()
 
-    # bdd100k_sel_partition_test()
 
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   ]
+                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+    model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5']
+    # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5']
+
+
+    # load_model_test()
+
+    # bdd100k_sel_partition_test()
     # bdd100k_global_finetune_test()
-    bdd100k_local_finetune_test()
+    bdd100k_local_finetune_test(model_files)
     # show_history_test(tb_path+'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_hist.pkl')
     # show_history_test(tb_path + 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ref_hist.pkl')
+    # show_history_test(tb_path + 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_hist.pkl')
+
     # subset_selection_test()
 
     # adjectives_finding_test()
     # train_bdd100k_cl()
-    # load_model_test()
 
 
 

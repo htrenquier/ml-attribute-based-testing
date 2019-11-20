@@ -15,8 +15,9 @@ from keras_retinanet.callbacks import RedirectModel
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import TensorBoard
 from keras.callbacks import ReduceLROnPlateau
+from keras.models import load_model
 import cv2
-
+import pickle
 
 class ModelConfig:
     def __init__(self, model_type, input_shape, num_classes, weights, task='classification', backbone=None):
@@ -34,8 +35,6 @@ class ModelConfig:
 class TrainingConfig:
     def __init__(self, model_type, ):
         return
-
-
 
 
 def model_param(model_type):
@@ -448,6 +447,38 @@ def train_reg(model, model_type, tr_data, val_data, tag, epochs, data_augmentati
     print('Val accuracy:', score[1])
     # model.summary()
     return model, weight_file.strip('.h5')
+
+
+def ft(model_filepath, ft_gen, val_gen, epochs, save_history=False, tag=''):
+    # finetune
+    model_file = model_filepath.split("/")[-1]
+    extension = model_filepath.split(".")[-1]
+    print("Fine-tuning " + model_file)
+
+    model = load_model(model_filepath)
+    model.compile('adam',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    checkpoint = ModelCheckpoint(model_file.rstrip('.'+extension) + '_ftep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+                                 monitor='val_acc',
+                                 verbose=0,
+                                 save_best_only=True,
+                                 save_weights_only=False,
+                                 mode='auto')
+
+    # Train model on selected dataset
+    ft_history = model.fit_generator(generator=ft_gen,
+                                     validation_data=val_gen,
+                                     verbose=1,
+                                     epochs=epochs,
+                                     use_multiprocessing=True,
+                                     workers=6,
+                                     callbacks=[checkpoint]
+                                     )
+    if save_history:
+        with open(model_file.rstrip('.'+extension) + '_' + tag + '_ft_hist.pkl', 'w') as fd:
+            pickle.dump(ft_history, fd)
 
 
 def create_generators(train_annotations, val_annotations, class_mapping, preprocess_image, batch_size,

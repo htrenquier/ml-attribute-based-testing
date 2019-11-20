@@ -18,6 +18,18 @@ from itertools import product
 csv_path = '../res/csv/'
 png_path = '../res/png/'
 h5_path = '../res/h5/'
+labels_path = '../../bdd100k/classification/labels/'
+bdd100k_labels_path = "../../bdd100k/labels/"
+box_tr_file = '../../bdd100k/classification/labels/train_ground_truth_attributes.csv'
+val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
+box_val_file = '../../bdd100k/classification/labels/val_ground_truth_attributes.csv'
+val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
+attr_tr_file = bdd100k_labels_path + 'bdd100k_labels_images_train_attributes.csv'
+attr_val_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
+box_tr_json = labels_path + 'box_size_train_attribute.json'
+class_map_file = labels_path + 'class_mapping.csv'
+box_val_json = labels_path + 'box_size_val_attribute.json'
+labels_path = '../../bdd100k/classification/labels/'
 
 # models = ('densenet121', 'mobilenet', 'mobilenetv2', 'nasnet', 'resnet50')
 models = ['densenet121', 'resnet50']
@@ -160,23 +172,17 @@ class DiscreteAttribute:
 
 def bdd100k_discrete_attribute_analyse(model_file, attribute, data_ids, y_scores, img_ids):
     res_file = csv_path + model_file.split('_')[0] + '_' + attribute['name'] + '_res_metrics.csv'
-    check_ids = []
 
     for metric in attribute['metrics']:
         for i in data_ids:
             attribute['d_attribute'].add_value(metric, y_scores[i], attribute['dk2ak'](img_ids[i]))
 
-    # print(attribute['d_attribute'].get_metric_global_mean('score'))
-    # Prints results in result file
-    # Prints results in result file
     fd = open(res_file, 'w')
     for metric in attribute['metrics']:
         attribute['d_attribute'].log_headers(fd)
         attribute['d_attribute'].log_metric_means(metric, fd)
         fd.write(str(attribute['d_attribute'].get_metric_global_mean(metric)))
     fd.close()
-
-    return attribute['d_attribute'].get_metric_means('score'), attribute['d_attribute'].get_metric_global_mean('score')
 
 
 def bdd100k_model_analysis(model_file, attributes, val_labels):
@@ -207,22 +213,26 @@ def bdd100k_model_analysis(model_file, attributes, val_labels):
             print(attribute['weaks'])
 
 
-def bdd100k_analysis(model_file, ft_partition, n_sel_data, ft_attribute=None, ft_label=None, do_plot_boxes=False):
-    labels_path = '../../bdd100k/classification/labels/'
-    bdd100k_labels_path = "../../bdd100k/labels/"
-    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
-    class_map_file = labels_path + 'class_mapping.csv'
-    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
-    attr_val_file = bdd100k_labels_path + 'bdd100k_labels_images_val_attributes.csv'
-    attr_tr_file = bdd100k_labels_path + 'bdd100k_labels_images_train_attributes.csv'
-    box_val_file = '../../bdd100k/classification/labels/val_ground_truth_attributes.csv'
-    box_tr_file = '../../bdd100k/classification/labels/train_ground_truth_attributes.csv'
-    box_val_json = labels_path + 'box_size_val_attribute.json'
-    box_tr_json = labels_path + 'box_size_train_attribute.json'
-
+def select_ft_data(model_file, ft_partition, n_sel_data, ft_attribute=None, ft_label=None, do_plot_boxes=False):
     assert (bool(ft_attribute) == bool(ft_label))
+    attributes = bdd100k_analysis(model_file, do_plot_boxes)
 
-    class_map_file = bu.class_mapping(input_json=val_json, output_csv=class_map_file)
+    attributes['weather']['map'], \
+    attributes['scene']['map'], \
+    attributes['timeofday']['map'], wst_dk2ak = bu.wst_attribute_mapping(attr_tr_file)
+    attributes['box_size']['map'], box_size_dk2ak = bu.box_size_attribute_mapping(box_tr_file, box_tr_json)
+
+    if ft_label and ft_attribute:
+        print('Selecting data for ' + ft_attribute + ' / ' + ft_label)
+        sel_partition = local_ft_selection(attributes[ft_attribute], ft_label, ft_partition, n_sel_data)
+    else:
+        print('Selecting data for global fine-tuning.')
+        sel_partition = global_ft_selection(attributes, ft_partition, n_sel_data)
+    return sel_partition
+
+
+def bdd100k_analysis(model_file, do_plot_boxes=False):
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
 
     # Dataset for analysis
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
@@ -259,26 +269,15 @@ def bdd100k_analysis(model_file, ft_partition, n_sel_data, ft_attribute=None, ft
 
     bdd100k_model_analysis(model_file, attributes, val_labels)
 
+    # Score for day and night
+    day_score = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'daytime')
+    night_score = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'night')
+    print('Scores: day:', day_score, ' / night:', night_score)
+
     if do_plot_boxes:
-        for attribute in attributes.values():
-            for metric in attribute['metrics']:
-                labels = attribute['d_attribute'].get_labels()
-                distrib = [int(v) for v in attribute['d_attribute'].get_distribution()]
-                series = [attribute['d_attribute'].get_metric_value_list(metric, label) for label in labels]
-                series_names = ["%s (%1.2f)" % (labels[k], distrib[k]/sum(distrib)) for k in xrange(len(labels))]
-                plotting.n_box_plot(series, series_names, metric, title=model_file.split('_')[0] + " " + attribute['name'])
+        plotting.plot_discrete_attribute_scores(attributes, model_file.split('_')[0])
 
-    attributes['weather']['map'],\
-    attributes['scene']['map'],\
-    attributes['timeofday']['map'], wst_dk2ak = bu.wst_attribute_mapping(attr_tr_file)
-    attributes['box_size']['map'], box_size_dk2ak = bu.box_size_attribute_mapping(box_tr_file, box_tr_json)
-
-    if ft_label and ft_attribute:
-        sel_partition = local_ft_selection(attributes[ft_attribute], ft_label, ft_partition, n_sel_data)
-    else:
-        sel_partition = global_ft_selection(attributes, ft_partition, n_sel_data)
-
-    return sel_partition
+    return attributes
 
 
 def local_ft_selection(attribute, label, ft_partition, n_sel_data):
@@ -314,14 +313,7 @@ def global_ft_selection(attributes, ft_partition, n_sel_data):
     return sel_partition[:n_sel_data]
 
 
-
 def bdd100k_cc_analysis():
-    labels_path = '../../bdd100k/classification/labels/'
-    bdd100k_labels_path = "../../bdd100k/labels/"
-    val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
-    class_map_file = labels_path + 'class_mapping.csv'
-    val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
-
     model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
                    ]
                    # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
@@ -329,7 +321,7 @@ def bdd100k_cc_analysis():
                    # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
                    # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
 
-    class_map_file = bu.class_mapping(input_json=val_json, output_csv=class_map_file)
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
 
     # Dataset for analysis
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
@@ -596,10 +588,6 @@ def confusion(model='densenet121'):
 
 
 def main():
-    """
-    Attribute analysis
-    :return:
-    """
     # initialise.init()
     # colorcube_analysis()
     # histogram_analysis()
@@ -608,7 +596,8 @@ def main():
     # r_on_fair_distribution()
     # data_analysis()
     # confusion()
-    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', [], 0, do_plot_boxes=True)
+    # select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', [], 0, do_plot_boxes=True)
+    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5', do_plot_boxes=True)
     # bdd100k_cc_analysis()
 
 main()
