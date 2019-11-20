@@ -577,7 +577,7 @@ def bdd100k_sel_partition_test():
     # Datasets
     tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
     ft_partition = tr_partition[500000:1000000]
-    sel_partition = analyse.select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', ft_partition, 300000)
+    sel_partition = analyse.select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', ft_partition)
 
     print('selection res=', len(sel_partition))
 
@@ -607,7 +607,7 @@ def bdd100k_global_finetune_test(model_files):
     for model_file in model_files:
         ft_partition = tr_partition[500000:1000000]
         n_sel_data = 300000
-        sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data)  # Selected data partition
+        sel_partition = analyse.select_ft_data(model_file, ft_partition)  # Selected data partition
 
         # Generators
         finetune_generator = mt.DataGenerator(sel_partition[:n_sel_data], tr_labels, **params)
@@ -698,17 +698,18 @@ def bdd100k_local_finetune_test(model_files):
 
         # daytime timeofday finetuning
         # Selected data partition
-        day_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'timeofday', 'daytime',
+        day_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'timeofday', 'daytime',
                                                    do_plot_boxes=False)
         # Generators
         sp = 4 * len(day_sel_partition) // 5  # split point
+        print(sp)
         day_ft_generator = mt.DataGenerator(day_sel_partition[:sp], tr_labels, **params)
         day_val_generator = mt.DataGenerator(day_sel_partition[sp:],  tr_labels, **params)
 
         mt.ft(h5_path + model_file, day_ft_generator, day_val_generator, epochs, save_history=True, tag='daytime')
 
         # Highway scene finetuning
-        highway_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'scene', 'highway')
+        highway_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'scene', 'highway')
         sp = 4 * len(highway_sel_partition) // 5  # split point
         highway_ft_generator = mt.DataGenerator(highway_sel_partition[:sp], tr_labels, **params)
         highway_val_generator = mt.DataGenerator(highway_sel_partition[sp:],  tr_labels, **params)
@@ -717,7 +718,7 @@ def bdd100k_local_finetune_test(model_files):
               save_history=True, tag='highway')
 
         # City street scene finetuning
-        city_street_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'scene', 'city street')
+        city_street_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'scene', 'city street')
         sp = 4 * len(city_street_sel_partition) // 5  # split point
         city_street_ft_generator = mt.DataGenerator(city_street_sel_partition[:sp], tr_labels, **params)
         city_street_val_generator = mt.DataGenerator(city_street_sel_partition[sp:], tr_labels, **params)

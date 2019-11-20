@@ -213,7 +213,7 @@ def bdd100k_model_analysis(model_file, attributes, val_labels):
             print(attribute['weaks'])
 
 
-def select_ft_data(model_file, ft_partition, n_sel_data, ft_attribute=None, ft_label=None, do_plot_boxes=False):
+def select_ft_data(model_file, ft_partition, ft_attribute=None, ft_label=None, do_plot_boxes=False):
     assert (bool(ft_attribute) == bool(ft_label))
     attributes = bdd100k_analysis(model_file, do_plot_boxes)
 
@@ -224,10 +224,10 @@ def select_ft_data(model_file, ft_partition, n_sel_data, ft_attribute=None, ft_l
 
     if ft_label and ft_attribute:
         print('Selecting data for ' + ft_attribute + ' / ' + ft_label)
-        sel_partition = local_ft_selection(attributes[ft_attribute], ft_label, ft_partition, n_sel_data)
+        sel_partition = local_ft_selection(attributes[ft_attribute], ft_label, ft_partition)
     else:
         print('Selecting data for global fine-tuning.')
-        sel_partition = global_ft_selection(attributes, ft_partition, n_sel_data)
+        sel_partition = global_ft_selection(attributes, ft_partition)
     return sel_partition
 
 
@@ -280,15 +280,15 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
     return attributes
 
 
-def local_ft_selection(attribute, label, ft_partition, n_sel_data):
+def local_ft_selection(attribute, label, ft_partition):
     sel_partition = []
     count = 0
     for data_key in ft_partition:
         if attribute['map'][attribute['dk2ak'](data_key)] == label:
             count += 1
-        sel_partition.append(data_key)
+            sel_partition.append(data_key)
     print(str(count) + " data selected.")
-    return sel_partition[:n_sel_data]
+    return sel_partition
 
 
 def global_ft_selection(attributes, ft_partition, n_sel_data):
