@@ -450,6 +450,8 @@ def train_reg(model, model_type, tr_data, val_data, tag, epochs, data_augmentati
 
 
 def ft(model_filepath, ft_gen, val_gen, epochs, save_history=False, tag=''):
+    h5_path = '../res/h5/'
+    tb_path = '../res/logs/'
     # finetune
     model_file = model_filepath.split("/")[-1]
     extension = model_filepath.split(".")[-1]
@@ -460,7 +462,8 @@ def ft(model_filepath, ft_gen, val_gen, epochs, save_history=False, tag=''):
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
 
-    checkpoint = ModelCheckpoint(model_file.rstrip('.'+extension) + '_'+tag + '_ftep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+    checkpoint = ModelCheckpoint(h5_path + model_file.rstrip('.'+extension)
+                                 + '_'+tag + '_ftep{epoch:02d}_vl{val_loss:.2f}.hdf5',
                                  monitor='val_acc',
                                  verbose=0,
                                  save_best_only=True,
@@ -477,7 +480,7 @@ def ft(model_filepath, ft_gen, val_gen, epochs, save_history=False, tag=''):
                                      callbacks=[checkpoint]
                                      )
     if save_history:
-        with open(model_file.rstrip('.'+extension) + '_' + tag + '_ft_hist.pkl', 'w') as fd:
+        with open(tb_path + model_file.rstrip('.'+extension) + '_' + tag + '_ft_hist.pkl', 'w') as fd:
             pickle.dump(ft_history, fd)
 
 
