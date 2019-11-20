@@ -588,6 +588,7 @@ def confusion(model='densenet121'):
 
 
 def main():
+    return 
     # initialise.init()
     # colorcube_analysis()
     # histogram_analysis()
@@ -597,7 +598,7 @@ def main():
     # data_analysis()
     # confusion()
     # select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', [], 0, do_plot_boxes=True)
-    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5', do_plot_boxes=True)
+    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5', do_plot_boxes=True)
     # bdd100k_cc_analysis()
 
 main()
