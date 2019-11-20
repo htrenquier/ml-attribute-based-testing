@@ -282,12 +282,12 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
 
 def local_ft_selection(attribute, label, ft_partition, n_sel_data):
     sel_partition = []
+    count = 0
     for data_key in ft_partition:
-        count = 0
         if attribute['map'][attribute['dk2ak'](data_key)] == label:
             count += 1
         sel_partition.append(data_key)
-
+    print(str(count) + " data selected.")
     return sel_partition[:n_sel_data]
 
 
@@ -588,7 +588,7 @@ def confusion(model='densenet121'):
 
 
 def main():
-    return 
+    return
     # initialise.init()
     # colorcube_analysis()
     # histogram_analysis()

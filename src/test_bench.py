@@ -699,7 +699,7 @@ def bdd100k_local_finetune_test(model_files):
         # daytime timeofday finetuning
         # Selected data partition
         day_sel_partition = analyse.select_ft_data(model_file, ft_partition, n_sel_data, 'timeofday', 'daytime',
-                                                   do_plot_boxes=True)
+                                                   do_plot_boxes=False)
         # Generators
         day_ft_generator = mt.DataGenerator(day_sel_partition[:300000], tr_labels, **params)
         day_val_generator = mt.DataGenerator(day_sel_partition[300000:],  tr_labels, **params)
