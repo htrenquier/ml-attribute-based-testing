@@ -460,7 +460,7 @@ def ft(model_filepath, ft_gen, val_gen, epochs, save_history=False, tag=''):
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
 
-    checkpoint = ModelCheckpoint(model_file.rstrip('.'+extension) + '_ftep{epoch:02d}_vl{val_loss:.2f}.hdf5',
+    checkpoint = ModelCheckpoint(model_file.rstrip('.'+extension) + '_'+tag + '_ftep{epoch:02d}_vl{val_loss:.2f}.hdf5',
                                  monitor='val_acc',
                                  verbose=0,
                                  save_best_only=True,
