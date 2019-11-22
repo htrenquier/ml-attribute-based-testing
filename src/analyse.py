@@ -170,12 +170,12 @@ class DiscreteAttribute:
         return self.metrics[name].global_mean()
 
 
-def bdd100k_discrete_attribute_analyse(model_file, attribute, data_ids, y_scores, img_ids):
+def bdd100k_discrete_attribute_analyse(model_file, attribute, data_ids, y_metrics):
     res_file = csv_path + model_file.split('_')[0] + '_' + attribute['name'] + '_res_metrics.csv'
 
     for metric in attribute['metrics']:
-        for i in data_ids:
-            attribute['d_attribute'].add_value(metric, y_scores[i], attribute['dk2ak'](img_ids[i]))
+        for i in xrange(len(data_ids)):
+            attribute['d_attribute'].add_value(metric, y_metrics[metric][i], attribute['dk2ak'](data_ids[i]))
 
     fd = open(res_file, 'w')
     for metric in attribute['metrics']:
@@ -193,24 +193,24 @@ def bdd100k_model_analysis(model_file, attributes, val_labels):
     threshold = 0
     pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
     predictions, y_scores, img_ids = dt.get_scores_from_file(csv_path + pr_file, val_labels)
-    # 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000,
-    for n_data in [100000]:
-        # test_subset creation
-        top_n_args, bot_n_args = dt.get_topbot_n_args(n_data, y_scores)
-        for attribute in attributes.values():
-            # Attribute init + analysis
-            attribute['d_attribute'] = DiscreteAttribute(attribute['map'])
-            for metric in attribute['metrics']:
-                attribute['d_attribute'].add_metric(metric)
-            bdd100k_discrete_attribute_analyse(model_file, attribute, bot_n_args, y_scores, img_ids)
-            for mc, metric in enumerate(attribute['metrics']):
-                for lc, label_mean in enumerate(attribute['d_attribute'].get_metric_means(metric)):
-                    # print(c, label_mean, attr_mean - threshold)
-                    metric_mean = attribute['d_attribute'].get_metric_global_mean(metric)
-                    if label_mean < metric_mean - threshold:
-                        attribute['weaks'][mc].append(attribute['d_attribute'].get_labels()[lc])
+    y_acc = [int(np.argmax(predictions[i]) == val_labels[i]) for i in img_ids]
+    print('Model Accuracy:', np.mean(y_acc))
+    y_metrics = {'score': y_scores, 'acc': y_acc}
+    # top_n_args, bot_n_args = dt.get_topbot_n_args(n_data, y_scores)
+    for attribute in attributes.values():
+        # Attribute init + analysis
+        attribute['d_attribute'] = DiscreteAttribute(attribute['map'])
+        for metric in attribute['metrics']:
+            attribute['d_attribute'].add_metric(metric)
+        bdd100k_discrete_attribute_analyse(model_file, attribute, img_ids, y_metrics)
+        for mc, metric in enumerate(attribute['metrics']):
+            for lc, label_mean in enumerate(attribute['d_attribute'].get_metric_means(metric)):
+                # print(c, label_mean, attr_mean - threshold)
+                metric_mean = attribute['d_attribute'].get_metric_global_mean(metric)
+                if label_mean < metric_mean - threshold:
+                    attribute['weaks'][mc].append(attribute['d_attribute'].get_labels()[lc])
 
-            print(attribute['weaks'])
+            # print(attribute['weaks'])
 
 
 def select_ft_data(model_file, ft_partition, ft_attribute=None, ft_label=None, do_plot_boxes=False):
@@ -245,26 +245,26 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
                               'map': weather,
                               'dk2ak': wst_dk2ak,
                               'd_attribute': None,
-                              'metrics': ['score'],
-                              'weaks': [[]]},
+                              'metrics': ['score', 'acc'],
+                              'weaks': [[], []]},
                   'scene': {'name': 'scene',
                             'map': scene,
                             'dk2ak': wst_dk2ak,
                             'd_attribute': None,
-                            'metrics': ['score'],
-                            'weaks': [[]]},
+                            'metrics': ['score', 'acc'],
+                            'weaks': [[], []]},
                   'timeofday': {'name': 'timeofday',
                                 'map': timeofday,
                                 'dk2ak': wst_dk2ak,
                                 'd_attribute': None,
-                                'metrics': ['score'],
-                                'weaks': [[]]},
+                                'metrics': ['score', 'acc'],
+                                'weaks': [[], []]},
                   'box_size': {'name': 'box_size',
                                'map': box_size,
                                'dk2ak': box_size_dk2ak,
                                'd_attribute': None,
-                               'metrics': ['score'],
-                               'weaks': [[]]},
+                               'metrics': ['score', 'acc'],
+                               'weaks': [[], []]},
                   }
 
     bdd100k_model_analysis(model_file, attributes, val_labels)
@@ -272,10 +272,21 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
     # Score for day and night
     day_score = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'daytime')
     night_score = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'night')
-    print('Scores: day:', day_score, ' / night:', night_score)
+    print('Scores: day:', day_score, ' / night: NA - ', night_score)
+    hw_score = attributes['scene']['d_attribute'].get_metric_mean('score', 'highway')
+    cs_score = attributes['scene']['d_attribute'].get_metric_mean('score', 'city street')
+    print('Scores: highway:', hw_score, ' / city street:', cs_score)
+    # Acc for day and night
+    day_score = attributes['timeofday']['d_attribute'].get_metric_mean('acc', 'daytime')
+    night_score = attributes['timeofday']['d_attribute'].get_metric_mean('acc', 'night')
+    print('accuracies: day:', day_score, ' / night: NA - ', night_score)
+    hw_score = attributes['scene']['d_attribute'].get_metric_mean('acc', 'highway')
+    cs_score = attributes['scene']['d_attribute'].get_metric_mean('acc', 'city street')
+    print('accuracies: highway:', hw_score, ' / city street:', cs_score)
 
     if do_plot_boxes:
-        plotting.plot_discrete_attribute_scores(attributes, model_file.split('_')[0])
+        plotting.plot_discrete_attribute_scores(attributes, 'score', model_file)
+        # plotting.plot_discrete_attribute_scores(attributes, 'acc', model_file)
 
     return attributes
 
@@ -588,7 +599,6 @@ def confusion(model='densenet121'):
 
 
 def main():
-    return
     # initialise.init()
     # colorcube_analysis()
     # histogram_analysis()
@@ -598,7 +608,18 @@ def main():
     # data_analysis()
     # confusion()
     # select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', [], 0, do_plot_boxes=True)
-    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5', do_plot_boxes=True)
+
+    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', do_plot_boxes=True)
+    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5', do_plot_boxes= True)
+    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night_ftep01_vl0.16.hdf5',
+                     do_plot_boxes=True)
+    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime_ftep20_vl0.27.hdf5',
+    #                  do_plot_boxes=True)
+    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway_ftep02_vl0.22.hdf5',
+    #                  do_plot_boxes=True)
+    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street_ftep30_vl0.26.hdf5',
+                     do_plot_boxes=True)
+
     # bdd100k_cc_analysis()
 
-main()
+# main()

@@ -203,6 +203,7 @@ def n_box_plot(series, series_names, y_label=None, save=False, title=None, ax=No
     ax.boxplot(series, showfliers=False)
     ax.set_xticklabels(series_names, rotation=25, fontsize=12)
     ax.set_ylabel(y_label)
+    ax.set_ylim([0.95, 1])
     if not ax:
         plt.show()
         if save:
@@ -210,18 +211,17 @@ def n_box_plot(series, series_names, y_label=None, save=False, title=None, ax=No
         plt.close()
 
 
-def plot_discrete_attribute_scores(attributes, title):
+def plot_discrete_attribute_scores(attributes, metric, title):
     fig, axs = plt.subplots(len(attributes), figsize=(12, 8*len(attributes)))
     fig.subplots_adjust(top=0.9)
     for ca, attribute in enumerate(attributes.values()):
-        for metric in attribute['metrics']:
-            labels = attribute['d_attribute'].get_labels()
-            distrib = [int(v) for v in attribute['d_attribute'].get_distribution()]
-            series = [attribute['d_attribute'].get_metric_value_list(metric, label) for label in labels]
-            series_names = ["%s (%1.2f)" % (labels[k], distrib[k]/sum(distrib)) for k in xrange(len(labels))]
-            n_box_plot(series, series_names, metric, title=attribute['name'], ax=axs[ca])
+        labels = attribute['d_attribute'].get_labels()
+        distrib = [int(v) for v in attribute['d_attribute'].get_distribution()]
+        series = [attribute['d_attribute'].get_metric_value_list(metric, label) for label in labels]
+        series_names = ["%s (%1.2f)" % (labels[k], distrib[k]/sum(distrib)) for k in xrange(len(labels))]
+        n_box_plot(series, series_names, metric, title=attribute['name'], ax=axs[ca])
 
-    fig.suptitle(title, x=0.95, y=0.997)
+    fig.suptitle(title, x=0.85, y=0.997, fontsize=8)
     plt.show()
     plt.close()
 
