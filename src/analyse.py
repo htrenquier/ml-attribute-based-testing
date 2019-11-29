@@ -241,6 +241,10 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
     weather, scene, timeofday, wst_dk2ak = bu.wst_attribute_mapping(attr_val_file)
     box_size, box_size_dk2ak = bu.box_size_attribute_mapping(box_val_file, box_val_json)
 
+    # for attr in attributes.values():
+    #     print(attr['d_attribute'].get_labels())
+    #     print(attr['d_attribute'].get_distribution())
+
     attributes = {'weather': {'name': 'weather',
                               'map': weather,
                               'dk2ak': wst_dk2ak,
@@ -268,21 +272,6 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
                   }
 
     bdd100k_model_analysis(model_file, attributes, val_labels)
-
-    # Score for day and night
-    day_score = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'daytime')
-    night_score = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'night')
-    print('Scores: day:', day_score, ' / night: NA - ', night_score)
-    hw_score = attributes['scene']['d_attribute'].get_metric_mean('score', 'highway')
-    cs_score = attributes['scene']['d_attribute'].get_metric_mean('score', 'city street')
-    print('Scores: highway:', hw_score, ' / city street:', cs_score)
-    # Acc for day and night
-    day_score = attributes['timeofday']['d_attribute'].get_metric_mean('acc', 'daytime')
-    night_score = attributes['timeofday']['d_attribute'].get_metric_mean('acc', 'night')
-    print('accuracies: day:', day_score, ' / night: NA - ', night_score)
-    hw_score = attributes['scene']['d_attribute'].get_metric_mean('acc', 'highway')
-    cs_score = attributes['scene']['d_attribute'].get_metric_mean('acc', 'city street')
-    print('accuracies: highway:', hw_score, ' / city street:', cs_score)
 
     if do_plot_boxes:
         plotting.plot_discrete_attribute_scores(attributes, 'score', model_file)
@@ -485,7 +474,7 @@ def data_analysis():
     val_data = dt.get_data('cifar10', (40000, 50000))
     test_data = dt.get_data('cifar10', (50000, 60000))
 
-    for m in models:
+    for m in models[:1]:
         # model0, model_name0 = mt.train2(m, tr_data, val_data, 50, False, 'cifar10-2-5', h5_path)
         # model0, model_name0 = mt.train(m, 'cifar10-channelswitched', 50, data_augmentation=False, path=res_path)
         # acc, predicted_classes, y_predicted = dt.predict_and_acc(model0, test_data)
@@ -497,17 +486,44 @@ def data_analysis():
         # true_classes = np.argmax(test_data[1], axis=1)  # wrong
         true_classes = [int(k) for k in test_data[1]]
         pr = metrics.prediction_ratings(y_predicted, true_classes)
-        scores = []
+        imgs_entropies = []
 
-        for image in test_data[0]:
-            scores.append(metrics_color.colorfulness(image))
+        # for image in test_data[0]:
+        #     imgs_entropies.append(metrics_color.entropy_cc(image, 8))
+            # c, i = metrics_color.contrast_intensity(image)
+            # imgs_c.append(c)
+            # imgs_i.append(i)
 
-        max = np.max(scores)
-        index = list(scores).index(max)
-        scores.pop(index)
-        pr.pop(index)
+            # scores.append(metrics_color.colorfulness(image))
 
-        plotting.quick_plot(pr, scores, png_path+model_name0+'contrast.png')
+        sorted_e = np.argsort(imgs_entropies)
+        # id_list = [sorted_e[k] for k in [10, 100, 1000, 2000, 5000, 8000, 9000, 9900, 9990]]
+        id_list = [21, 3767, 9176, 730, 5905]
+        plotting.show_imgs(id_list, 'cdc entropy examples', test_data[0], showColorCube=True)
+
+        # pr_sorted_args = np.argsort(pr)
+        # low_e = [imgs_entropies[pr_sorted_args[k]] for k in xrange(2000)]
+        # high_e = [imgs_entropies[pr_sorted_args[k]] for k in xrange(8000, 10000)]
+        # plotting.box_plot(low_e, high_e,'low_score_e', 'high_score_e')
+
+        # pr_sorted_args = np.argsort(pr)
+        # low_c = [imgs_c[pr_sorted_args[k]] for k in xrange(2000)]
+        # high_c = [imgs_c[pr_sorted_args[k]] for k in xrange(8000, 10000)]
+        # plotting.box_plot(low_c, high_c,'low_score_c', 'high_score_c')
+        #
+        # low_i = [imgs_i[pr_sorted_args[k]] for k in xrange(2000)]
+        # high_i = [imgs_i[pr_sorted_args[k]] for k in xrange(8000, 10000)]
+        # plotting.box_plot(low_i, high_i, 'low_score_i', 'high_score_i')
+
+        # max = np.max(scores)
+        # index = list(scores).index(max)
+        # scores.pop(index)
+        # pr.pop(index)
+
+        # plotting.quick_plot(pr, scores, png_path+model_name0+'contrast.png')
+        # plotting.quick_plot(pr, imgs_c)
+        # plotting.quick_plot(pr, imgs_i)
+
 
 
 def pr_on_fair_distribution(models=['densenet121'], top_n=100, res=4):
@@ -576,6 +592,71 @@ def pr_on_fair_distribution(models=['densenet121'], top_n=100, res=4):
         sc.plot_cube(title='Scores per color for ' + m)
 
 
+def analyse_attributes(model_files):
+    for mf in model_files:
+        attributes = bdd100k_analysis(mf, do_plot_boxes=False)
+        if '_ref' in mf:
+            day_ref_scores = attributes['timeofday']['d_attribute'].get_metric_value_list('score', 'daytime')
+            night_ref_scores = attributes['timeofday']['d_attribute'].get_metric_value_list('score', 'night')
+            hw_ref_scores = attributes['scene']['d_attribute'].get_metric_value_list('score', 'highway')
+            cs_ref_scores = attributes['scene']['d_attribute'].get_metric_value_list('score', 'city street')
+            day_ref_acc = attributes['timeofday']['d_attribute'].get_metric_mean('acc', 'daytime')
+            night_ref_acc = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'night')
+            hw_ref_acc = attributes['scene']['d_attribute'].get_metric_mean('score', 'highway')
+            cs_ref_acc = attributes['scene']['d_attribute'].get_metric_mean('score', 'city street')
+        else:
+            # Score for day and night
+            day_score = attributes['timeofday']['d_attribute'].get_metric_value_list('score', 'daytime')
+            night_score = attributes['timeofday']['d_attribute'].get_metric_value_list('score', 'night')
+            hw_score = attributes['scene']['d_attribute'].get_metric_value_list('score', 'highway')
+            cs_score = attributes['scene']['d_attribute'].get_metric_value_list('score', 'city street')
+            day_acc = attributes['timeofday']['d_attribute'].get_metric_mean('acc', 'daytime')
+            night_acc = attributes['timeofday']['d_attribute'].get_metric_mean('score', 'night')
+            hw_acc = attributes['scene']['d_attribute'].get_metric_mean('score', 'highway')
+            cs_acc = attributes['scene']['d_attribute'].get_metric_mean('score', 'city street')
+
+            print('Scores: day: %.4f (mean: %.4f / median: %.4f / Q.9: %.4f / acc: %.4f) \n'
+                  '      night: %.4f (mean: %.4f / median: %.4f / Q.9: %.4f / acc: %.4f)'
+                  % (np.mean(day_score), np.mean(day_score) - np.mean(day_ref_scores),
+                     np.median(day_score) - np.median(day_ref_scores),
+                     np.quantile(day_score, 0.9) - np.quantile(day_ref_scores, 0.9),
+                     day_acc - day_ref_acc,
+                     np.mean(night_score), np.mean(night_score) - np.mean(night_ref_scores),
+                     np.median(night_score) - np.median(night_ref_scores),
+                     np.quantile(night_score, 0.9) - np.quantile(night_ref_scores, 0.9),
+                     night_acc - night_ref_acc))
+            print('Scores: highway: %.4f (mean: %.4f / median: %.4f / Q.9: %.4f / acc: %.4f) \n'
+                  '    city street: %.4f (mean: %.4f / median: %.4f / Q.9: %.4f / acc: %.4f)'
+                  % (np.mean(hw_score), np.mean(hw_score) - np.mean(hw_ref_scores),
+                     np.median(hw_score) - np.median(hw_ref_scores),
+                     np.quantile(hw_score, 0.9) - np.quantile(hw_ref_scores, 0.9),
+                     hw_acc - hw_ref_acc,
+                     np.mean(cs_score), np.mean(cs_score) - np.mean(cs_ref_scores),
+                     np.median(cs_score) - np.median(cs_ref_scores),
+                     np.quantile(cs_score, 0.9) - np.quantile(cs_ref_scores, 0.9),
+                     cs_acc - cs_ref_acc))
+
+            print('%.4f, %.4f, %.4f, %.4f, %.4f\n'
+                  '%.4f, %.4f, %.4f, %.4f, %.4f'
+                  % (np.mean(day_score), np.mean(day_score) - np.mean(day_ref_scores),
+                     np.median(day_score) - np.median(day_ref_scores),
+                     np.quantile(day_score, 0.9) - np.quantile(day_ref_scores, 0.9),
+                     day_acc - day_ref_acc,
+                     np.mean(night_score), np.mean(night_score) - np.mean(night_ref_scores),
+                     np.median(night_score) - np.median(night_ref_scores),
+                     np.quantile(night_score, 0.9) - np.quantile(night_ref_scores, 0.9),
+                     night_acc - night_ref_acc))
+            print('%.4f, %.4f, %.4f, %.4f, %.4f\n'
+                  '%.4f, %.4f, %.4f, %.4f, %.4f'
+                  % (np.mean(hw_score), np.mean(hw_score) - np.mean(hw_ref_scores),
+                     np.median(hw_score) - np.median(hw_ref_scores),
+                     np.quantile(hw_score, 0.9) - np.quantile(hw_ref_scores, 0.9),
+                     hw_acc - hw_ref_acc,
+                     np.mean(cs_score), np.mean(cs_score) - np.mean(cs_ref_scores),
+                     np.median(cs_score) - np.median(cs_ref_scores),
+                     np.quantile(cs_score, 0.9) - np.quantile(cs_ref_scores, 0.9),
+                     cs_acc - cs_ref_acc))
+
 def confusion(model='densenet121'):
     # Load test data and model results
     test_data = dt.get_data('cifar10', (50000, 60000))
@@ -599,27 +680,16 @@ def confusion(model='densenet121'):
 
 
 def main():
-    # initialise.init()
+    initialise.init()
     # colorcube_analysis()
     # histogram_analysis()
     # entropy_cc_analysis()
     # colorfulness_analysis()
     # r_on_fair_distribution()
-    # data_analysis()
+    data_analysis()
     # confusion()
     # select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', [], 0, do_plot_boxes=True)
-
     # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', do_plot_boxes=True)
-    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5', do_plot_boxes= True)
-    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night_ftep01_vl0.16.hdf5',
-                     do_plot_boxes=True)
-    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime_ftep20_vl0.27.hdf5',
-    #                  do_plot_boxes=True)
-    # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway_ftep02_vl0.22.hdf5',
-    #                  do_plot_boxes=True)
-    bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street_ftep30_vl0.26.hdf5',
-                     do_plot_boxes=True)
-
     # bdd100k_cc_analysis()
 
-# main()
+main()

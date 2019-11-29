@@ -260,12 +260,9 @@ def colorfulness(image):
     return stdroot + (0.3 * meanroot)
 
 
-def contrast(img):
-    img_ycc = cv2.cvtColor(img, cv2.COLOR_RGB2YCR_CB)
-    m = np.mean(img_ycc[0])
-    vmin, vmax = np.min(img_ycc[0]), np.max(img_ycc[0])
-    return m/(vmax-vmin)
-
+def contrast_intensity(img):
+    img_lab = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
+    return np.std(img_lab[:,:,0].flatten()), np.mean(img_lab[:,:,0].flatten())
 
 
 # ====== # Finetuning # ====== #

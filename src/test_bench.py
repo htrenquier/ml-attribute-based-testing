@@ -29,6 +29,7 @@ import plotting
 import tests_logging as t_log
 import analyse
 import pickle
+import os
 
 from datetime import datetime
 from nltk.corpus import wordnet as wn
@@ -498,7 +499,7 @@ def train_bdd100k_cl():
                             )
 
 
-def load_model_test(model_files):
+def load_model_test(model_files, overwrite=False):
     labels_path = '../../bdd100k/classification/labels/'
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
     val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
@@ -511,9 +512,8 @@ def load_model_test(model_files):
 
     n_test_data = 100000
 
-    print('cm')
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
-    print('cm ok')
+
     # Datasets
     val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
 
@@ -524,18 +524,23 @@ def load_model_test(model_files):
     print(label_distrib)
 
     for model_file in model_files:
+        predictions_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
+
+        if os.path.isfile(predictions_file) and not overwrite:
+            print('File ' + predictions_file + ' already exists. Not written.')
+            return
+
         start_time = datetime.now()
         m = load_model(h5_path + model_file)
         print('File successfully loaded', model_file, 'in', str(datetime.now() - start_time))
 
-        print("Validation ")
-        start_time = datetime.now()
+        # print("Validation ")
+        # start_time = datetime.now()
         # print(m.metrics_names)
         # print(m.evaluate_generator(validation_generator))
         # print('Model successfully evaluated', model_file, 'in (s)', str(datetime.now() - start_time))
 
         print('Writing predictions')
-        predictions_file = '.'.join(model_file.split('.')[:-1])+'_predictions.csv'
         out_pr = open(csv_path + predictions_file, 'w')
 
         start_time = datetime.now()
@@ -658,7 +663,7 @@ def bdd100k_global_finetune_test(model_files):
 
 def bdd100k_local_finetune_test(model_files):
     labels_path = '../../bdd100k/classification/labels/'
-    train_labels = '../../bdd100k/classification/labels/train_ground_truth.csv'
+    train_labels_csv = '../../bdd100k/classification/labels/train_ground_truth.csv'
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
     val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
 
@@ -666,53 +671,79 @@ def bdd100k_local_finetune_test(model_files):
     params = {'dim': (64, 64, 3),
               'batch_size': 32,
               'n_classes': 10,
-              'shuffle': False}
+              'shuffle': True}
     epochs = 30
     class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
 
     # Datasets
-    tr_partition, tr_labels = bu.get_ids_labels(train_labels, class_map_file)
+    tr_partition, tr_labels = bu.get_ids_labels(train_labels_csv, class_map_file)
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
 
     for model_file in model_files:
         ft_partition = tr_partition[500000:1000000]
 
-        # daytime timeofday finetuning
-        # Selected data partition
-        day_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'timeofday', 'daytime',
-                                                   do_plot_boxes=False)
-        # Generators
-        sp = 4 * len(day_sel_partition) // 5  # split point
-        day_ft_generator = mt.DataGenerator(day_sel_partition[:sp], tr_labels, **params)
-        day_val_generator = mt.DataGenerator(day_sel_partition[sp:],  tr_labels, **params)
+        if 'densenet121' in model_file:
+            ref_generator = mt.DataGenerator(tr_partition[:300000], tr_labels, **params)
+            val_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
 
-        mt.ft(h5_path + model_file, day_ft_generator, day_val_generator, epochs, save_history=True, tag='daytime')
+            mt.ft(h5_path + model_file, ref_generator, val_generator, epochs, save_history=True, tag='ref2')
+            mt.ft(h5_path + model_file, ref_generator, val_generator, epochs, save_history=True, tag='ref3')
 
-        # Night timeofday finetuning
-        night_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'timeofday', 'night')
-        sp = 4 * len(night_sel_partition) // 5  # split point
-        night_ft_generator = mt.DataGenerator(night_sel_partition[:sp], tr_labels, **params)
-        night_val_generator = mt.DataGenerator(night_sel_partition[sp:], tr_labels, **params)
+        else:
 
-        mt.ft(h5_path + model_file, night_ft_generator, night_val_generator, epochs,
-              save_history=True, tag='night')
+            ref_generator = mt.DataGenerator(tr_partition[:300000], tr_labels, **params)
+            val_generator = mt.DataGenerator(val_partition[:100000], val_labels, **params)
 
-        # Highway scene finetuning
-        highway_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'scene', 'highway')
-        sp = 4 * len(highway_sel_partition) // 5  # split point
-        highway_ft_generator = mt.DataGenerator(highway_sel_partition[:sp], tr_labels, **params)
-        highway_val_generator = mt.DataGenerator(highway_sel_partition[sp:],  tr_labels, **params)
+            mt.ft(h5_path + model_file, ref_generator, val_generator, epochs, save_history=True, tag='ref2')
+            mt.ft(h5_path + model_file, ref_generator, val_generator, epochs, save_history=True, tag='ref3')
 
-        mt.ft(h5_path + model_file, highway_ft_generator, highway_val_generator, epochs,
-              save_history=True, tag='highway')
+            epochs = 15
+            # daytime timeofday finetuning
+            # Selected data partition
+            day_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'timeofday', 'daytime',
+                                                       do_plot_boxes=False)
+            # Generators
+            sp = 4 * len(day_sel_partition) // 5  # split point
+            day_ft_generator = mt.DataGenerator(day_sel_partition[:sp], tr_labels, **params)
+            day_val_generator = mt.DataGenerator(day_sel_partition[sp:],  tr_labels, **params)
 
-        # City street scene finetuning
-        city_street_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'scene', 'city street')
-        sp = 4 * len(city_street_sel_partition) // 5  # split point
-        city_street_ft_generator = mt.DataGenerator(city_street_sel_partition[:sp], tr_labels, **params)
-        city_street_val_generator = mt.DataGenerator(city_street_sel_partition[sp:], tr_labels, **params)
+            mt.ft(h5_path + model_file, day_ft_generator, day_val_generator, epochs, save_history=True, tag='daytime2')
+            mt.ft(h5_path + model_file, day_ft_generator, day_val_generator, epochs, save_history=True, tag='daytime3')
 
-        mt.ft(h5_path + model_file, city_street_ft_generator, city_street_val_generator, epochs,
-              save_history=True, tag='city_street')
+            # Night timeofday finetuning
+            night_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'timeofday', 'night')
+            sp = 4 * len(night_sel_partition) // 5  # split point
+            night_ft_generator = mt.DataGenerator(night_sel_partition[:sp], tr_labels, **params)
+            night_val_generator = mt.DataGenerator(night_sel_partition[sp:], tr_labels, **params)
+
+            mt.ft(h5_path + model_file, night_ft_generator, night_val_generator, epochs,
+                  save_history=True, tag='night2')
+            mt.ft(h5_path + model_file, night_ft_generator, night_val_generator, epochs,
+                  save_history=True, tag='night3')
+
+            # Highway scene finetuning
+            highway_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'scene', 'highway')
+            sp = 4 * len(highway_sel_partition) // 5  # split point
+            highway_ft_generator = mt.DataGenerator(highway_sel_partition[:sp], tr_labels, **params)
+            highway_val_generator = mt.DataGenerator(highway_sel_partition[sp:],  tr_labels, **params)
+
+            mt.ft(h5_path + model_file, highway_ft_generator, highway_val_generator, epochs,
+                  save_history=True, tag='highway2')
+            mt.ft(h5_path + model_file, highway_ft_generator, highway_val_generator, epochs,
+                  save_history=True, tag='highway3')
+
+            # City street scene finetuning
+            city_street_sel_partition = analyse.select_ft_data(model_file, ft_partition, 'scene', 'city street')
+            sp = 4 * len(city_street_sel_partition) // 5  # split point
+            city_street_ft_generator = mt.DataGenerator(city_street_sel_partition[:sp], tr_labels, **params)
+            city_street_val_generator = mt.DataGenerator(city_street_sel_partition[sp:], tr_labels, **params)
+
+            mt.ft(h5_path + model_file, city_street_ft_generator, city_street_val_generator, epochs,
+                  save_history=True, tag='city_street2')
+            mt.ft(h5_path + model_file, city_street_ft_generator, city_street_val_generator, epochs,
+                  save_history=True, tag='city_street3')
+
+
 
 
 def show_history_test(filenames, path):
@@ -778,10 +809,18 @@ def subset_selection_test():
         print(d_tod.get_labels()[k] + "\t" + " ".join([str(val) for val in scene_tod_distrib[k]]))
 
 
+def cc_grant():
+    img_name = '/Users/user/Desktop/grant.jpg'
+    cc = metrics_color.ColorDensityCube(64)
+    img = cv2.imread(img_name)
+    cc.feed(img)
+    cc.normalize()
+    cc.plot_cube()
+
+
 def main():
     initialise.init()
     # Tests
-    # test()
     # show_distribution()
     # retinanet_train()
     # retinanet_tiny_train()
@@ -795,40 +834,56 @@ def main():
     # check_obj_annotations()
     # test_extract_non_superposing_boxes()
     # classification_dataset()
+    # cc_grant()
+    # return
 
+    history_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ref_hist.pkl',
+                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street_ft_hist.pkl',
+                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime_ft_hist.pkl',
+                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway_ft_hist.pkl',
+                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night_ft_hist.pkl',
+                     # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_hist.pkl',
+                     ]
 
     model_files = [
-                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime_ftep20_vl0.27.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway_ftep02_vl0.22.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street_ftep30_vl0.26.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night_ftep01_vl0.16.hdf5',
-                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+
                    'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_ref_ftep02_vl0.23.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_city_street_ftep04_vl0.23.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_daytime_ftep03_vl0.25.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_highway_ftep01_vl0.21.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_night_ftep01_vl0.16.hdf5',
+
                    'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
-                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5']
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_ref_ftep10_vl0.26.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_city_street_ftep05_vl0.23.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_daytime_ftep07_vl0.25.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_highway_ftep07_vl0.24.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_night_ftep04_vl0.16.hdf5',
+
+                   # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5',
+                   # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5',
+
                    ]
-    # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_day_ep06_vl0.24.hdf5']
-    # model_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5']
+
 
     # load_model_test(model_files)
 
     # bdd100k_sel_partition_test()
     # bdd100k_global_finetune_test()
     bdd100k_local_finetune_test(model_files)
-    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ft_hist.pkl'
-    history_files = ['densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ref_hist.pkl',
-                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street_ft_hist.pkl',
-                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime_ft_hist.pkl',
-                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway_ft_hist.pkl',
-                     'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night_ft_hist.pkl']
 
     # show_history_test(history_files, log_path)
-
-
     # show_history_test(tb_path + )
     # subset_selection_test()
-
     # adjectives_finding_test()
     # train_bdd100k_cl()
 
