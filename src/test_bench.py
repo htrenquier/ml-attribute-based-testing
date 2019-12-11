@@ -500,6 +500,10 @@ def train_bdd100k_cl():
 
 
 def load_model_test(model_files, overwrite=False):
+    for model_file in model_files:
+        m = load_model(h5_path + model_file)
+        m.summary()
+    return
     labels_path = '../../bdd100k/classification/labels/'
     val_labels_csv = '../../bdd100k/classification/labels/val_ground_truth.csv'
     val_json = '../../bdd100k/labels/bdd100k_labels_images_val.json'
@@ -825,7 +829,9 @@ def main():
     # retinanet_train()
     # retinanet_tiny_train()
     # retinanet_test()
-
+    # analyse.entropy_cc_analysis()
+    # analyse.histogram_analysis()
+    # analyse.colorcube_analysis()
     # imagenet_test()
     # cifar_color_domains_test()
     # show_ids()
@@ -846,26 +852,57 @@ def main():
                      ]
 
     model_files = [
-                   'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime_ftep20_vl0.27.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night_ftep01_vl0.16.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway_ftep02_vl0.22.hdf5',
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street_ftep30_vl0.26.hdf5',
-                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night_ftep01_vl0.16.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ref2_ft_ep05_vl0.25.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime2_ftep04_vl0.24.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night2_ftep03_vl0.15.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway2_ftep02_vl0.21.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street2_ftep04_vl0.21.hdf5',
+                   'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_ref3_ft_ep11_vl0.23.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_daytime3_ftep06_vl0.24.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_night3_ftep01_vl0.15.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_highway3_ftep02_vl0.21.hdf5',
+                   # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_city_street3_ftep14_vl0.25.hdf5',
 
-                   'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24.hdf5',
                    # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_ref_ftep02_vl0.23.hdf5',
-                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_city_street_ftep04_vl0.23.hdf5',
                    # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_daytime_ftep03_vl0.25.hdf5',
-                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_highway_ftep01_vl0.21.hdf5',
                    # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_night_ftep01_vl0.16.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_highway_ftep01_vl0.21.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_city_street_ftep04_vl0.23.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_ref2_ft_ep02_vl0.25.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_daytime2_ft_ep02_vl0.23.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_night2_ft_ep03_vl0.16.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_highway2_ft_ep01_vl0.20.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_city_street2_ft_ep01_vl0.21.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_ref3_ft_ep01_vl0.26.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_daytime3_ft_ep02_vl0.23.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_night3_ft_ep01_vl0.15.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_highway3_ft_ep01_vl0.20.hdf5',
+                   # 'mobilenet_bdd100k_cl0-500k_20ep_woda_ep15_vl0.24_city_street3_ft_ep02_vl0.21.hdf5',
 
-                   'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22.hdf5',
                    # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_ref_ftep10_vl0.26.hdf5',
-                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_city_street_ftep05_vl0.23.hdf5',
                    # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_daytime_ftep07_vl0.25.hdf5',
-                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_highway_ftep07_vl0.24.hdf5',
                    # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_night_ftep04_vl0.16.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_highway_ftep07_vl0.24.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_city_street_ftep05_vl0.23.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_ref2_ft_ep01_vl0.21.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_daytime2_ft_ep08_vl0.25.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_night2_ft_ep03_vl0.15.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_highway2_ft_ep04_vl0.21.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_city_street2_ft_ep01_vl0.21.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_city_street2_ft_ep02_vl0.22.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_ref3_ft_ep10_vl0.23.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_daytime3_ft_ep02_vl0.23.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_night3_ft_ep03_vl0.15.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_highway3_ft_ep02_vl0.24.hdf5',
+                   # 'mobilenetv2_bdd100k_cl0-500k_20ep_woda_ep17_vl0.22_city_street3_ft_ep02_vl0.22.hdf5',
 
                    # 'nasnet_bdd100k_cl0-500k_20ep_woda_ep17_vl0.24.hdf5',
                    # 'resnet50_bdd100k_cl0-500k_20ep_woda_ep13_vl0.27.hdf5',
@@ -873,19 +910,25 @@ def main():
                    # 'densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22_refep30_vl0.23.hdf5',
 
                    ]
-
-
+    # plotting.imshow(cv2.imread('../../bdd100k/classification/images/val/bbadf190-864c9a43-9.jpg'))
+    # return
+    # for mf in model_files:
+    #     analyse.bdd100k_analysis(mf, do_plot_boxes=True)
+    # analyse.analyse_attributes(model_files)
+    # analyse.bdd100k_compare(model_files[1], model_files[0], 'scene', 'score')
     # load_model_test(model_files)
 
     # bdd100k_sel_partition_test()
     # bdd100k_global_finetune_test()
-    bdd100k_local_finetune_test(model_files)
+    # bdd100k_local_finetune_test(model_files)
 
     # show_history_test(history_files, log_path)
     # show_history_test(tb_path + )
     # subset_selection_test()
     # adjectives_finding_test()
     # train_bdd100k_cl()
+
+    plotting.color_3channels_hist('/Users/user/Desktop/IEEEAITEST/grant.jpg')
 
 
 

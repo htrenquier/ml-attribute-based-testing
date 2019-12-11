@@ -122,7 +122,7 @@ class DiscreteAttribute:
         return self.uniques[0][id]
 
     def flush(self):
-        for m in metrics.values():
+        for m in self.metrics.values():
             m.flush()
 
     def get_labels(self):
@@ -241,6 +241,8 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
     weather, scene, timeofday, wst_dk2ak = bu.wst_attribute_mapping(attr_val_file)
     box_size, box_size_dk2ak = bu.box_size_attribute_mapping(box_val_file, box_val_json)
 
+    # show_worst(model_file, 10, 'daytime', timeofday, dk2ak=wst_dk2ak)
+
     # for attr in attributes.values():
     #     print(attr['d_attribute'].get_labels())
     #     print(attr['d_attribute'].get_distribution())
@@ -278,6 +280,56 @@ def bdd100k_analysis(model_file, do_plot_boxes=False):
         # plotting.plot_discrete_attribute_scores(attributes, 'acc', model_file)
 
     return attributes
+
+
+def bdd100k_compare(model_file, ref_file, attribute, metric):
+    class_map_file = bu.class_mapping(input_json=val_json, output_csv=labels_path + 'class_mapping.csv')
+
+    # Dataset for analysis
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
+
+    # Attribute mapping and data_key to attr_key function (dk2ak)
+    weather, scene, timeofday, wst_dk2ak = bu.wst_attribute_mapping(attr_val_file)
+    box_size, box_size_dk2ak = bu.box_size_attribute_mapping(box_val_file, box_val_json)
+
+    attributes = {'weather': {'name': 'weather',
+                              'map': weather,
+                              'dk2ak': wst_dk2ak,
+                              'd_attribute': None,
+                              'metrics': ['score', 'acc'],
+                              'weaks': [[], []]},
+                  'scene': {'name': 'scene',
+                            'map': scene,
+                            'dk2ak': wst_dk2ak,
+                            'd_attribute': None,
+                            'metrics': ['score', 'acc'],
+                            'weaks': [[], []]},
+                  'timeofday': {'name': 'timeofday',
+                                'map': timeofday,
+                                'dk2ak': wst_dk2ak,
+                                'd_attribute': None,
+                                'metrics': ['score', 'acc'],
+                                'weaks': [[], []]},
+                  'box_size': {'name': 'box_size',
+                               'map': box_size,
+                               'dk2ak': box_size_dk2ak,
+                               'd_attribute': None,
+                               'metrics': ['score', 'acc'],
+                               'weaks': [[], []]},
+                  }
+
+    bdd100k_model_analysis(model_file, attributes, val_labels)
+    labels = attributes[attribute]['d_attribute'].get_labels()
+    distrib = [int(v) for v in attributes[attribute]['d_attribute'].get_distribution()]
+    series = [attributes[attribute]['d_attribute'].get_metric_value_list(metric, label) for label in labels]
+    series_names = ["%s (%1.2f)" % (labels[k], distrib[k] / sum(distrib)) for k in xrange(len(labels))]
+    attributes[attribute]['d_attribute'].flush()
+
+    bdd100k_model_analysis(ref_file, attributes, val_labels)
+    series_ref = [attributes[attribute]['d_attribute'].get_metric_value_list(metric, label) for label in labels]
+
+    plotting.n_box_plot_compare(series, series_ref, series_names, metric)
+
 
 
 def local_ft_selection(attribute, label, ft_partition):
@@ -362,12 +414,12 @@ def colorcube_analysis():
     # m = 'densenet121'
     for m in models:
         test_data = dt.get_data('cifar10', (50000, 60000))
-        top_n = 2500
-        # model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
-        model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False, suffix='ft20ep-exp')
+        top_n = 2000
+        model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
+        # model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False, suffix='ft20ep-exp')
         model = mt.load_by_name(model_name0, test_data[0].shape[1:], h5_path+model_name0)
-        y_predicted = model.predict(np.array(test_data[0]))
-        # y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
+        # y_predicted = model.predict(np.array(test_data[0]))
+        y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
         true_classes = [int(k) for k in test_data[1]]
         scores = metrics.prediction_ratings(y_predicted, true_classes)
         score_sorted_ids = np.argsort(scores)
@@ -382,19 +434,19 @@ def colorcube_analysis():
             cc_low.feed(test_data[0][img_id])
         cc_low.normalize()
 
-        cc_diff = cc_high.substract(cc_low, 'norm')
+        cc_diff = cc_high.substract(cc_low, 'value')
 
         cc_low.plot_cube()
 
-        # cc_diff.normalize()
-        cc_diff.plot_cube(title='Color cube analysis difference (' + str(top_n) + ' images/series)', normalize=False,
+        cc_diff.normalize()
+        cc_diff.plot_cube(title='Color cube analysis difference (' + str(top_n) + ' images/series)', normalize=True,
                           save=True)
 
 
 def histogram_analysis():
     m = 'densenet121'
     test_data = dt.get_data('cifar10', (50000, 60000))
-    top_n = 1000
+    top_n = 2000
     model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
     y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
     true_classes = [int(k) for k in test_data[1]]
@@ -406,8 +458,8 @@ def histogram_analysis():
         high_score_series.append(test_data[0][score_sorted_ids[-k-1]])
         low_score_series.append(test_data[0][score_sorted_ids[k]])
 
-    plotting.plot_hists(high_score_series, 'high scores', low_score_series, 'low scores', plotting.cs_bgr,
-                        title='Histogram analysis (' + str(top_n) + ' images/series)')
+    plotting.plot_hists(high_score_series, 'high scores', low_score_series, 'low scores', plotting.cs_bgr, title=' ')
+                        # title='Histogram analysis (' + str(top_n) + ' images/series)')
 
 
 def colorfulness_analysis(model='densenet121', top_n=2500):
@@ -446,7 +498,7 @@ def colorfulness_analysis(model='densenet121', top_n=2500):
 def entropy_cc_analysis():
     m = 'densenet121'
     test_data = dt.get_data('cifar10', (50000, 60000))
-    top_n = 2500
+    top_n = 2000
 
     model_name0 = mt.weight_file_name(m, 'cifar10-2-5', 50, False)
     y_predicted = t_log.load_predictions(model_name0, file_path=csv_path)
@@ -464,8 +516,8 @@ def entropy_cc_analysis():
         low_score_entropies.append(metrics_color.entropy_cc(test_data[0][score_sorted_ids[k]], 8))
 
     plotting.box_plot(high_score_entropies, low_score_entropies, name_s1='high prediction scores',
-                      name_s2='low prediction scores',y_label='Color cube entropy',
-                      title='Entropy analysis (' + str(top_n) + ' images/series)')
+                      name_s2='low prediction scores', y_label='Color entropy',
+                      title='Color entropy analysis (' + str(top_n) + ' images/series)')
 
 
 def data_analysis():
@@ -523,8 +575,6 @@ def data_analysis():
         # plotting.quick_plot(pr, scores, png_path+model_name0+'contrast.png')
         # plotting.quick_plot(pr, imgs_c)
         # plotting.quick_plot(pr, imgs_i)
-
-
 
 def pr_on_fair_distribution(models=['densenet121'], top_n=100, res=4):
     test_data = dt.get_data('cifar10', (50000, 60000))
@@ -619,43 +669,81 @@ def analyse_attributes(model_files):
                   '      night: %.4f (mean: %.4f / median: %.4f / Q.9: %.4f / acc: %.4f)'
                   % (np.mean(day_score), np.mean(day_score) - np.mean(day_ref_scores),
                      np.median(day_score) - np.median(day_ref_scores),
-                     np.quantile(day_score, 0.9) - np.quantile(day_ref_scores, 0.9),
+                     np.quantile(day_score, 0.1) - np.quantile(day_ref_scores, 0.1),
                      day_acc - day_ref_acc,
                      np.mean(night_score), np.mean(night_score) - np.mean(night_ref_scores),
                      np.median(night_score) - np.median(night_ref_scores),
-                     np.quantile(night_score, 0.9) - np.quantile(night_ref_scores, 0.9),
+                     np.quantile(night_score, 0.1) - np.quantile(night_ref_scores, 0.1),
                      night_acc - night_ref_acc))
             print('Scores: highway: %.4f (mean: %.4f / median: %.4f / Q.9: %.4f / acc: %.4f) \n'
                   '    city street: %.4f (mean: %.4f / median: %.4f / Q.9: %.4f / acc: %.4f)'
                   % (np.mean(hw_score), np.mean(hw_score) - np.mean(hw_ref_scores),
                      np.median(hw_score) - np.median(hw_ref_scores),
-                     np.quantile(hw_score, 0.9) - np.quantile(hw_ref_scores, 0.9),
+                     np.quantile(hw_score, 0.1) - np.quantile(hw_ref_scores, 0.1),
                      hw_acc - hw_ref_acc,
                      np.mean(cs_score), np.mean(cs_score) - np.mean(cs_ref_scores),
                      np.median(cs_score) - np.median(cs_ref_scores),
-                     np.quantile(cs_score, 0.9) - np.quantile(cs_ref_scores, 0.9),
+                     np.quantile(cs_score, 0.1) - np.quantile(cs_ref_scores, 0.1),
                      cs_acc - cs_ref_acc))
 
+
+            print(',Difference fine-tuning/reference')
+            print('Mean score,	Mean score,	Median,	Quantile (90%),	Local accuracy')
             print('%.4f, %.4f, %.4f, %.4f, %.4f\n'
                   '%.4f, %.4f, %.4f, %.4f, %.4f'
                   % (np.mean(day_score), np.mean(day_score) - np.mean(day_ref_scores),
                      np.median(day_score) - np.median(day_ref_scores),
-                     np.quantile(day_score, 0.9) - np.quantile(day_ref_scores, 0.9),
+                     np.quantile(day_score, 0.1) - np.quantile(day_ref_scores, 0.1),
                      day_acc - day_ref_acc,
                      np.mean(night_score), np.mean(night_score) - np.mean(night_ref_scores),
                      np.median(night_score) - np.median(night_ref_scores),
-                     np.quantile(night_score, 0.9) - np.quantile(night_ref_scores, 0.9),
+                     np.quantile(night_score, 0.1) - np.quantile(night_ref_scores, 0.1),
                      night_acc - night_ref_acc))
             print('%.4f, %.4f, %.4f, %.4f, %.4f\n'
                   '%.4f, %.4f, %.4f, %.4f, %.4f'
                   % (np.mean(hw_score), np.mean(hw_score) - np.mean(hw_ref_scores),
                      np.median(hw_score) - np.median(hw_ref_scores),
-                     np.quantile(hw_score, 0.9) - np.quantile(hw_ref_scores, 0.9),
+                     np.quantile(hw_score, 0.1) - np.quantile(hw_ref_scores, 0.1),
                      hw_acc - hw_ref_acc,
                      np.mean(cs_score), np.mean(cs_score) - np.mean(cs_ref_scores),
                      np.median(cs_score) - np.median(cs_ref_scores),
-                     np.quantile(cs_score, 0.9) - np.quantile(cs_ref_scores, 0.9),
+                     np.quantile(cs_score, 0.1) - np.quantile(cs_ref_scores, 0.1),
                      cs_acc - cs_ref_acc))
+
+
+def show_worst(model_file, n, attribute, mapping, dk2ak=None):
+    # Dataset for analysis
+    val_partition, val_labels = bu.get_ids_labels(val_labels_csv, class_map_file)
+    pr_file = '.'.join(model_file.split('.')[:-1]) + '_predictions.csv'
+    predictions, y_scores, img_ids = dt.get_scores_from_file(csv_path + pr_file, val_labels)
+    args_sorted_scores = np.argsort(y_scores)
+
+    shift = 10
+    worst_ids = []
+    i = 0
+    while len(worst_ids) < n + shift:
+        if dk2ak:
+            key = dk2ak(img_ids[args_sorted_scores[i]])
+        else:
+            key = img_ids[args_sorted_scores[i]]
+        if mapping[key] == attribute:
+            worst_ids.append(img_ids[args_sorted_scores[i]])
+        i += 1
+
+    data = []
+    tag_list = []
+    for id in worst_ids:
+        print(id)
+        data.append(cv2.imread(id))
+        tag_list.append(str(np.argmax(predictions[id])) + ' (' + str(val_labels[id]) + ')')
+
+    print(np.array(data).shape)
+    plotting.show_imgs(xrange(shift, n + shift), 'Worst of ' + attribute, data, tag_list)
+
+    return worst_ids
+
+
+
 
 def confusion(model='densenet121'):
     # Load test data and model results
@@ -686,10 +774,10 @@ def main():
     # entropy_cc_analysis()
     # colorfulness_analysis()
     # r_on_fair_distribution()
-    data_analysis()
+    # data_analysis()
     # confusion()
     # select_ft_data('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', [], 0, do_plot_boxes=True)
     # bdd100k_analysis('densenet121_bdd100k_cl0-500k_20ep_woda_ep20_vl0.22.hdf5', do_plot_boxes=True)
     # bdd100k_cc_analysis()
 
-main()
+# main()

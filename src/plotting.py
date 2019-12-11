@@ -1,5 +1,6 @@
 from __future__ import division
 import matplotlib.pyplot as plt
+import matplotlib.transforms as transform
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from keras.preprocessing import image
 import numpy as np
@@ -147,6 +148,32 @@ def delta_hist(images1, images2):
     return delta
 
 
+def color_3channels_hist(image_file):
+    image = cv2.imread(image_file)
+    chans = cv2.split(image)
+    colors = ("b", "g", "r")
+    plt.figure()
+    # plt.title("'Color image's Color Histogram")
+    plt.xlabel("Pixel value")
+    plt.ylabel("Amount of pixels")
+    features = []
+
+    # loop over the image channels
+    for (chan, color) in zip(chans, colors):
+        # create a histogram for the current channel and
+        # concatenate the resulting histograms for each
+        # channel
+        hist = cv2.calcHist([chan], [0], None, [256], [0, 256])
+        features.extend(hist)
+
+        # plot the histogram
+        # plt.legend(loc='upper right', shadow=True, fontsize='medium')
+        plt.plot(hist, color=color)
+        plt.xlim([0, 256])
+    plt.show()
+    plt.close
+
+
 def plot_delta(images1, images2, color_space):
     images1 = convert_cs(images1, color_space)
     images2 = convert_cs(images2, color_space)
@@ -201,14 +228,62 @@ def n_box_plot(series, series_names, y_label=None, save=False, title=None, ax=No
     if title:
         ax.set_title(title)
     ax.boxplot(series, showfliers=False)
-    ax.set_xticklabels(series_names, rotation=25, fontsize=12)
-    ax.set_ylabel(y_label)
-    ax.set_ylim([0.95, 1])
+    ax.set_xticklabels(series_names, rotation=25, fontsize=20)
+    ax.set_ylabel(y_label, fontsize=20)
+    ax.set_ylim([0.95, 1.001])
     if not ax:
         plt.show()
         if save:
             plt.savefig(title + '.png')
         plt.close()
+
+
+def n_box_plot_compare(series, ref_series, series_names, y_label=None, save=False, title=None):
+    def setBoxColors(bp):
+        plt.setp(bp['boxes'][0], color='black')
+        plt.setp(bp['caps'][0], color='black')
+        plt.setp(bp['caps'][1], color='black')
+        plt.setp(bp['whiskers'][0], color='black')
+        plt.setp(bp['whiskers'][1], color='black')
+        plt.setp(bp['medians'][0], color='black')
+
+        plt.setp(bp['boxes'][1], color='grey')
+        plt.setp(bp['caps'][2], color='grey')
+        plt.setp(bp['caps'][3], color='grey')
+        plt.setp(bp['whiskers'][2], color='grey')
+        plt.setp(bp['whiskers'][3], color='grey')
+        plt.setp(bp['medians'][1], color='grey')
+
+    fig, ax = plt.subplots()
+    if title:
+        ax.set_title(title)
+    # plt.hold(True)
+
+    # (r, g, b, a) = (0.8, 0.8, 0.8, 0.8)
+    pos = 0
+    ticks = [0]
+    series_names.insert(0, '')
+    for k in xrange(len(series)):
+        bp = plt.boxplot([series[k], ref_series[k]], positions=[pos+1,pos+2], widths=0.6, showfliers=False)
+        setBoxColors(bp)
+        ticks.append(pos+1.5)
+        pos += 3
+
+    ax.set_xticks(ticks)
+    ax.set_xticklabels(series_names, rotation=25, fontsize=12)
+    ax.set_ylabel(y_label)
+    ax.set_ylim([0.95, 1.001])
+
+    hB, = plt.plot([1, 1], color='black', marker='_')
+    hR, = plt.plot([1, 1], color='grey', marker='_')
+    plt.legend((hB, hR), ('Fine-tuned', 'Reference'), loc='lower right')
+    hB.set_visible(False)
+    hR.set_visible(False)
+
+    plt.show()
+    if save:
+        plt.savefig(title + '.png')
+    plt.close()
 
 
 def plot_discrete_attribute_scores(attributes, metric, title):
@@ -219,9 +294,9 @@ def plot_discrete_attribute_scores(attributes, metric, title):
         distrib = [int(v) for v in attribute['d_attribute'].get_distribution()]
         series = [attribute['d_attribute'].get_metric_value_list(metric, label) for label in labels]
         series_names = ["%s (%1.2f)" % (labels[k], distrib[k]/sum(distrib)) for k in xrange(len(labels))]
-        n_box_plot(series, series_names, metric, title=attribute['name'], ax=axs[ca])
+        n_box_plot(series, series_names, metric, title='', ax=axs[ca])  # title=attribute['name'], ax=axs[ca])
 
-    fig.suptitle(title, x=0.85, y=0.997, fontsize=8)
+    # fig.suptitle(title, x=0.80, y=0.997, fontsize=8)
     plt.show()
     plt.close()
 
@@ -281,7 +356,7 @@ def plot_cube(color_cube, fig=None, save=False, title=None, path='', normalize=T
     plt.close()
 
 
-def show_imgs(id_list, title, dataset, showColorCube=False, resolution=16):  # list of img list
+def show_imgs(id_list, title, dataset, tag_list=None, showColorCube=False, resolution=16):  # list of img list
         n_images = min(10, len(id_list))
         if n_images >= 1:
             fig, axes = plt.subplots(1 + showColorCube, n_images, squeeze=False, figsize=(n_images, 12),
@@ -294,14 +369,18 @@ def show_imgs(id_list, title, dataset, showColorCube=False, resolution=16):  # l
                     img_id = id_list[i]
                     cc.feed(dataset[img_id])
                     ax.imshow(dataset[img_id], vmin=0, vmax=1)
-                    # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
+                    if tag_list:
+                        ax.set_title(tag_list[i])
+                        # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
                 plot_cube(cc, fig)
             else:
                 for i in xrange(n_images):
-                    ax = axes[i]
+                    ax = axes[0][i]
                     img_id = id_list[i]
                     ax.imshow(dataset[img_id], vmin=0, vmax=1)
-                    # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
+                    if tag_list:
+                        ax.set_title(tag_list[i])
+                        # ax.set_title('label #' + str(id_list) + ' (' + str(i) + '/' + str(len(id_list)) + ' images)')
             if title:
                 fig.suptitle(title + ' - label #' + str(id_list))
             # fig.subplots_adjust()
@@ -318,3 +397,5 @@ def plot_history(history, metric_name='acc', title='model'):
     plt.xlabel('Epoch')
     plt.legend(['Train', 'val'], loc='upper left')
     plt.show()
+
+
